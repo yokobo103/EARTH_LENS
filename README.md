@@ -102,7 +102,9 @@ Mission 01〜08の定義は`src/missions/catalog.ts`、共通状態遷移は`src
 
 Mission typeは回答方式ではなく考え方を分類します。現在は`bottleneck | barrier | gateway | shortcut | hub | resource | terrain`を使用し、回答方式はすべてLocationです。
 
-Mission rewardはLens unlockではありません。Lensは観測道具として最初から利用でき、達成報酬は場所固有のTravel Stickerです。Stickerは`MissionSticker.image`があれば画像を表示し、未指定時はMission番号・目的地・地理icon・silhouetteを組み合わせたCSS placeholderを表示します。正式画像は`public`または`src/assets`へ追加し、Mission dataの`image`だけ差し替えます。
+Mission rewardはLens unlockではありません。Lensは観測道具として最初から利用でき、達成報酬は場所固有のTravel Stickerです。現在のMission 01〜08は、プロジェクトオーナー提供のコンセプトシートから透明背景WebPへ切り出したartworkを`src/assets/stickers/`から表示します。未取得Missionは答えを隠すため、従来のMission番号・地理icon・silhouetteによるCSS placeholderを維持します。
+
+`tools/build-stickers.py <owner-supplied-sheet.jpg>`でruntime用WebPを再生成できます。元シートは公開bundleへ含めません。コンセプトシート上のLithium / RiftはMISSION 08 / 09表記ですが、現行catalogでは07 / 08のため、artworkを描き換えずUIのcanonical number tabで覆います。
 
 将来候補（今回は実装しないものを含む）:
 
@@ -258,7 +260,7 @@ GEBCOは将来の`BATHYMETRY / OCEAN FLOOR` Lens候補として記録します�
 - Mission正解は海峡Polygonではなく代表座標から500 km以内の距離判定です。手動探索で海峡西側を選んでも意図が通る幅へ調整しています。
 - Shipping ActivityとRegional Signalは探索体験用の模式表現で、交通量や地理的影響範囲を定量化していません。
 - Mission中の選択地点と開示中Hintはページ再読み込みでリセットされますが、完了記録、best rank、best hint数、累積attemptはブラウザへ保存します。account / cloud syncはありません。
-- Sticker artworkはv0.4ではCSS製の高品質placeholderです。参照画像の切り抜きや転載は行っていません。
+- 完成済みMissionはオーナー提供画像由来のWebP artwork、未取得MissionはCSS silhouetteです。画像の外部配布元や第三者権利は独立検証していないため、公開利用の根拠はオーナーからの明示的な利用依頼です。
 - Terrain Lensはimagery調整であり、標高値、斜面、可視遮蔽、3D地形geometryを提供しません。
 - Physical Featureのellipseは概略footprintで、実測境界や地質Polygonではありません。
 - Portsは港湾施設やterminal境界ではなく、実在港湾地域を示す概略デモPointです。

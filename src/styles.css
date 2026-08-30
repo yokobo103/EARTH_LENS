@@ -47,7 +47,7 @@ body { overscroll-behavior: none; }
 .language-selector button[aria-pressed="true"] { color: var(--cyan); border-color: rgb(121 227 210 / 25%); background: rgb(121 227 210 / 7%); }
 .ja-ui { font-family: "Yu Gothic UI", "Hiragino Sans", "Noto Sans JP", ui-sans-serif, sans-serif; }
 .ja-ui .glass-panel h1, .ja-ui .glass-panel h2, .ja-ui .glass-panel h3, .ja-ui .glass-panel p, .ja-ui .glass-panel small, .ja-ui .glass-panel dt, .ja-ui .glass-panel dd, .ja-ui button { letter-spacing: .04em; }
-.mode-selector { position: absolute; z-index: 7; top: 20px; left: 50%; display: flex; gap: 4px; padding: 4px; transform: translateX(-50%); border: 1px solid var(--line); background: rgb(4 15 19 / 82%); backdrop-filter: blur(12px); }
+.mode-selector { position: absolute; z-index: 7; top: 20px; left: 50%; display: flex; gap: 4px; padding: 4px; transform: translateX(-50%); pointer-events: auto; border: 1px solid var(--line); background: rgb(4 15 19 / 82%); backdrop-filter: blur(12px); }
 .mode-selector button { min-width: 82px; padding: 7px 10px; color: #617a78; border: 1px solid transparent; background: transparent; cursor: pointer; font: 700 9px ui-monospace, monospace; letter-spacing: .12em; }
 .mode-selector button[aria-pressed="true"] { color: var(--cyan); border-color: rgb(121 227 210 / 32%); background: rgb(121 227 210 / 8%); box-shadow: inset 0 0 14px rgb(121 227 210 / 5%); }
 .glass-panel {
@@ -337,6 +337,11 @@ body { overscroll-behavior: none; }
 .rank-stamp { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; transform: rotate(9deg); color: #7f301f; border: 2px double #8e3b29; border-radius: 50%; background: rgb(234 214 174 / 28%); font: 900 15px Georgia, serif; font-style: normal; }
 .sticker-acquired { display: grid; gap: 9px; margin: 14px 0; padding: 12px; color: #f0c883; text-align: center; border: 1px solid rgb(255 180 84 / 22%); background: rgb(43 28 10 / 25%); font: 750 8px ui-monospace, monospace; letter-spacing: .1em; }
 .travel-sticker.is-compact { width: 150px; min-height: 132px; margin: auto; }
+.travel-sticker.has-artwork { display: block; min-height: 0; padding: 0; overflow: visible; clip-path: none; border: 0; border-radius: 0; outline: 0; background: transparent; box-shadow: none; }
+.travel-sticker.has-artwork::before { display: none; }
+.travel-sticker.has-artwork img { display: block; width: 100%; height: auto; filter: drop-shadow(2px 4px 4px rgb(46 31 13 / 30%)); }
+.sticker-artwork-number { position: absolute; z-index: 1; top: 7%; left: 50%; min-width: 70px; padding: 2px 6px; transform: translateX(-50%); color: #f8ead0; border: 1px solid rgb(239 211 157 / 55%); border-radius: 10px; background: rgb(5 22 29 / 86%); font: 800 8px/1.2 ui-monospace, monospace; letter-spacing: .06em; text-align: center; white-space: nowrap; }
+.sticker-custom.has-artwork .sticker-artwork-number { top: 17%; }
 .collect-sticker-button { width: 100%; margin-top: 12px; padding: 11px; color: #211407; border: 1px solid #e9c07a; background: #e9c07a; cursor: pointer; font: 800 8px ui-monospace, monospace; letter-spacing: .09em; }
 .passport-back-button { margin-bottom: 12px; padding: 5px 8px; color: #9e805b; border: 1px solid rgb(255 180 84 / 18%); background: transparent; cursor: pointer; font: 700 7px ui-monospace, monospace; letter-spacing: .08em; }
 .mission-lens-kit { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgb(255 180 84 / 15%); }
