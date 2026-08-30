@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "source": "EARTH LENS v0.3 authored major-port demo",
+    "license": "Project-authored demo; approximate representative city coordinates",
+    "updatedAt": "2026-08-29",
+    "confidence": "medium",
+    "dataKind": "demo",
+    "classifications": ["demo", "derived"],
+    "note": "Real port regions represented by approximate city-scale points; not terminal or harbor boundaries."
+  },
+  "features": [
+    { "id": "port-singapore", "name": "SINGAPORE", "latitude": 1.264, "longitude": 103.840, "region": "Southeast Asia", "type": "Major port region" },
+    { "id": "port-shanghai", "name": "SHANGHAI", "latitude": 31.230, "longitude": 121.490, "region": "East Asia", "type": "Major port region" },
+    { "id": "port-rotterdam", "name": "ROTTERDAM", "latitude": 51.950, "longitude": 4.140, "region": "Western Europe", "type": "Major port region" },
+    { "id": "port-los-angeles", "name": "LOS ANGELES / LONG BEACH", "latitude": 33.740, "longitude": -118.230, "region": "North America West Coast", "type": "Major port region" },
+    { "id": "port-busan", "name": "BUSAN", "latitude": 35.100, "longitude": 129.040, "region": "East Asia", "type": "Major port region" },
+    { "id": "port-jebel-ali", "name": "JEBEL ALI", "latitude": 25.010, "longitude": 55.060, "region": "Middle East", "type": "Major port region" },
+    { "id": "port-klang", "name": "PORT KLANG", "latitude": 3.000, "longitude": 101.390, "region": "Southeast Asia", "type": "Major port region" },
+    { "id": "port-colombo", "name": "COLOMBO", "latitude": 6.950, "longitude": 79.840, "region": "Indian Ocean", "type": "Major port region" },
+    { "id": "port-yokohama", "name": "YOKOHAMA / TOKYO BAY", "latitude": 35.450, "longitude": 139.650, "region": "East Asia", "type": "Major port region" },
+    { "id": "port-suez", "name": "SUEZ / PORT SAID", "latitude": 30.100, "longitude": 32.550, "region": "Mediterranean / Red Sea", "type": "Canal port region" },
+    { "id": "port-durban", "name": "DURBAN", "latitude": -29.870, "longitude": 31.050, "region": "Southern Africa", "type": "Major port region" },
+    { "id": "port-mumbai", "name": "MUMBAI / NHAVA SHEVA", "latitude": 18.950, "longitude": 72.950, "region": "Indian Ocean", "type": "Major port region" },
+    { "id": "port-panama", "name": "PANAMA CANAL PORTS", "latitude": 9.050, "longitude": -79.600, "region": "Central America", "type": "Canal port region" },
+    { "id": "port-santos", "name": "SANTOS", "latitude": -23.960, "longitude": -46.300, "region": "South America", "type": "Major port region" },
+    { "id": "port-new-york", "name": "NEW YORK / NEW JERSEY", "latitude": 40.680, "longitude": -74.050, "region": "North America East Coast", "type": "Major port region" }
+  ]
+}

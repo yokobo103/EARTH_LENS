@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "source": "EARTH LENS v0.1 design brief",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-27",
+    "confidence": "low",
+    "dataKind": "demo",
+    "note": "Abstract regional endpoints only. Connections are illustrative and do not depict named systems, landing stations, capacity, ownership, or seabed routes."
+  },
+  "connections": [
+    {"id":"pacific-demo","name":"Pacific Demo Connection","endpoints":[{"name":"Japan","latitude":35.4,"longitude":140.2},{"name":"US West Coast","latitude":37.7,"longitude":-122.5}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"japan-sea-demo","name":"Japan–Southeast Asia Demo Connection","endpoints":[{"name":"Japan","latitude":35.4,"longitude":140.2},{"name":"Southeast Asia","latitude":1.3,"longitude":103.8}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"singapore-india-demo","name":"Singapore–India Demo Connection","endpoints":[{"name":"Singapore","latitude":1.3,"longitude":103.8},{"name":"India","latitude":13.0,"longitude":80.2}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"singapore-middle-east-demo","name":"Singapore–Middle East Demo Connection","endpoints":[{"name":"Singapore","latitude":1.3,"longitude":103.8},{"name":"Middle East","latitude":25.2,"longitude":55.3}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"middle-east-europe-demo","name":"Middle East–Western Europe Demo Connection","endpoints":[{"name":"Middle East","latitude":25.2,"longitude":55.3},{"name":"Western Europe","latitude":43.3,"longitude":-9.0}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"atlantic-demo","name":"Atlantic Demo Connection","endpoints":[{"name":"Western Europe","latitude":50.1,"longitude":-5.5},{"name":"US East Coast","latitude":40.5,"longitude":-73.9}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"americas-demo","name":"Americas Demo Connection","endpoints":[{"name":"South America","latitude":-23.0,"longitude":-43.2},{"name":"United States","latitude":25.8,"longitude":-80.2}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true},
+    {"id":"australia-asia-demo","name":"Australia–Southeast Asia Demo Connection","endpoints":[{"name":"Australia","latitude":-33.9,"longitude":151.2},{"name":"Southeast Asia","latitude":1.3,"longitude":103.8}],"routeType":"schematic","actualRouteRepresented":false,"confidence":"low","demo":true}
+  ]
+}

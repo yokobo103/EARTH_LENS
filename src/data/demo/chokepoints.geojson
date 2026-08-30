@@ -1,0 +1,20 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "EARTH LENS editorial demo dataset",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Choke_point",
+    "license": "CC0-1.0 for this original demo compilation; linked pages are reference only",
+    "updatedAt": "2026-08-27",
+    "confidence": "high",
+    "dataKind": "demo",
+    "note": "Approximate center points for interaction design; not navigational data."
+  },
+  "features": [
+    {"type":"Feature","id":"strait-of-malacca","geometry":{"type":"Point","coordinates":[101.2,2.5]},"properties":{"name":"Strait of Malacca","type":"Maritime strait","description":"A narrow sea passage linking the Indian Ocean and the South China Sea."}},
+    {"type":"Feature","id":"strait-of-hormuz","geometry":{"type":"Point","coordinates":[56.3,26.6]},"properties":{"name":"Strait of Hormuz","type":"Maritime strait","description":"The narrow outlet connecting the Persian Gulf with the Gulf of Oman."}},
+    {"type":"Feature","id":"suez-canal","geometry":{"type":"Point","coordinates":[32.35,30.45]},"properties":{"name":"Suez Canal","type":"Canal","description":"A constructed waterway connecting the Mediterranean Sea and the Red Sea."}},
+    {"type":"Feature","id":"panama-canal","geometry":{"type":"Point","coordinates":[-79.68,9.08]},"properties":{"name":"Panama Canal","type":"Canal","description":"A constructed waterway connecting the Atlantic and Pacific oceans."}},
+    {"type":"Feature","id":"bab-el-mandeb","geometry":{"type":"Point","coordinates":[43.35,12.58]},"properties":{"name":"Bab el-Mandeb","type":"Maritime strait","description":"The passage between the Red Sea and Gulf of Aden."}},
+    {"type":"Feature","id":"bosporus","geometry":{"type":"Point","coordinates":[29.05,41.12]},"properties":{"name":"Bosporus","type":"Maritime strait","description":"A narrow waterway linking the Black Sea with the Sea of Marmara."}}
+  ]
+}

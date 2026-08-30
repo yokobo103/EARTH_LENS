@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "source": "EARTH LENS v0.3 authored shipping-flow demo",
+    "license": "Project-authored demo; no external route geometry",
+    "updatedAt": "2026-08-29",
+    "confidence": "low",
+    "dataKind": "demo",
+    "classifications": ["demo", "schematic", "derived"],
+    "note": "Conceptual region-to-region flow only. No AIS, traffic volume, or actual navigation route is represented."
+  },
+  "connections": [
+    { "id": "flow-east-asia-europe", "name": "EAST ASIA ↔ EUROPE FLOW", "endpoints": [
+      { "name": "East Asia", "latitude": 25.0, "longitude": 122.0 },
+      { "name": "Singapore / Malacca", "latitude": 2.3, "longitude": 101.5 },
+      { "name": "Indian Ocean", "latitude": 6.0, "longitude": 72.0 },
+      { "name": "Middle East", "latitude": 13.0, "longitude": 48.0 },
+      { "name": "Suez", "latitude": 29.8, "longitude": 32.5 },
+      { "name": "Western Europe", "latitude": 51.5, "longitude": 3.5 }
+    ]},
+    { "id": "flow-japan-southeast-asia", "name": "JAPAN ↔ SOUTHEAST ASIA FLOW", "endpoints": [
+      { "name": "Japan", "latitude": 35.0, "longitude": 139.0 },
+      { "name": "South China Sea", "latitude": 14.0, "longitude": 114.0 },
+      { "name": "Singapore / Malacca", "latitude": 2.3, "longitude": 101.5 }
+    ]},
+    { "id": "flow-australia-asia", "name": "AUSTRALIA ↔ ASIA FLOW", "endpoints": [
+      { "name": "Australia", "latitude": -27.0, "longitude": 153.0 },
+      { "name": "Southeast Asia", "latitude": -5.0, "longitude": 112.0 },
+      { "name": "Singapore / Malacca", "latitude": 2.3, "longitude": 101.5 }
+    ]},
+    { "id": "flow-india-east-asia", "name": "INDIA ↔ EAST ASIA FLOW", "endpoints": [
+      { "name": "India", "latitude": 7.0, "longitude": 79.5 },
+      { "name": "Singapore / Malacca", "latitude": 2.3, "longitude": 101.5 },
+      { "name": "East Asia", "latitude": 22.0, "longitude": 121.0 }
+    ]},
+    { "id": "flow-americas-pacific", "name": "AMERICAS ↔ PACIFIC ASIA FLOW", "endpoints": [
+      { "name": "US West Coast", "latitude": 34.0, "longitude": -120.0 },
+      { "name": "Japan", "latitude": 35.0, "longitude": 139.0 },
+      { "name": "Southeast Asia", "latitude": 9.0, "longitude": 112.0 }
+    ]},
+    { "id": "flow-south-america-atlantic", "name": "SOUTH AMERICA ↔ EUROPE FLOW", "endpoints": [
+      { "name": "South America", "latitude": -24.0, "longitude": -45.0 },
+      { "name": "Atlantic Ocean", "latitude": 8.0, "longitude": -25.0 },
+      { "name": "Western Europe", "latitude": 50.0, "longitude": 0.0 }
+    ]}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "EARTH LENS normalized demonstration, informed by USGS Mineral Commodity Summaries 2026",
+    "sourceUrl": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+    "license": "CC0-1.0 for demo values; USGS reference publications are public domain unless otherwise noted",
+    "updatedAt": "2026-08-27",
+    "confidence": "low",
+    "dataKind": "demo",
+    "note": "Values are invented normalized indices for renderer validation, not production tonnage, reserves, rankings, or official USGS statistics."
+  },
+  "features": [
+    {"type":"Feature","id":"china-rare-earths-demo","geometry":{"type":"Point","coordinates":[103.8,35.5]},"properties":{"country":"China","mineral":"Rare earths","productionIndex":94,"unit":"normalized demo index","description":"Illustrative country-level marker for a rare-earth Lens workflow."}},
+    {"type":"Feature","id":"australia-lithium-demo","geometry":{"type":"Point","coordinates":[134.5,-25.8]},"properties":{"country":"Australia","mineral":"Lithium","productionIndex":82,"unit":"normalized demo index","description":"Illustrative country-level marker for a lithium Lens workflow."}},
+    {"type":"Feature","id":"chile-copper-demo","geometry":{"type":"Point","coordinates":[-71.0,-30.0]},"properties":{"country":"Chile","mineral":"Copper","productionIndex":78,"unit":"normalized demo index","description":"Illustrative country-level marker for a copper Lens workflow."}},
+    {"type":"Feature","id":"drc-cobalt-demo","geometry":{"type":"Point","coordinates":[23.6,-2.9]},"properties":{"country":"Democratic Republic of the Congo","mineral":"Cobalt","productionIndex":91,"unit":"normalized demo index","description":"Illustrative country-level marker for a cobalt Lens workflow."}},
+    {"type":"Feature","id":"indonesia-nickel-demo","geometry":{"type":"Point","coordinates":[118.0,-2.4]},"properties":{"country":"Indonesia","mineral":"Nickel","productionIndex":88,"unit":"normalized demo index","description":"Illustrative country-level marker for a nickel Lens workflow."}}
+  ]
+}

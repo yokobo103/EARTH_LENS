@@ -1,0 +1,36 @@
+{
+  "name": "earth-lens-v0.4",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "data:geo": "node tools/build-geo.mjs",
+    "validate:geo": "node tools/verify-borders.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.1.0",
+    "cesium": "^1.144.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vite-plugin-static-copy": "^4.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "eslint": "^10.9.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.5",
+    "globals": "^17.11.0",
+    "mapshaper": "^0.7.55",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.68.0",
+    "vite": "^8.2.2"
+  }
+}
