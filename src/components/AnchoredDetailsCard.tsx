@@ -1,6 +1,6 @@
 import { getLensModule } from "../lenses/registry";
 import type { GeographicPoint, LensFeature } from "../lenses/types";
-import { localizeFeatureDescription, localizeFeatureName, localizeLensName } from "../i18n/domain";
+import { localizeFeatureDescription, localizeFeatureDisplayName, localizeLensName } from "../i18n/domain";
 import { t } from "../i18n/copy";
 import type { Locale } from "../i18n/types";
 import type { WhyHereResult } from "../why-here/types";
@@ -21,9 +21,7 @@ interface AnchoredDetailsCardProps {
 
 export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, whyHereResult, isAnalyzing, locale, onExpand, onAnalyze, onClose }: AnchoredDetailsCardProps) {
   const lens = feature ? getLensModule(feature.lensId)?.definition : undefined;
-  const featureName = feature && locale === "ja" && typeof feature.attributes.nameJa === "string"
-    ? feature.attributes.nameJa
-    : feature ? localizeFeatureName(feature.id, feature.name, locale) : "";
+  const featureName = feature ? localizeFeatureDisplayName(feature, locale) : "";
   const isOpeningRegion = !feature && Math.abs(anchorPoint.latitude - 1.264) < 0.02 && Math.abs(anchorPoint.longitude - 103.84) < 0.02;
   const title = feature ? featureName : isOpeningRegion ? (locale === "ja" ? "シンガポール地域" : "SINGAPORE REGION") : `${anchorPoint.latitude.toFixed(3)}°, ${anchorPoint.longitude.toFixed(3)}°`;
   const layerName = feature ? localizeLensName(feature.lensId, lens?.name ?? feature.lensId, locale) : isOpeningRegion ? t(locale, "regionalHub") : t(locale, "selectedLocation");

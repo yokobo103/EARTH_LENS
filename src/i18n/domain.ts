@@ -147,6 +147,15 @@ export function localizeFeatureName(featureId: string, fallback: string, locale:
   return locale === "ja" ? featureJa[featureId]?.name ?? fallback : fallback;
 }
 
+/** Keep the original port label visible beside its Japanese display name. */
+export function localizeFeatureDisplayName(feature: LensFeature, locale: Locale): string {
+  const localized = localizeFeatureName(feature.id, locale === "ja" && typeof feature.attributes.nameJa === "string" ? feature.attributes.nameJa : feature.name, locale);
+  if (locale === "ja" && feature.lensId === "major-ports" && typeof feature.attributes.nameJa === "string" && feature.name !== feature.attributes.nameJa) {
+    return `${localized} / ${feature.name}`;
+  }
+  return localized;
+}
+
 export function localizeFeatureDescription(feature: LensFeature, locale: Locale): string {
   if (locale === "en") return feature.description;
   const localizedDescription = featureJa[feature.id]?.description;

@@ -1,6 +1,6 @@
 import { getLensModule } from "../lenses/registry";
 import { t } from "../i18n/copy";
-import { localizeConfidence, localizeFeatureDescription, localizeFeatureName, localizeLensName, localizeValue } from "../i18n/domain";
+import { localizeConfidence, localizeFeatureDescription, localizeFeatureDisplayName, localizeLensName, localizeValue } from "../i18n/domain";
 import type { Locale } from "../i18n/types";
 import type { GeographicPoint, LensFeature } from "../lenses/types";
 import type { WhyHereResult } from "../why-here/types";
@@ -19,9 +19,7 @@ interface DetailsPanelProps {
 
 export function DetailsPanel({ feature, location, analysisLocation = location, whyHereResult, isAnalyzing, locale, onAnalyze, embedded = false }: DetailsPanelProps) {
   const lens = feature ? getLensModule(feature.lensId)?.definition : undefined;
-  const featureName = feature && locale === "ja" && typeof feature.attributes.nameJa === "string"
-    ? feature.attributes.nameJa
-    : feature ? localizeFeatureName(feature.id, feature.name, locale) : "";
+  const featureName = feature ? localizeFeatureDisplayName(feature, locale) : "";
   return (
     <aside className={`glass-panel details-panel${embedded ? " is-embedded" : ""}`} aria-label="Details">
       <span className="eyebrow">{t(locale, "fieldReport")}</span>
