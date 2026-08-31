@@ -24,8 +24,9 @@ export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, 
   const featureName = feature && locale === "ja" && typeof feature.attributes.nameJa === "string"
     ? feature.attributes.nameJa
     : feature ? localizeFeatureName(feature.id, feature.name, locale) : "";
-  const title = feature ? featureName : `${anchorPoint.latitude.toFixed(3)}°, ${anchorPoint.longitude.toFixed(3)}°`;
-  const layerName = feature ? localizeLensName(feature.lensId, lens?.name ?? feature.lensId, locale) : t(locale, "selectedLocation");
+  const isOpeningRegion = !feature && Math.abs(anchorPoint.latitude - 1.264) < 0.02 && Math.abs(anchorPoint.longitude - 103.84) < 0.02;
+  const title = feature ? featureName : isOpeningRegion ? (locale === "ja" ? "シンガポール地域" : "SINGAPORE REGION") : `${anchorPoint.latitude.toFixed(3)}°, ${anchorPoint.longitude.toFixed(3)}°`;
+  const layerName = feature ? localizeLensName(feature.lensId, lens?.name ?? feature.lensId, locale) : isOpeningRegion ? t(locale, "regionalHub") : t(locale, "selectedLocation");
   const description = feature ? localizeFeatureDescription(feature, locale) : t(locale, "locationScanDescription");
 
   return <section className={`anchor-card-content${expanded ? " is-expanded" : ""}`} aria-label={expanded ? t(locale, "details") : title}>

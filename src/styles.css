@@ -19,9 +19,9 @@ body { overscroll-behavior: none; }
 .provenance-note, .source-link, .observation-coordinates, .coordinate-readout { user-select: text; -webkit-touch-callout: default; }
 .app-shell { position: relative; isolation: isolate; background: radial-gradient(circle at 50% 50%, #0b2025 0%, #05090b 65%); }
 .about-splash-backdrop { position: fixed; z-index: 30; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(1 7 9 / 78%); backdrop-filter: blur(8px); }
-.about-splash { position: relative; display: grid; grid-template-columns: minmax(220px, 42%) 1fr; width: min(760px, 100%); max-height: min(720px, 92vh); overflow: hidden; border: 1px solid rgb(121 227 210 / 35%); background: linear-gradient(145deg, #0c2025, #071216 70%); box-shadow: 0 25px 90px rgb(0 0 0 / 58%), inset 0 1px 0 rgb(255 255 255 / 6%); }
-.about-splash-art { display: grid; place-items: center; min-height: 320px; overflow: hidden; background: #e8e2d4; }
-.about-splash-art img { display: block; width: 200%; max-width: none; height: auto; margin: -24% 0 0; object-fit: cover; object-position: center; }
+.about-splash { position: relative; display: grid; grid-template-columns: minmax(220px, 42%) 1fr; width: min(760px, 100%); height: min(720px, 92vh); max-height: min(720px, 92vh); overflow: hidden; border: 1px solid rgb(121 227 210 / 35%); background: linear-gradient(145deg, #0c2025, #071216 70%); box-shadow: 0 25px 90px rgb(0 0 0 / 58%), inset 0 1px 0 rgb(255 255 255 / 6%); }
+.about-splash-art { position: relative; min-height: 0; overflow: hidden; background: #e8e2d4; }
+.about-splash-art img { position: absolute; top: -28%; left: -18%; display: block; width: 350%; max-width: none; height: auto; object-fit: cover; object-position: center; }
 .about-splash-copy { display: flex; flex-direction: column; justify-content: center; padding: 42px 38px; }
 .about-splash-copy h1 { max-width: 360px; margin: 12px 0 14px; color: #eafffb; font: 720 27px/1.2 ui-monospace, monospace; letter-spacing: .04em; }
 .about-splash-copy p { max-width: 360px; margin: 0; color: #9eb8b4; font: 500 12px/1.7 ui-monospace, monospace; }
@@ -389,7 +389,7 @@ body { overscroll-behavior: none; }
 
 @media (max-width: 820px) {
   .about-splash-backdrop { align-items: end; padding: 10px; }
-  .about-splash { grid-template-columns: 1fr; width: min(520px, 100%); max-height: calc(100vh - 20px); overflow: auto; }
+  .about-splash { grid-template-columns: 1fr; width: min(520px, 100%); height: auto; max-height: calc(100vh - 20px); overflow: auto; }
   .about-splash-art { height: min(49vh, 470px); min-height: 230px; }
   .about-splash-copy { padding: 22px 20px 24px; }
   .about-splash-copy h1 { margin: 9px 0 10px; font-size: 21px; }
