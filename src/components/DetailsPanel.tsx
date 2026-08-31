@@ -9,19 +9,21 @@ import { WhyHerePanel } from "./WhyHerePanel";
 interface DetailsPanelProps {
   feature: LensFeature | null;
   location: GeographicPoint | null;
+  analysisLocation?: GeographicPoint | null;
   whyHereResult: WhyHereResult | null;
   isAnalyzing: boolean;
   locale: Locale;
   onAnalyze: () => void;
+  embedded?: boolean;
 }
 
-export function DetailsPanel({ feature, location, whyHereResult, isAnalyzing, locale, onAnalyze }: DetailsPanelProps) {
+export function DetailsPanel({ feature, location, analysisLocation = location, whyHereResult, isAnalyzing, locale, onAnalyze, embedded = false }: DetailsPanelProps) {
   const lens = feature ? getLensModule(feature.lensId)?.definition : undefined;
   const featureName = feature && locale === "ja" && typeof feature.attributes.nameJa === "string"
     ? feature.attributes.nameJa
     : feature ? localizeFeatureName(feature.id, feature.name, locale) : "";
   return (
-    <aside className="glass-panel details-panel" aria-label="Details">
+    <aside className={`glass-panel details-panel${embedded ? " is-embedded" : ""}`} aria-label="Details">
       <span className="eyebrow">{t(locale, "fieldReport")}</span>
       <h2>{t(locale, "details")}</h2>
       {!feature && !location ? (
@@ -81,6 +83,7 @@ export function DetailsPanel({ feature, location, whyHereResult, isAnalyzing, lo
           {feature.provenance.sourceUrl && (
             <a className="source-link" href={feature.provenance.sourceUrl} target="_blank" rel="noreferrer">{t(locale, "viewReference")}</a>
           )}
+          {analysisLocation && <WhyHerePanel result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} />}
         </div>
       ) : location ? (
         <div className="location-details">

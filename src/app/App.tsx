@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppMode } from "./types";
 import { CompactSheet, type CompactSheetTab } from "../components/CompactSheet";
-import { DetailsPanel } from "../components/DetailsPanel";
+import { AnchoredDetailsCard } from "../components/AnchoredDetailsCard";
 import { LayerPanel } from "../components/LayerPanel";
 import { LanguageSelector } from "../components/LanguageSelector";
 import { ModeSelector } from "../components/ModeSelector";
@@ -27,7 +27,7 @@ import { analyzeLocation } from "../why-here/analyzeLocation";
 import type { WhyHereResult } from "../why-here/types";
 
 type MissionView = "passport" | "field";
-type CompactPanel = "lenses" | "details" | "time" | "briefing" | "answer" | "result";
+type CompactPanel = "briefing" | "answer" | "result";
 const defaultMission = getDefaultMission();
 
 export function App() {
@@ -50,6 +50,8 @@ export function App() {
   const [missionLensIds, setMissionLensIds] = useState(() => new Set(defaultLensIds));
   const [selectedFeature, setSelectedFeature] = useState<LensFeature | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [anchorPoint, setAnchorPoint] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [anchorExpanded, setAnchorExpanded] = useState(false);
   const [whyHereResult, setWhyHereResult] = useState<WhyHereResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [temporalSelection, setTemporalSelection] = useState<TemporalSelection>({ mode: "present", ageMa: 0 });
@@ -58,36 +60,35 @@ export function App() {
 
   const toggleExploreLens = (lensId: string) => setActiveLensIds((current) => toggleSetValue(current, lensId));
   const toggleMissionLens = (lensId: string) => setMissionLensIds((current) => toggleSetValue(current, lensId));
-  const selectFeature = (feature: LensFeature) => { setSelectedFeature(feature); setSelectedLocation(null); setWhyHereResult(null); };
-  const handleGlobeFeature = (feature: LensFeature) => {
+  const clearSelection = () => { setSelectedFeature(null); setSelectedLocation(null); setAnchorPoint(null); setAnchorExpanded(false); setWhyHereResult(null); };
+  const selectFeature = (feature: LensFeature, anchor: { latitude: number; longitude: number }) => { setSelectedFeature(feature); setSelectedLocation(null); setAnchorPoint(anchor); setAnchorExpanded(false); setWhyHereResult(null); };
+  const handleGlobeFeature = (feature: LensFeature, anchor: { latitude: number; longitude: number }) => {
     if (appMode === "mission") {
       setSelectedFeature(feature);
       setMissionState((state) => selectMissionFeature(state, feature));
       if (isCompact) setCompactPanel("answer");
     } else {
-      selectFeature(feature);
-      if (isCompact) setCompactPanel("details");
+      selectFeature(feature, anchor);
     }
   };
-  const selectLocation = (location: { latitude: number; longitude: number }) => { setSelectedLocation(location); setSelectedFeature(null); setWhyHereResult(null); };
+  const selectLocation = (location: { latitude: number; longitude: number }) => { setSelectedLocation(location); setSelectedFeature(null); setAnchorPoint(location); setAnchorExpanded(false); setWhyHereResult(null); };
   const handleGlobeLocation = (location: { latitude: number; longitude: number }) => {
     if (appMode === "mission") {
       setMissionState((state) => selectMissionLocation(state, location));
       if (isCompact) setCompactPanel("answer");
     } else {
       selectLocation(location);
-      if (isCompact) setCompactPanel("details");
     }
   };
-  const runWhyHere = async () => { if (!selectedLocation) return; setIsAnalyzing(true); try { setWhyHereResult(await analyzeLocation(selectedLocation, 500)); } finally { setIsAnalyzing(false); } };
-  const changeTime = (selection: TemporalSelection) => { setTemporalSelection(selection); setSelectedFeature(null); setSelectedLocation(null); setWhyHereResult(null); };
+  const runWhyHere = async () => { if (!anchorPoint) return; setIsAnalyzing(true); try { setWhyHereResult(await analyzeLocation(anchorPoint, 500)); } finally { setIsAnalyzing(false); } };
+  const changeTime = (selection: TemporalSelection) => { setTemporalSelection(selection); clearSelection(); };
   const changeMode = (mode: AppMode) => {
-    setAppMode(mode); setCompactPanel(null); setSelectedFeature(null); setSelectedLocation(null); setWhyHereResult(null);
+    setAppMode(mode); setCompactPanel(null); clearSelection();
     if (mode === "mission") { setMissionView("passport"); setTemporalSelection({ mode: "present", ageMa: 0 }); }
   };
   const startMission = (missionId: string) => {
     const mission = getMission(missionId); if (!mission) return;
-    setMissionState(createMissionState(mission)); setMissionLensIds(new Set(defaultLensIds)); setSelectedFeature(null); setMissionView("field"); setNewlyCollectedId(null); setCompactPanel(null);
+    setMissionState(createMissionState(mission)); setMissionLensIds(new Set(defaultLensIds)); clearSelection(); setMissionView("field"); setNewlyCollectedId(null); setCompactPanel(null);
   };
   const collectSticker = () => { setNewlyCollectedId(currentMission.id); setMissionView("passport"); setCompactPanel(null); };
   const submitMissionAnswer = () => {
@@ -107,18 +108,12 @@ export function App() {
   const missionFocus = missionState.status === "completed"
     ? currentMission.target
     : cameraEffect?.type === "camera-focus" ? { ...cameraEffect.location, altitude: cameraEffect.altitude } : null;
-  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={activeLensIds} locale={locale} onToggle={toggleExploreLens} suspended={temporalSelection.mode === "deep-time"} />;
-  const detailsPanel = <DetailsPanel feature={selectedFeature} location={selectedLocation} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={() => { void runWhyHere(); }} />;
+  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} suspended={appMode === "explore" && temporalSelection.mode === "deep-time"} />;
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
-  const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} lenses={displayLenses} activeLensIds={missionLensIds} onToggleLens={toggleMissionLens} onOpenPassport={() => { setMissionView("passport"); setCompactPanel(null); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
+  const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); setCompactPanel(null); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
   const missionAnswer = missionState.status === "completed"
     ? <MissionResultPanel mission={displayMission} state={missionState} locale={locale} onCollectSticker={collectSticker} />
     : <MissionObservationPanel state={missionState} locale={locale} onSubmit={submitMissionAnswer} />;
-  const exploreTabs: CompactSheetTab<CompactPanel>[] = [
-    { id: "lenses", label: t(locale, "layers"), content: layerPanel },
-    { id: "details", label: t(locale, "details"), content: detailsPanel },
-    { id: "time", label: t(locale, "deepTime"), content: timeline },
-  ];
   const missionTabs: CompactSheetTab<CompactPanel>[] = [
     { id: "briefing", label: t(locale, "mission"), content: missionPanel },
     { id: missionState.status === "completed" ? "result" : "answer", label: missionState.status === "completed" ? t(locale, "complete") : t(locale, "observationPoint"), content: missionAnswer },
@@ -126,11 +121,10 @@ export function App() {
 
   return (
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}`}>
-      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} />}
-      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong>EARTH LENS</strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><LanguageSelector locale={locale} onChange={setLocale} /><div className="mode-readout"><span>{appMode === "mission" ? t(locale, "journeyStatus") : t(locale, "activeEpoch")}</span><strong>{appMode === "mission" ? t(locale, "missionPassport") : temporalSelection.mode === "present" ? t(locale, "present") : t(locale, "age250")}</strong></div></div></header>
-      {appMode === "explore" ? (isCompact ? <CompactSheet tabs={exploreTabs} activeTab={compactPanel} onChange={setCompactPanel} /> : <>{layerPanel}{detailsPanel}{timeline}</>) : missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : isCompact ? <CompactSheet tabs={missionTabs} activeTab={compactPanel} onChange={setCompactPanel} /> : <>{missionPanel}{missionAnswer}<MissionEffectsReadout effects={missionEffects} activeLensIds={missionLensIds} locale={locale} /></>}
-      {appMode === "explore" && temporalSelection.mode === "deep-time" && <section className="paleo-notice" aria-label="Deep time status"><span>{t(locale, "deepTimePrototype")}</span><strong>{t(locale, "age250")}</strong><small>{t(locale, "schematicLandmass")}</small></section>}
-      {appMode === "explore" && !isCompact && <div className="coordinate-readout" aria-hidden="true"><span>LAT {selectedLocation ? selectedLocation.latitude.toFixed(3) : "—"}</span><span>LON {selectedLocation ? selectedLocation.longitude.toFixed(3) : "—"}</span><span>{temporalSelection.mode === "present" ? t(locale, "radius") : t(locale, "paleoSnapshot")}</span></div>}
+      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={appMode === "explore" ? anchorPoint : null} anchorExpanded={anchorExpanded} anchorContent={anchorPoint && appMode === "explore" ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onExpand={() => setAnchorExpanded(true)} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null} />}
+      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls">{appMode === "explore" && timeline}<LanguageSelector locale={locale} onChange={setLocale} />{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}</div></header>
+      {showGlobe && layerPanel}
+      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : isCompact ? <CompactSheet tabs={missionTabs} activeTab={compactPanel} onChange={setCompactPanel} /> : <>{missionPanel}{missionAnswer}<MissionEffectsReadout effects={missionEffects} activeLensIds={missionLensIds} locale={locale} /></>)}
     </main>
   );
 }

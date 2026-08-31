@@ -1,15 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import * as CesiumRuntime from "cesium";
 import {
   ArcType,
+  Cartesian2,
   Cartesian3,
   Cartographic,
   Color,
   Entity,
   Math as CesiumMath,
   PolygonHierarchy,
+  SceneTransforms,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
-  type Cartesian2,
   type Viewer,
 } from "cesium";
 import type { AppMode } from "../app/types";
@@ -30,7 +32,7 @@ import { createEarthViewer } from "./cesium/createViewer";
 
 interface EarthGlobeProps {
   activeLensIds: Set<string>;
-  onFeatureSelect: (feature: LensFeature) => void;
+  onFeatureSelect: (feature: LensFeature, anchor: GeographicPoint) => void;
   onLocationSelect: (location: { latitude: number; longitude: number }) => void;
   temporalSelection: TemporalSelection;
   appMode: AppMode;
@@ -39,7 +41,19 @@ interface EarthGlobeProps {
   ariaLabel: string;
   locale: Locale;
   selectedFeature: LensFeature | null;
+  anchorPoint: GeographicPoint | null;
+  anchorExpanded: boolean;
+  anchorContent: ReactNode;
 }
+
+interface EllipsoidalOccluderLike {
+  cameraPosition: Cartesian3;
+  isPointVisible(point: Cartesian3): boolean;
+}
+
+const EllipsoidalOccluder = (CesiumRuntime as unknown as {
+  EllipsoidalOccluder: new (ellipsoid: Viewer["scene"]["globe"]["ellipsoid"], cameraPosition?: Cartesian3) => EllipsoidalOccluderLike;
+}).EllipsoidalOccluder;
 
 function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Entity[] {
   return snapshot.polygons.flatMap((polygon) => {
@@ -69,8 +83,12 @@ function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Enti
   });
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const anchorRootRef = useRef<HTMLDivElement>(null);
+  const anchorPinRef = useRef<HTMLSpanElement>(null);
+  const anchorLineRef = useRef<HTMLSpanElement>(null);
+  const anchorCardRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const renderHandlesRef = useRef(new Map<string, LensRenderHandle>());
   const paleoEntitiesRef = useRef<Entity[]>([]);
@@ -80,6 +98,9 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const onFeatureSelectRef = useRef(onFeatureSelect);
   const onLocationSelectRef = useRef(onLocationSelect);
   const selectedFeatureRef = useRef(selectedFeature);
+  const anchorPointRef = useRef(anchorPoint);
+  const anchorExpandedRef = useRef(anchorExpanded);
+  const frozenCardPositionRef = useRef<{ left: number; top: number } | null>(null);
   const renderedLocaleRef = useRef<Locale | null>(null);
   const renderGenerationRef = useRef(0);
   const pendingLensLoadsRef = useRef(new Map<string, number>());
@@ -89,37 +110,104 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => { onFeatureSelectRef.current = onFeatureSelect; }, [onFeatureSelect]);
   useEffect(() => { onLocationSelectRef.current = onLocationSelect; }, [onLocationSelect]);
   useEffect(() => { selectedFeatureRef.current = selectedFeature; }, [selectedFeature]);
+  useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; }, [anchorPoint]);
+  useEffect(() => { anchorExpandedRef.current = anchorExpanded; frozenCardPositionRef.current = null; }, [anchorExpanded]);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const viewer = createEarthViewer(containerRef.current);
     viewerRef.current = viewer;
+    const occluder = new EllipsoidalOccluder(viewer.scene.globe.ellipsoid, viewer.camera.positionWC);
+    const windowPosition = new Cartesian2();
     const renderHandles = renderHandlesRef.current;
     const clickHandler = new ScreenSpaceEventHandler(viewer.scene.canvas);
     clickHandler.setInputAction((event: { position: Cartesian2 }) => {
+      const surface = viewer.camera.pickEllipsoid(event.position, viewer.scene.globe.ellipsoid);
+      const clickedLocation = surface ? geographicPointFromCartesian(surface) : null;
       const picked = viewer.scene.pick(event.position) as { id?: unknown } | undefined;
       if (picked?.id) {
         for (const [lensId, handle] of renderHandles) {
           if (!activeLensIdsRef.current.has(lensId)) continue;
           const feature = handle.getFeatureForPick(picked.id);
           if (feature) {
-            onFeatureSelectRef.current(feature);
+            onFeatureSelectRef.current(feature, clickedLocation ?? featureAnchorPoint(feature));
             return;
           }
         }
       }
       if (temporalSelectionRef.current.mode !== "present") return;
-      const cartesian = viewer.camera.pickEllipsoid(event.position, viewer.scene.globe.ellipsoid);
-      if (!cartesian) return;
-      const cartographic = Cartographic.fromCartesian(cartesian);
-      onLocationSelectRef.current({
-        latitude: CesiumMath.toDegrees(cartographic.latitude),
-        longitude: CesiumMath.toDegrees(cartographic.longitude),
-      });
+      if (clickedLocation) onLocationSelectRef.current(clickedLocation);
     }, ScreenSpaceEventType.LEFT_CLICK);
 
+    const updateAnchor = () => {
+      const point = anchorPointRef.current;
+      const root = anchorRootRef.current;
+      const pin = anchorPinRef.current;
+      const line = anchorLineRef.current;
+      const card = anchorCardRef.current;
+      if (!point || !root || !pin || !line || !card) return;
+
+      const worldPosition = Cartesian3.fromDegrees(point.longitude, point.latitude, 350);
+      occluder.cameraPosition = viewer.camera.positionWC;
+      const projected = SceneTransforms.worldToWindowCoordinates(viewer.scene, worldPosition, windowPosition);
+      const visible = Boolean(projected && occluder.isPointVisible(worldPosition));
+      root.style.visibility = visible ? "visible" : "hidden";
+      root.dataset.visible = String(visible);
+      if (!visible || !projected) return;
+
+      const stageWidth = containerRef.current?.clientWidth ?? window.innerWidth;
+      const stageHeight = containerRef.current?.clientHeight ?? window.innerHeight;
+      const cardRect = card.getBoundingClientRect();
+      const cardWidth = cardRect.width;
+      const cardHeight = cardRect.height;
+      const edge = stageWidth <= 820 ? 8 : 14;
+      const safeTop = stageWidth <= 820 ? 66 : 88;
+      const safeBottom = stageWidth <= 820 ? 72 : 18;
+      const canPlaceRight = projected.x + 22 + cardWidth <= stageWidth - edge;
+      const canPlaceLeft = projected.x - 22 - cardWidth >= edge;
+      let left: number;
+      let top: number;
+      if (canPlaceRight || canPlaceLeft) {
+        left = canPlaceRight ? projected.x + 22 : projected.x - cardWidth - 22;
+        top = projected.y - cardHeight / 2;
+      } else {
+        left = projected.x - cardWidth / 2;
+        const canPlaceBelow = projected.y + 22 + cardHeight <= stageHeight - safeBottom;
+        top = canPlaceBelow ? projected.y + 22 : projected.y - cardHeight - 22;
+      }
+      left = clamp(left, edge, Math.max(edge, stageWidth - cardWidth - edge));
+      top = clamp(top, safeTop, Math.max(safeTop, stageHeight - cardHeight - safeBottom));
+
+      if (anchorExpandedRef.current) {
+        frozenCardPositionRef.current ??= { left, top };
+        ({ left, top } = frozenCardPositionRef.current);
+      } else {
+        frozenCardPositionRef.current = null;
+      }
+
+      pin.style.left = `${projected.x}px`;
+      pin.style.top = `${projected.y}px`;
+      card.style.left = `${left}px`;
+      card.style.top = `${top}px`;
+
+      const lineTarget = nearestPointOnCard(projected.x, projected.y, left, top, cardWidth, cardHeight);
+      const deltaX = lineTarget.x - projected.x;
+      const deltaY = lineTarget.y - projected.y;
+      line.style.left = `${projected.x}px`;
+      line.style.top = `${projected.y}px`;
+      line.style.width = `${Math.hypot(deltaX, deltaY)}px`;
+      line.style.transform = `rotate(${Math.atan2(deltaY, deltaX)}rad)`;
+      root.dataset.anchorX = projected.x.toFixed(2);
+      root.dataset.anchorY = projected.y.toFixed(2);
+      root.dataset.cardLeft = left.toFixed(2);
+      root.dataset.cardTop = top.toFixed(2);
+      root.dataset.expanded = String(anchorExpandedRef.current);
+    };
+    viewer.scene.postRender.addEventListener(updateAnchor);
+
     return () => {
+      viewer.scene.postRender.removeEventListener(updateAnchor);
       clickHandler.destroy();
       for (const handle of renderHandles.values()) handle.destroy();
       renderHandles.clear();
@@ -226,5 +314,36 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     });
   }, [missionFocus]);
 
-  return <div ref={containerRef} className="earth-globe" aria-label={ariaLabel} />;
+  return <div className="earth-stage">
+    <div ref={containerRef} className="earth-globe" aria-label={ariaLabel} />
+    {anchorPoint && anchorContent && <div ref={anchorRootRef} className={`globe-anchor${anchorExpanded ? " is-expanded" : ""}`}>
+      <span ref={anchorLineRef} className="anchor-leader" aria-hidden="true" />
+      <span ref={anchorPinRef} className="anchor-pin" aria-hidden="true" />
+      <div ref={anchorCardRef} className="anchor-card">{anchorContent}</div>
+    </div>}
+  </div>;
+}
+
+function geographicPointFromCartesian(position: Cartesian3): GeographicPoint {
+  const cartographic = Cartographic.fromCartesian(position);
+  return { latitude: CesiumMath.toDegrees(cartographic.latitude), longitude: CesiumMath.toDegrees(cartographic.longitude) };
+}
+
+function featureAnchorPoint(feature: LensFeature): GeographicPoint {
+  if (feature.geometry.type === "point") return feature.geometry.coordinates;
+  if (feature.geometry.type === "area") return feature.geometry.centroid;
+  return feature.geometry.endpoints[0] ?? { latitude: 0, longitude: 0 };
+}
+
+function nearestPointOnCard(x: number, y: number, left: number, top: number, width: number, height: number): { x: number; y: number } {
+  const right = left + width;
+  const bottom = top + height;
+  const clampedX = clamp(x, left, right);
+  const clampedY = clamp(y, top, bottom);
+  if (x < left || x > right) return { x: clampedX, y: clampedY };
+  return Math.abs(y - top) < Math.abs(y - bottom) ? { x: clampedX, y: top } : { x: clampedX, y: bottom };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }

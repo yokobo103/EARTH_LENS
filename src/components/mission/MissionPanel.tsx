@@ -1,4 +1,3 @@
-import type { EarthLensDefinition } from "../../lenses/types";
 import type { EarthMission, MissionState } from "../../missions/types";
 import { t } from "../../i18n/copy";
 import type { Locale } from "../../i18n/types";
@@ -7,14 +6,11 @@ interface MissionPanelProps {
   mission: EarthMission;
   state: MissionState;
   locale: Locale;
-  lenses: EarthLensDefinition[];
-  activeLensIds: Set<string>;
   onRevealHint: () => void;
-  onToggleLens: (lensId: string) => void;
   onOpenPassport: () => void;
 }
 
-export function MissionPanel({ mission, state, locale, lenses, activeLensIds, onRevealHint, onToggleLens, onOpenPassport }: MissionPanelProps) {
+export function MissionPanel({ mission, state, locale, onRevealHint, onOpenPassport }: MissionPanelProps) {
   const nextHint = mission.hints[state.revealedHintIds.length];
   return (
     <aside className="glass-panel mission-panel" aria-label="Mission briefing">
@@ -27,12 +23,6 @@ export function MissionPanel({ mission, state, locale, lenses, activeLensIds, on
         <div><dt>{t(locale, "target")}</dt><dd>{state.status === "completed" ? mission.target.name : t(locale, "unknown")}</dd></div>
         <div><dt>{t(locale, "hints")}</dt><dd>{state.revealedHintIds.length} / {mission.hints.length}</dd></div>
       </dl>
-      <section className="mission-lens-kit">
-        <div className="mission-section-heading"><span>{t(locale, "lensKit")}</span><small>{t(locale, "allLensesAvailable")}</small></div>
-        <div className="mission-lens-grid">{lenses.map((lens) => (
-          <button type="button" key={lens.id} aria-pressed={activeLensIds.has(lens.id)} onClick={() => onToggleLens(lens.id)}><i /><span>{lens.name}</span></button>
-        ))}</div>
-      </section>
       <section className="mission-hints" aria-label="Mission hints">
         <div className="mission-section-heading"><span>{t(locale, "hintChannel")}</span><small>{t(locale, "hintIsClue")}</small></div>
         {mission.hints.map((hint) => {
