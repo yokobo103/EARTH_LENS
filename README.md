@@ -53,6 +53,9 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - 正解後の短いEvidence、Travel Sticker獲得、Passportへ貼るCSS演出
 - localStorageへcompletion / best rank / best hints / attempts / completed dateを保存
 - 取得済みStickerからのMission replayと、再挑戦時のbest rank更新
+- 初回訪問時のABOUTスプラッシュ（提供コンセプトシートをWebP化、原本PNGはdocsに保管）
+- 現在のカメラ・Lens・選択地点/Feature・モード・言語・年代を共有できるURL（`replaceState`、サーバー不要）
+- Mission実行中の回答地点・不正解・結果を地球上の名札へ固定するアンカーUI
 
 既存EXPLOREでは以下を使用できます。
 
@@ -78,6 +81,8 @@ WHY HERE?は近傍Evidenceを構造化するところまでです。AI/LLMによ
 ### Further reading
 
 展開したFeatureまたはLensの詳細には、データの出典（`source`）とは別に、理解を深めるための外部案内を表示します。案内はこのアプリの根拠や取り込みデータではなく、要約・転載・計測は行いません。リンクの到達確認はアプリ実行時にはせず、必要なときに `npm run check:links` を手動で実行します。
+
+現在の案内候補は、TeleGeographyの[Submarine Cable Map](https://www.submarinecablemap.com/)、[Submarine Cable FAQs](https://www2.telegeography.com/submarine-cable-faqs-frequently-asked-questions)、および[Choke pointの解説](https://en.wikipedia.org/wiki/Choke_point)です。いずれも英語の外部案内であり、このプロトタイプのデータソースとは別扱いです。
 
 ## Language support
 
