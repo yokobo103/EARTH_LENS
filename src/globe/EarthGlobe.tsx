@@ -332,6 +332,7 @@ function geographicPointFromCartesian(position: Cartesian3): GeographicPoint {
 function featureAnchorPoint(feature: LensFeature): GeographicPoint {
   if (feature.geometry.type === "point") return feature.geometry.coordinates;
   if (feature.geometry.type === "area") return feature.geometry.centroid;
+  if (feature.geometry.type === "polyline") return feature.geometry.paths[0]?.[0] ?? { latitude: 0, longitude: 0 };
   return feature.geometry.endpoints[0] ?? { latitude: 0, longitude: 0 };
 }
 

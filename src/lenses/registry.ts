@@ -8,6 +8,8 @@ import { terrainDefinition, loadTerrainDataset } from "./terrain/definition";
 import { renderTerrainRelief } from "./terrain/renderer";
 import { physicalFeaturesDefinition, loadPhysicalFeatures } from "./physical-features/definition";
 import { renderPhysicalFeatures } from "./physical-features/renderer";
+import { seaIceDefinition, loadSeaIceEdges } from "./sea-ice/definition";
+import { renderSeaIceEdges } from "./sea-ice/renderer";
 import { portsDefinition, loadPorts } from "./ports/definition";
 import { renderPorts } from "./ports/renderer";
 import { shippingDefinition, loadShippingFlows } from "./shipping/definition";
@@ -19,6 +21,7 @@ import type { LensModule } from "./types";
 export const lensRegistry: readonly LensModule[] = [
   { definition: terrainDefinition, load: loadTerrainDataset, render: renderTerrainRelief },
   { definition: physicalFeaturesDefinition, load: loadPhysicalFeatures, render: renderPhysicalFeatures },
+  { definition: seaIceDefinition, load: loadSeaIceEdges, render: renderSeaIceEdges },
   { definition: portsDefinition, load: loadPorts, render: renderPorts },
   { definition: shippingDefinition, load: loadShippingFlows, render: renderShippingFlows },
   {

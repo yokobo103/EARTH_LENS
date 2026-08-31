@@ -7,7 +7,7 @@ export interface WhyHereNearbyFeature extends ObservationEvidence {
   distanceKm: number;
   nameJa?: string;
   relationship: "nearby" | "overlap" | "connected";
-  relation: "near-point" | "associated-endpoint" | "near-area" | "inside-area";
+  relation: "near-point" | "associated-endpoint" | "near-line" | "near-area" | "inside-area";
   relationLabel?: string;
 }
 

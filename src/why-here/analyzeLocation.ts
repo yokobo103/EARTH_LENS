@@ -49,9 +49,10 @@ function pointInPolygon(location: GeographicPoint, polygon: GeographicAreaPolygo
 function distanceToSegmentKm(location: GeographicPoint, start: GeographicPoint, end: GeographicPoint): number {
   const latitudeScale = Math.PI * EARTH_RADIUS_KM / 180;
   const longitudeScale = latitudeScale * Math.max(0.01, Math.cos(toRadians(location.latitude)));
-  const ax = normalizedLongitudeDelta(start.longitude, location.longitude) * longitudeScale;
+  const startLongitudeDelta = normalizedLongitudeDelta(start.longitude, location.longitude);
+  const ax = startLongitudeDelta * longitudeScale;
   const ay = (start.latitude - location.latitude) * latitudeScale;
-  const bx = normalizedLongitudeDelta(end.longitude, location.longitude) * longitudeScale;
+  const bx = (startLongitudeDelta + normalizedLongitudeDelta(end.longitude, start.longitude)) * longitudeScale;
   const by = (end.latitude - location.latitude) * latitudeScale;
   const segmentX = bx - ax;
   const segmentY = by - ay;
@@ -65,6 +66,16 @@ function distanceToPolygonEdgesKm(location: GeographicPoint, polygon: Geographic
   for (const ring of polygon.rings) {
     for (let index = 0; index < ring.length - 1; index += 1) {
       nearest = Math.min(nearest, distanceToSegmentKm(location, ring[index]!, ring[index + 1]!));
+    }
+  }
+  return nearest;
+}
+
+function distanceToPathsKm(location: GeographicPoint, paths: GeographicPoint[][]): number {
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const path of paths) {
+    for (let index = 0; index < path.length - 1; index += 1) {
+      nearest = Math.min(nearest, distanceToSegmentKm(location, path[index]!, path[index + 1]!));
     }
   }
   return nearest;
@@ -96,6 +107,12 @@ function measureFeature(location: GeographicPoint, feature: LensFeature, radiusK
       relationLabel: nearest ? `Associated endpoint: ${nearest.endpoint.name}` : undefined,
     };
   }
+  if (feature.geometry.type === "polyline") {
+    if (!bboxCouldBeWithinRadius(location, feature.geometry.bbox, radiusKm)) {
+      return { distanceKm: Number.POSITIVE_INFINITY, relation: "near-line" };
+    }
+    return { distanceKm: distanceToPathsKm(location, feature.geometry.paths), relation: "near-line" };
+  }
   if (!bboxCouldBeWithinRadius(location, feature.geometry.bbox, radiusKm)) {
     return { distanceKm: Number.POSITIVE_INFINITY, relation: "near-area" };
   }
@@ -124,7 +141,7 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
         lensId: feature.lensId,
         lensName: lens.definition.name,
         distanceKm: Math.round(measurement.distanceKm),
-        relationship: measurement.relation === "associated-endpoint" ? "connected" : measurement.relation === "near-area" || measurement.relation === "inside-area" ? "overlap" : "nearby",
+        relationship: measurement.relation === "associated-endpoint" ? "connected" : measurement.relation === "near-line" || measurement.relation === "near-area" || measurement.relation === "inside-area" ? "overlap" : "nearby",
         relation: measurement.relation,
         relationLabel: measurement.relationLabel,
       }));

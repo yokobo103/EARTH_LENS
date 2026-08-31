@@ -6,6 +6,7 @@ import type { Locale } from "./types";
 const lensJa: Record<string, { name: string; category: string; legends: string[] }> = {
   "terrain-relief": { name: "地形・起伏", category: "地球", legends: ["陰影起伏表現"] },
   "physical-features": { name: "主要物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
+  "sea-ice-edges": { name: "凍る海", category: "地球", legends: ["一年中凍る · 夏の縁より内側", "冬に凍る · 2本の縁の間", "通常は凍らない · 冬の縁より外側"] },
   "major-ports": { name: "主要港湾", category: "人間活動", legends: ["港湾シグナル"] },
   "shipping-flows": { name: "海上物流フロー", category: "人間活動", legends: ["模式フロー"] },
   "submarine-cable-connections": { name: "海底通信接続", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
@@ -26,6 +27,8 @@ const featureJa: Record<string, { name: string; description?: string }> = {
   "physical-malacca": { name: "マラッカ海峡", description: "マレー半島とスマトラ島の間にある狭い自然海上回廊。" },
   "physical-hormuz": { name: "ホルムズ海峡", description: "ペルシャ湾とオマーン湾を結ぶ狭い自然出口。" },
   "physical-bosporus": { name: "ボスポラス海峡", description: "黒海とマルマラ海を結ぶ狭い自然水路。" },
+  "winter-median-edge": { name: "冬の海氷中央値の縁", description: "典型的な季節最大域の縁。北半球は3月、南半球は9月の1981〜2010年中央値です。" },
+  "summer-median-edge": { name: "夏の海氷中央値の縁", description: "典型的な季節最小域の縁。北半球は9月、南半球は3月の1981〜2010年中央値です。" },
   "port-singapore": { name: "シンガポール港" },
   "port-shanghai": { name: "上海港" },
   "port-rotterdam": { name: "ロッテルダム港" },
@@ -105,6 +108,11 @@ const valueJa: Record<string, string> = {
   Cobalt: "コバルト",
   Nickel: "ニッケル",
   "normalized demo index": "正規化デモ指数",
+  winter: "冬",
+  summer: "夏",
+  March: "3月",
+  September: "9月",
+  "Median sea-ice extent edge": "海氷域中央値の縁",
 };
 
 export function localizeLensName(lensId: string, fallback: string, locale: Locale): string {
@@ -170,6 +178,7 @@ export function localizeRelation(feature: WhyHereNearbyFeature, locale: Locale, 
     return `関連エンドポイント: ${valueJa[endpoint] ?? endpoint}`;
   }
   if (feature.relation === "near-area") return "周辺エリア";
+  if (feature.relation === "near-line") return "縁まで";
   if (feature.relation === "inside-area") return "領域内";
   return fallback;
 }

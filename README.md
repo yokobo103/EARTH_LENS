@@ -58,9 +58,10 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 
 - APIキー不要で回転・ズームできるCesiumJS 3D globe
 - Natural Earth II shaded reliefを読みやすく調整するTerrain Lens
+- NSIDC Sea Ice Index v4の1981–2010年中央値から、南北両極の冬／夏の海氷縁を比較する「凍る海」Lens
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
 - 物理的役割を持つ11件の概略Physical Features
-- 遠距離ではsignal、近距離で名称を出す15港のMajor Ports
+- 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
 - endpointからコード生成する6本のSchematic Shipping Flow
 - manifest / registry / rendererで分離したLayer system
 - endpointから描画時に生成するDemo submarine cable connections
@@ -135,21 +136,27 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 | --- | --- | --- | --- |
 | Terrain | Natural Earth II shaded reliefの視覚調整 | `real + derived` | Natural Earth II / Public Domain |
 | Physical Features | 11件の代表中心と概略footprint | `demo + derived + schematic` | Project-authored demo / no external geometry |
-| Major Ports | 15港湾地域の概略city-scale point | `demo + derived` | Project-authored demo / no external geometry |
+| Sea Ice | 南北両極の冬／夏の1981–2010月別中央値の海氷縁 | `real + derived` | NSIDC Sea Ice Index v4 / free and open use; citation required |
+| Ports | 1,081件の港湾point | `real + derived` | Natural Earth 1:10m Ports / Public Domain |
 | Shipping | 地域endpointから生成する6模式flow | `demo + derived + schematic` | Project-authored demo / no external route geometry |
 | Country Borders | 242か国の簡略化outline | `real + derived` | Natural Earth 1:50m Admin 0 / Public Domain |
 
-## Natural Earth import
+## Geographic data import
 
-国境データは`src`へimportせず、生成済みの`public/geo/admin0-countries.geojson`（279,723 bytes / 273.2 KiB）をLensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。`NAME_JA`は配布データに含まれていることを実測済みで、日本語表示では手書き辞書の次に利用します。
+国境・港湾・海氷データは`src`へimportせず、生成済みの`public/geo/*.geojson`を各Lensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。国境の`NAME_JA`は配布データに含まれていることを実測済みで、日本語表示では手書き辞書の次に利用します。
 
-再生成時だけ次を実行します。
+再生成時だけ次を実行します。引数なしは全レイヤー、ID指定は1レイヤーだけを更新します。
 
 ```bash
 npm run data:geo
+npm run data:geo -- admin0-countries
+npm run data:geo -- major-ports
+npm run data:geo -- sea-ice-edges
 ```
 
-`tools/build-geo.mjs`だけがNatural EarthのGitHub raw配布へアクセスし、`NAME, NAME_JA, ISO_A3, CONTINENT, SUBREGION, POP_EST`の6属性へ削減、12%簡略化、座標精度0.001度で出力します。生データは`.cache/geo/`へ置かれ、Git対象外です。加工にはmapshaper 0.7.55（MPL-2.0）を開発時だけ使用します。
+`tools/build-geo.mjs`のレイヤーテーブルだけが公式配布へアクセスし、生データを`.cache/geo/`へ置きます。加工にはmapshaper 0.7.55（MPL-2.0）とadm-zip（MIT）を開発時だけ使用します。出力・解決済みURL・利用条件・加工内容・サイズは[`public/geo/README.md`](public/geo/README.md)へ自動記録します。既存の国境出力は再生成前後のbyte一致を検査し、不一致なら上書きしません。
+
+Sea Ice LensはNSIDC Sea Ice Index v4（G02135）の1981–2010年月別中央値polylineを使用します。北半球は3月＝冬／9月＝夏、南半球は9月＝冬／3月＝夏として統合し、各極投影で25 km densify後にWGS84へ変換します。表示は観測された中央値の「縁」と薄いhaloであり、面積値、現在の海氷、航行可否を表しません。引用: Fetterer et al. (2025), DOI `10.7265/a98x-0f50`。
 
 国境はNatural Earthの編集判断を反映するもので、国家・領域の承認を表明するものではありません。この注記はCountry BordersのFeature Detailsからも確認できます。
 
@@ -263,7 +270,8 @@ GEBCOは将来の`BATHYMETRY / OCEAN FLOOR` Lens候補として記録します�
 - 完成済みMissionはオーナー提供画像由来のWebP artwork、未取得MissionはCSS silhouetteです。画像の外部配布元や第三者権利は独立検証していないため、公開利用の根拠はオーナーからの明示的な利用依頼です。
 - Terrain Lensはimagery調整であり、標高値、斜面、可視遮蔽、3D地形geometryを提供しません。
 - Physical Featureのellipseは概略footprintで、実測境界や地質Polygonではありません。
-- Portsは港湾施設やterminal境界ではなく、実在港湾地域を示す概略デモPointです。
+- PortsはNatural Earthの実在港湾pointですが、港湾施設やterminal境界、処理能力、稼働状況、通年の無氷性は示しません。
+- Sea Iceは1981–2010年の月別中央値の縁で、特定年・現在の海氷分布、氷厚、航行安全を示しません。ゾーンは夏／冬の縁の相対関係を読む凡例で、塗りPolygonを捏造していません。
 - Shippingは交通量を符号化せず、実AIS・実航路・通航頻度を表しません。
 - Lens数増加に伴い、左パネルは縦スクロールになります。全球距離では通常ラベルを抑制しますが、近距離の複数Lens重畳では記号競合が残ります。
 
@@ -289,6 +297,7 @@ src/
     critical-minerals/
     terrain/
     physical-features/
+    sea-ice/
     ports/
     shipping/
     borders/
@@ -297,7 +306,6 @@ src/
     chokepoints.geojson
     critical-minerals.geojson
     physical-features.json
-    major-ports.json
     shipping-connections.json
   temporal/
     types.ts
@@ -328,6 +336,8 @@ src/
     effects/
 public/
   geo/admin0-countries.geojson
+  geo/major-ports.geojson
+  geo/sea-ice-median-edges.geojson
 tools/
   build-geo.mjs
 ```

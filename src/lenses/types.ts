@@ -67,6 +67,7 @@ export interface LensFeature {
   geometry:
     | { type: "point"; coordinates: GeographicPoint }
     | { type: "connection"; endpoints: Array<GeographicPoint & { name: string }> }
+    | { type: "polyline"; paths: GeographicPoint[][]; bbox: GeographicBoundingBox }
     | {
         type: "area";
         centroid: GeographicPoint;

@@ -17,7 +17,9 @@ export function selectMissionFeature(state: MissionState, feature: LensFeature):
     ? feature.geometry.coordinates
     : feature.geometry.type === "area"
       ? feature.geometry.centroid
-      : feature.geometry.endpoints[0];
+      : feature.geometry.type === "polyline"
+        ? feature.geometry.paths[0]?.[0]
+        : feature.geometry.endpoints[0];
   return location ? selectMissionLocation(state, location) : state;
 }
 
