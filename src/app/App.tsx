@@ -11,6 +11,8 @@ import { MissionPanel } from "../components/mission/MissionPanel";
 import { MissionPassport } from "../components/mission/MissionPassport";
 import { MissionResultPanel } from "../components/mission/MissionResultPanel";
 import { ShareButton } from "../components/ShareButton";
+import { AboutSplash } from "../components/AboutSplash";
+import { shouldShowAboutSplash } from "../components/aboutSplashState";
 import { Timeline } from "../components/Timeline";
 import { EarthGlobe } from "../globe/EarthGlobe";
 import { useIsCompact } from "../hooks/useIsCompact";
@@ -66,6 +68,7 @@ export function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [temporalSelection, setTemporalSelection] = useState<TemporalSelection>(initialSharedView.temporal ?? { mode: "present", ageMa: 0 });
   const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(initialSharedView.camera);
+  const [aboutOpen, setAboutOpen] = useState(shouldShowAboutSplash);
 
   useEffect(() => { document.documentElement.lang = locale; localStorage.setItem("earth-lens-locale", locale); }, [locale]);
   useEffect(() => {
@@ -140,6 +143,7 @@ export function App() {
       <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls">{appMode === "explore" && timeline}<ShareButton locale={locale} /><LanguageSelector locale={locale} onChange={setLocale} />{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}</div></header>
       {showGlobe && layerPanel}
       {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : isCompact ? <CompactSheet tabs={missionTabs} activeTab={compactPanel} onChange={setCompactPanel} /> : <>{missionPanel}{missionAnswer}<MissionEffectsReadout effects={missionEffects} activeLensIds={missionLensIds} locale={locale} /></>)}
+      {aboutOpen && <AboutSplash locale={locale} onClose={() => setAboutOpen(false)} />}
     </main>
   );
 }
