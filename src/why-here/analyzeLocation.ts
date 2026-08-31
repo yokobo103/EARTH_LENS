@@ -163,9 +163,27 @@ function measureFeature(location: GeographicPoint, feature: LensFeature, radiusK
 export async function analyzeLocation(location: GeographicPoint, radiusKm = 500): Promise<WhyHereResult> {
   const datasets = await loadAllLensDatasets();
   const datasetById = new Map(datasets.map((dataset) => [dataset.lensId, dataset]));
+  let closestNamedFeature: WhyHereNearbyFeature | null = null;
   const lensResults = lensRegistry.map((lens) => {
     const nearby = (datasetById.get(lens.definition.id)?.features ?? [])
-      .map((feature) => ({ feature, measurement: measureFeature(location, feature, radiusKm) }))
+      .map((feature) => {
+        const measurement = measureFeature(location, feature, radiusKm);
+        const candidate: WhyHereNearbyFeature = {
+          featureId: feature.id,
+          name: feature.name,
+          nameJa: typeof feature.attributes.nameJa === "string" ? feature.attributes.nameJa : undefined,
+          lensId: feature.lensId,
+          lensName: lens.definition.name,
+          distanceKm: Math.round(measurement.distanceKm),
+          relationship: measurement.relation === "associated-endpoint" ? "connected" : measurement.relation === "near-line" || measurement.relation === "near-area" || measurement.relation === "inside-area" ? "overlap" : "nearby",
+          relation: measurement.relation,
+          relationLabel: measurement.relationLabel,
+        };
+        if (Number.isFinite(measurement.distanceKm) && (!closestNamedFeature || measurement.distanceKm < closestNamedFeature.distanceKm)) {
+          closestNamedFeature = candidate;
+        }
+        return { feature, measurement };
+      })
       .filter(({ measurement }) => measurement.distanceKm <= radiusKm || measurement.includeRegardlessOfRadius === true)
       .sort((a, b) => a.measurement.distanceKm - b.measurement.distanceKm)
       .map(({ feature, measurement }): WhyHereNearbyFeature => ({
@@ -186,5 +204,5 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
       features: nearby,
     };
   });
-  return { location, radiusKm, lensResults, evidenceOnly: true };
+  return { location, radiusKm, lensResults, closestNamedFeature, evidenceOnly: true };
 }

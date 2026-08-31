@@ -31,7 +31,7 @@ export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, 
 
   return <section className={`anchor-card-content${expanded ? " is-expanded" : ""}`} aria-label={expanded ? t(locale, "details") : title}>
     <button type="button" className="anchor-close" onClick={onClose} aria-label={t(locale, "close")}>×</button>
-    {expanded ? <DetailsPanel feature={feature} location={location} analysisLocation={anchorPoint} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={onAnalyze} embedded /> : <>
+    {expanded ? <DetailsPanel feature={feature} location={feature ? location : anchorPoint} analysisLocation={anchorPoint} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={onAnalyze} embedded /> : <>
       <p className="anchor-layer">{layerName}</p>
       <h2>{title}</h2>
       <p className="anchor-summary">{description}</p>

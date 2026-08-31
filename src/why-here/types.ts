@@ -22,5 +22,7 @@ export interface WhyHereResult {
   location: GeographicPoint;
   radiusKm: number;
   lensResults: WhyHereLensResult[];
+  /** Closest named evidence point, retained even when it falls outside the scan radius. */
+  closestNamedFeature?: WhyHereNearbyFeature | null;
   evidenceOnly: true;
 }

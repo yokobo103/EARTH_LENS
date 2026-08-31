@@ -1,4 +1,5 @@
 import type { DataProvenance, EarthLensDefinition, LensDataset, LensFeature } from "../types";
+import { portNamesJa } from "./portNamesJa";
 
 const SOURCE_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_ports.geojson";
 
@@ -44,15 +45,15 @@ interface PortsGeoJson {
   }>;
 }
 
-const stableFeatureIds = new Map<string, string>([
-  ["Singapore", "port-singapore"], ["Shanghai", "port-shanghai"], ["Rotterdam", "port-rotterdam"],
-  ["Los Angeles", "port-los-angeles"], ["Dubai", "port-jebel-ali"], ["Colombo", "port-colombo"],
-  ["Yokohama", "port-yokohama"], ["Port Said", "port-suez"], ["Durban", "port-durban"],
-  ["Bombay", "port-mumbai"], ["Santos", "port-santos"], ["New York", "port-new-york"],
+const stableFeatureIds = new Map<number, string>([
+  [1730089479, "port-singapore"], [1730089389, "port-shanghai"], [1730089247, "port-rotterdam"],
+  [1730089645, "port-los-angeles"], [1730089531, "port-jebel-ali"], [1730089217, "port-colombo"],
+  [1730089613, "port-yokohama"], [1730089573, "port-suez"], [1730089511, "port-durban"],
+  [1730088457, "port-mumbai"], [1730089059, "port-santos"], [1730089663, "port-new-york"],
 ]);
 
 function portFeatureId(name: string, neId: number | undefined, index: number): string {
-  return stableFeatureIds.get(name) ?? `port-ne-${neId ?? index}`;
+  return stableFeatureIds.get(neId ?? -1) ?? `port-ne-${neId ?? index}`;
 }
 
 export async function loadPorts(): Promise<LensDataset> {
@@ -75,6 +76,9 @@ export async function loadPorts(): Promise<LensDataset> {
         scaleRank: sourceFeature.properties.scalerank ?? 0,
         nationalScale: sourceFeature.properties.natlscale ?? 0,
         naturalEarthId: sourceFeature.properties.ne_id ?? index,
+        ...(sourceFeature.properties.ne_id !== undefined && portNamesJa[sourceFeature.properties.ne_id]
+          ? { nameJa: portNamesJa[sourceFeature.properties.ne_id] }
+          : {}),
         ...(sourceFeature.properties.website ? { website: sourceFeature.properties.website } : {}),
       },
     }];
