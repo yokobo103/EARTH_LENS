@@ -35,7 +35,7 @@ export function App() {
   const isCompact = useIsCompact();
   const [locale, setLocale] = useState<Locale>(() => initialSharedView.locale ?? (localStorage.getItem("earth-lens-locale") === "ja" ? "ja" : "en"));
   const [appMode, setAppMode] = useState<AppMode>(initialSharedView.mode ?? "explore");
-  const [missionView, setMissionView] = useState<MissionView>("passport");
+  const [missionView, setMissionView] = useState<MissionView>(initialSharedView.mode === "mission" ? "field" : "passport");
   const [missionState, setMissionState] = useState(() => createMissionState(defaultMission));
   const [missionProgress, setMissionProgress] = useState<Record<string, MissionProgress>>(() => loadMissionProgress());
   const [newlyCollectedId, setNewlyCollectedId] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export function App() {
     return ids;
   }, [defaultLensIds]);
   const [activeLensIds, setActiveLensIds] = useState(() => new Set(initialActiveLensIds));
-  const [missionLensIds, setMissionLensIds] = useState(() => new Set(defaultLensIds));
+  const [missionLensIds, setMissionLensIds] = useState(() => new Set(initialSharedView.lensIds ?? defaultLensIds));
   const [selectedFeature, setSelectedFeature] = useState<LensFeature | null>(null);
   const [sharedFeature, setSharedFeature] = useState(initialSharedView.feature);
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(initialSharedView.location);
