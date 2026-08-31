@@ -10,6 +10,7 @@ interface LayerPanelProps {
   locale: Locale;
   onToggle: (lensId: string) => void;
   suspended?: boolean;
+  missionRecommendedLensIds?: readonly string[];
 }
 
 interface LensInfoState {
@@ -18,7 +19,7 @@ interface LensInfoState {
   left: number;
 }
 
-export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false }: LayerPanelProps) {
+export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds }: LayerPanelProps) {
   const [info, setInfo] = useState<LensInfoState | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClickFor = useRef<string | null>(null);
@@ -72,6 +73,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
             <h3 className="layer-category-heading">{categoryLabels[category]}</h3>
             <div className="layer-category-items">{categoryLenses.map((lens) => {
               const active = activeLensIds.has(lens.id);
+              const recommended = missionRecommendedLensIds?.includes(lens.id) ?? false;
               const legend = lens.legend[0];
               const style = { "--lens-color": legend?.color ?? "#79e3d2" } as CSSProperties;
               return <section className={`layer-item${active ? " is-active" : ""}`} style={style} key={lens.id}>
@@ -96,7 +98,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                 >
                   <i className={`lens-rail-swatch legend-${legend?.symbol ?? "point"}`} aria-hidden="true" />
                   <strong>{lens.name}</strong>
-                  <span>{active ? t(locale, "on") : t(locale, "off")}</span>
+                  <span>{active ? t(locale, "on") : t(locale, "off")}{missionRecommendedLensIds && <em className={recommended ? "lens-kit-focus" : "lens-kit-standby"}>{recommended ? t(locale, "missionFocus") : t(locale, "standby")}</em>}</span>
                 </button>
               </section>;
             })}</div>

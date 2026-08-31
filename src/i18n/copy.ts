@@ -176,6 +176,8 @@ const copy = {
     correctLocation: "CORRECT LOCATION",
     stickerAcquired: "TRAVEL STICKER ACQUIRED",
     placeInPassport: "PLACE STICKER IN PASSPORT",
+    missionFocus: "FOCUS",
+    standby: "STANDBY",
   },
   ja: {
     systemSubtitle: "惑星観測システム · v0.4",
@@ -352,6 +354,8 @@ const copy = {
     correctLocation: "正しい地点",
     stickerAcquired: "トラベルステッカー獲得",
     placeInPassport: "パスポートに貼る",
+    missionFocus: "推奨",
+    standby: "待機",
   },
 } as const;
 

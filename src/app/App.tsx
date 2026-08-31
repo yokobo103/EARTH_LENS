@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppMode } from "./types";
-import { CompactSheet, type CompactSheetTab } from "../components/CompactSheet";
 import { AnchoredDetailsCard } from "../components/AnchoredDetailsCard";
 import { LayerPanel } from "../components/LayerPanel";
 import { LanguageSelector } from "../components/LanguageSelector";
 import { ModeSelector } from "../components/ModeSelector";
-import { MissionEffectsReadout } from "../components/mission/MissionEffectsReadout";
-import { MissionObservationPanel } from "../components/mission/MissionObservationPanel";
+import { MissionAnchoredCard } from "../components/mission/MissionAnchoredCard";
 import { MissionPanel } from "../components/mission/MissionPanel";
 import { MissionPassport } from "../components/mission/MissionPassport";
-import { MissionResultPanel } from "../components/mission/MissionResultPanel";
 import { ShareButton } from "../components/ShareButton";
 import { AboutSplash } from "../components/AboutSplash";
 import { shouldShowAboutSplash } from "../components/aboutSplashState";
@@ -31,13 +28,11 @@ import type { WhyHereResult } from "../why-here/types";
 import { readSharedViewState, writeSharedViewState, type SharedCameraState } from "../share/urlState";
 
 type MissionView = "passport" | "field";
-type CompactPanel = "briefing" | "answer" | "result";
 const defaultMission = getDefaultMission();
 const initialSharedView = readSharedViewState();
 
 export function App() {
   const isCompact = useIsCompact();
-  const [compactPanel, setCompactPanel] = useState<CompactPanel | null>(null);
   const [locale, setLocale] = useState<Locale>(() => initialSharedView.locale ?? (localStorage.getItem("earth-lens-locale") === "ja" ? "ja" : "en"));
   const [appMode, setAppMode] = useState<AppMode>(initialSharedView.mode ?? "explore");
   const [missionView, setMissionView] = useState<MissionView>("passport");
@@ -84,7 +79,7 @@ export function App() {
       setSelectedFeature(feature);
       setSharedFeature({ lensId: feature.lensId, featureId: feature.id });
       setMissionState((state) => selectMissionFeature(state, feature));
-      if (isCompact) setCompactPanel("answer");
+      setAnchorPoint(missionFeatureAnchor(feature));
     } else {
       selectFeature(feature, anchor);
     }
@@ -93,7 +88,7 @@ export function App() {
   const handleGlobeLocation = (location: { latitude: number; longitude: number }) => {
     if (appMode === "mission") {
       setMissionState((state) => selectMissionLocation(state, location));
-      if (isCompact) setCompactPanel("answer");
+      setAnchorPoint(location);
     } else {
       selectLocation(location);
     }
@@ -101,19 +96,19 @@ export function App() {
   const runWhyHere = async () => { if (!anchorPoint) return; setIsAnalyzing(true); try { setWhyHereResult(await analyzeLocation(anchorPoint, 500)); } finally { setIsAnalyzing(false); } };
   const changeTime = (selection: TemporalSelection) => { setTemporalSelection(selection); clearSelection(); };
   const changeMode = (mode: AppMode) => {
-    setAppMode(mode); setCompactPanel(null); clearSelection();
+    setAppMode(mode); clearSelection();
     if (mode === "mission") { setMissionView("passport"); setTemporalSelection({ mode: "present", ageMa: 0 }); }
   };
   const startMission = (missionId: string) => {
     const mission = getMission(missionId); if (!mission) return;
-    setMissionState(createMissionState(mission)); setMissionLensIds(new Set(defaultLensIds)); clearSelection(); setMissionView("field"); setNewlyCollectedId(null); setCompactPanel(null);
+    setMissionState(createMissionState(mission)); setMissionLensIds(new Set(mission.recommendedLensIds)); clearSelection(); setMissionView("field"); setNewlyCollectedId(null);
   };
-  const collectSticker = () => { setNewlyCollectedId(currentMission.id); setMissionView("passport"); setCompactPanel(null); };
+  const collectSticker = () => { setNewlyCollectedId(currentMission.id); setMissionView("passport"); };
   const submitMissionAnswer = () => {
     const nextState = submitMissionLocation(missionState, currentMission);
     setMissionState(nextState);
     if (nextState.status === "completed") {
-      if (isCompact) setCompactPanel("result");
+      setAnchorPoint(currentMission.target); setAnchorExpanded(true); setSelectedFeature(null); setSharedFeature(null);
       setMissionProgress((current) => {
         const nextProgress = recordMissionCompletion(current, nextState);
         saveMissionProgress(nextProgress);
@@ -126,26 +121,27 @@ export function App() {
   const missionFocus = missionState.status === "completed"
     ? currentMission.target
     : cameraEffect?.type === "camera-focus" ? { ...cameraEffect.location, altitude: cameraEffect.altitude } : null;
-  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} suspended={appMode === "explore" && temporalSelection.mode === "deep-time"} />;
+  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} suspended={appMode === "explore" && temporalSelection.mode === "deep-time"} missionRecommendedLensIds={appMode === "mission" ? currentMission.recommendedLensIds : undefined} />;
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
-  const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); setCompactPanel(null); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
-  const missionAnswer = missionState.status === "completed"
-    ? <MissionResultPanel mission={displayMission} state={missionState} locale={locale} onCollectSticker={collectSticker} />
-    : <MissionObservationPanel state={missionState} locale={locale} onSubmit={submitMissionAnswer} />;
-  const missionTabs: CompactSheetTab<CompactPanel>[] = [
-    { id: "briefing", label: t(locale, "mission"), content: missionPanel },
-    { id: missionState.status === "completed" ? "result" : "answer", label: missionState.status === "completed" ? t(locale, "complete") : t(locale, "observationPoint"), content: missionAnswer },
-  ];
+  const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
+  const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} onSubmit={submitMissionAnswer} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onCollectSticker={collectSticker} onExpand={() => setAnchorExpanded(true)} onClose={clearSelection} /> : null;
 
   return (
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}`}>
-      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={appMode === "explore" ? anchorPoint : null} anchorExpanded={anchorExpanded} anchorContent={anchorPoint && appMode === "explore" ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onExpand={() => setAnchorExpanded(true)} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null} initialCamera={sharedCamera} initialFeature={initialSharedView.feature} onCameraChange={setSharedCamera} />}
+      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onExpand={() => setAnchorExpanded(true)} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null) : missionAnchorContent} initialCamera={sharedCamera} initialFeature={initialSharedView.feature} onCameraChange={setSharedCamera} />}
       <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls">{appMode === "explore" && timeline}<ShareButton locale={locale} /><LanguageSelector locale={locale} onChange={setLocale} />{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}</div></header>
       {showGlobe && layerPanel}
-      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : isCompact ? <CompactSheet tabs={missionTabs} activeTab={compactPanel} onChange={setCompactPanel} /> : <>{missionPanel}{missionAnswer}<MissionEffectsReadout effects={missionEffects} activeLensIds={missionLensIds} locale={locale} /></>)}
+      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : <details className="mission-briefing-dock"><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small></summary>{missionPanel}</details>)}
       {aboutOpen && <AboutSplash locale={locale} onClose={() => setAboutOpen(false)} />}
     </main>
   );
+}
+
+function missionFeatureAnchor(feature: LensFeature): { latitude: number; longitude: number } {
+  if (feature.geometry.type === "point") return feature.geometry.coordinates;
+  if (feature.geometry.type === "area") return feature.geometry.centroid;
+  if (feature.geometry.type === "polyline") return feature.geometry.paths[0]?.[0] ?? { latitude: 0, longitude: 0 };
+  return feature.geometry.endpoints[0] ?? { latitude: 0, longitude: 0 };
 }
 
 function toggleSetValue(current: Set<string>, value: string): Set<string> {
