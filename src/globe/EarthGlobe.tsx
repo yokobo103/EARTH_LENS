@@ -28,6 +28,7 @@ import type { MissionHintEffect } from "../missions/types";
 import { DemoPaleoEarthProvider } from "../temporal/DemoPaleoEarthProvider";
 import { TimeController } from "../temporal/TimeController";
 import type { PaleoEarthSnapshot, TemporalSelection } from "../temporal/types";
+import type { SharedCameraState, SharedFeatureState } from "../share/urlState";
 import { createEarthViewer } from "./cesium/createViewer";
 
 interface EarthGlobeProps {
@@ -44,6 +45,9 @@ interface EarthGlobeProps {
   anchorPoint: GeographicPoint | null;
   anchorExpanded: boolean;
   anchorContent: ReactNode;
+  initialCamera: SharedCameraState | null;
+  initialFeature: SharedFeatureState | null;
+  onCameraChange?: (camera: SharedCameraState) => void;
 }
 
 interface EllipsoidalOccluderLike {
@@ -83,7 +87,7 @@ function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Enti
   });
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, initialCamera, initialFeature, onCameraChange }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRootRef = useRef<HTMLDivElement>(null);
   const anchorPinRef = useRef<HTMLSpanElement>(null);
@@ -104,6 +108,10 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const renderedLocaleRef = useRef<Locale | null>(null);
   const renderGenerationRef = useRef(0);
   const pendingLensLoadsRef = useRef(new Map<string, number>());
+  const onCameraChangeRef = useRef(onCameraChange);
+  const restoredFeatureRef = useRef(false);
+  const initialCameraRef = useRef(initialCamera);
+  const initialFeatureRef = useRef(initialFeature);
 
   useEffect(() => { activeLensIdsRef.current = activeLensIds; }, [activeLensIds]);
   useEffect(() => { temporalSelectionRef.current = temporalSelection; }, [temporalSelection]);
@@ -112,12 +120,24 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => { selectedFeatureRef.current = selectedFeature; }, [selectedFeature]);
   useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; }, [anchorPoint]);
   useEffect(() => { anchorExpandedRef.current = anchorExpanded; frozenCardPositionRef.current = null; }, [anchorExpanded]);
+  useEffect(() => { onCameraChangeRef.current = onCameraChange; }, [onCameraChange]);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const viewer = createEarthViewer(containerRef.current);
     viewerRef.current = viewer;
+    const startingCamera = initialCameraRef.current;
+    if (startingCamera) viewer.camera.setView({ destination: Cartesian3.fromDegrees(startingCamera.longitude, startingCamera.latitude, startingCamera.height), orientation: { heading: startingCamera.heading, pitch: startingCamera.pitch, roll: startingCamera.roll } });
+    const emitCamera = () => {
+      const cartographic = viewer.camera.positionCartographic;
+      if (!cartographic) return;
+      onCameraChangeRef.current?.({ longitude: CesiumMath.toDegrees(cartographic.longitude), latitude: CesiumMath.toDegrees(cartographic.latitude), height: cartographic.height, heading: viewer.camera.heading, pitch: viewer.camera.pitch, roll: viewer.camera.roll });
+    };
+    let cameraTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleCamera = () => { if (cameraTimer) clearTimeout(cameraTimer); cameraTimer = setTimeout(emitCamera, 350); };
+    viewer.camera.moveEnd.addEventListener(scheduleCamera);
+    viewer.camera.changed.addEventListener(scheduleCamera);
     const occluder = new EllipsoidalOccluder(viewer.scene.globe.ellipsoid, viewer.camera.positionWC);
     const windowPosition = new Cartesian2();
     const renderHandles = renderHandlesRef.current;
@@ -208,6 +228,9 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
 
     return () => {
       viewer.scene.postRender.removeEventListener(updateAnchor);
+      viewer.camera.moveEnd.removeEventListener(scheduleCamera);
+      viewer.camera.changed.removeEventListener(scheduleCamera);
+      if (cameraTimer) clearTimeout(cameraTimer);
       clickHandler.destroy();
       for (const handle of renderHandles.values()) handle.destroy();
       renderHandles.clear();
@@ -249,6 +272,14 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
           && TimeController.isLensAvailable(lens.definition, temporalSelectionRef.current),
         );
         renderHandles.set(lensId, handle);
+        const startingFeature = initialFeatureRef.current;
+        if (!restoredFeatureRef.current && startingFeature?.lensId === lensId) {
+          const restored = dataset.features.find((feature) => feature.id === startingFeature.featureId);
+          if (restored) {
+            restoredFeatureRef.current = true;
+            onFeatureSelectRef.current(restored, featureAnchorPoint(restored));
+          }
+        }
       });
     }
   }, [activeLensIds, locale, temporalSelection]);
