@@ -3,20 +3,20 @@ import type { EarthMission } from "../missions/types";
 import type { WhyHereNearbyFeature } from "../why-here/types";
 import type { Locale } from "./types";
 
-const lensJa: Record<string, { name: string; category: string; legends: string[]; disclosures?: string[] }> = {
-  "terrain-relief": { name: "地形・起伏", category: "地球", legends: ["陰影起伏表現"] },
-  "physical-features": { name: "主要物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
+const lensJa: Record<string, { name: string; shortName: string; category: string; legends: string[]; disclosures?: string[] }> = {
+  "terrain-relief": { name: "地形・起伏", shortName: "地形", category: "地球", legends: ["陰影起伏表現"] },
+  "physical-features": { name: "主要物理地形", shortName: "物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
   "sea-ice-edges": {
-    name: "凍る海", category: "地球",
+    name: "凍る海", shortName: "海氷", category: "地球",
     legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 冬季平年の縁 · 破線", "1981–2010年 夏季平年の縁 · 実線"],
     disclosures: ["面 · 2025年実測域 · 北3月/9月＋南9月/3月", "線 · 1981–2010年 平年の縁", "現在状況ではありません · 航行用途不可"],
   },
-  "major-ports": { name: "主要港湾", category: "人間活動", legends: ["港湾シグナル"] },
-  "shipping-flows": { name: "海上物流フロー", category: "人間活動", legends: ["模式フロー"] },
-  "submarine-cable-connections": { name: "海底通信接続", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
-  "strategic-chokepoints": { name: "戦略的チョークポイント", category: "戦略・権力", legends: ["戦略的通過地点"] },
-  "critical-minerals": { name: "重要鉱物", category: "資源", legends: ["国別デモ指数", "高さ = 正規化指数"] },
-  "admin0-borders": { name: "国境", category: "戦略・権力", legends: ["国境線"] },
+  "major-ports": { name: "主要港湾", shortName: "港", category: "人間活動", legends: ["港湾シグナル"] },
+  "shipping-flows": { name: "海上物流フロー", shortName: "物流", category: "人間活動", legends: ["模式フロー"] },
+  "submarine-cable-connections": { name: "海底通信接続", shortName: "ケーブル", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
+  "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", legends: ["戦略的通過地点"] },
+  "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", legends: ["国別デモ指数", "高さ = 正規化指数"] },
+  "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", legends: ["国境線"] },
 };
 
 const featureJa: Record<string, { name: string; description?: string }> = {
@@ -133,6 +133,7 @@ export function localizeLensDefinition(lens: EarthLensDefinition, locale: Locale
   return {
     ...lens,
     name: localized.name,
+    shortName: localized.shortName,
     legend: lens.legend.map((item, index) => ({ ...item, label: localized.legends[index] ?? item.label })),
     disclosures: localized.disclosures ?? lens.disclosures,
   };

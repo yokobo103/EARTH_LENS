@@ -5,16 +5,27 @@ import type { Locale } from "../i18n/types";
 interface ShareButtonProps { locale: Locale }
 
 export function ShareButton({ locale }: ShareButtonProps) {
-  const [status, setStatus] = useState<"idle" | "copied" | "fallback">("idle");
+  const [status, setStatus] = useState<"idle" | "shared" | "copied" | "fallback">("idle");
   const share = async () => {
     const url = window.location.href;
     try {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "EARTH LENS", url });
+          setStatus("shared");
+          return;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "AbortError") return;
+          // A share sheet can be present but unavailable in an embedded/insecure context.
+        }
+      }
       if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
       await navigator.clipboard.writeText(url);
       setStatus("copied");
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       setStatus("fallback");
     }
   };
-  return <div className="share-control"><button type="button" className="share-button" onClick={() => void share()}>{status === "copied" ? t(locale, "copied") : t(locale, "shareView")}</button>{status === "fallback" && <input className="share-fallback" aria-label={t(locale, "shareUrl")} readOnly value={window.location.href} onFocus={(event) => event.currentTarget.select()} />}</div>;
+  return <div className="share-control"><button type="button" className="share-button" onClick={() => void share()}>{status === "shared" ? t(locale, "shared") : status === "copied" ? t(locale, "copied") : t(locale, "shareView")}</button>{status === "fallback" && <input className="share-fallback" aria-label={t(locale, "shareUrl")} readOnly value={window.location.href} onFocus={(event) => event.currentTarget.select()} />}</div>;
 }

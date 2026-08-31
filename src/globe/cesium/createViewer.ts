@@ -39,7 +39,9 @@ export function createEarthViewer(container: HTMLElement): Viewer {
   viewer.scene.globe.enableLighting = true;
   viewer.scene.globe.showGroundAtmosphere = true;
   viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
-  viewer.camera.setView({ destination: Cartesian3.fromDegrees(84, 22, 18_500_000) });
+  const isPortrait = typeof window !== "undefined" && window.innerHeight > window.innerWidth * 1.08;
+  const openingHeight = isPortrait ? 12_500_000 : 18_500_000;
+  viewer.camera.setView({ destination: Cartesian3.fromDegrees(101.5, 8, openingHeight) });
 
   return viewer;
 }

@@ -97,8 +97,8 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                   onPointerLeave={clearLongPress}
                 >
                   <i className={`lens-rail-swatch legend-${legend?.symbol ?? "point"}`} aria-hidden="true" />
-                  <strong>{lens.name}</strong>
-                  <span>{active ? t(locale, "on") : t(locale, "off")}{missionRecommendedLensIds && <em className={recommended ? "lens-kit-focus" : "lens-kit-standby"}>{recommended ? t(locale, "missionFocus") : t(locale, "standby")}</em>}</span>
+                  <strong>{lens.shortName}</strong>
+                  {missionRecommendedLensIds && <span><em className={recommended ? "lens-kit-focus" : "lens-kit-standby"}>{recommended ? t(locale, "missionFocus") : t(locale, "standby")}</em></span>}
                 </button>
               </section>;
             })}</div>
