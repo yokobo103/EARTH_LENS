@@ -118,9 +118,6 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
 
     const viewer = createEarthViewer(containerRef.current);
     viewerRef.current = viewer;
-    const qaView = new URLSearchParams(window.location.search).get("qaView");
-    if (qaView === "arctic") viewer.camera.setView({ destination: Cartesian3.fromDegrees(35, 78, 8_700_000) });
-    if (qaView === "antarctic") viewer.camera.setView({ destination: Cartesian3.fromDegrees(20, -78, 8_700_000) });
     const occluder = new EllipsoidalOccluder(viewer.scene.globe.ellipsoid, viewer.camera.positionWC);
     const windowPosition = new Cartesian2();
     const renderHandles = renderHandlesRef.current;

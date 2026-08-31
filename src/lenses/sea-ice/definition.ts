@@ -34,7 +34,8 @@ export const seaIceDefinition: EarthLensDefinition = {
     { label: "2025 year-round ice · N Sep / S Mar observed", color: "#dffaff", symbol: "area" },
     { label: "2025 winter-only ice · N Mar / S Sep observed", color: "#57a9d1", symbol: "area" },
     { label: "2025 outside winter extent · no fill", color: "#183241", symbol: "area" },
-    { label: "1981–2010 median extent edges", color: "#f5d77f", symbol: "line" },
+    { label: "1981–2010 winter median edge · dashed", color: "#f4c96b", symbol: "line" },
+    { label: "1981–2010 summer median edge · solid", color: "#f4c96b", symbol: "line" },
   ],
   disclosures: [
     "AREAS · 2025 OBSERVED EXTENT · N MAR/SEP + S SEP/MAR",

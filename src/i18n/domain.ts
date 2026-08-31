@@ -8,7 +8,7 @@ const lensJa: Record<string, { name: string; category: string; legends: string[]
   "physical-features": { name: "主要物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
   "sea-ice-edges": {
     name: "凍る海", category: "地球",
-    legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 平年の縁"],
+    legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 冬季平年の縁 · 破線", "1981–2010年 夏季平年の縁 · 実線"],
     disclosures: ["面 · 2025年実測域 · 北3月/9月＋南9月/3月", "線 · 1981–2010年 平年の縁", "現在状況ではありません · 航行用途不可"],
   },
   "major-ports": { name: "主要港湾", category: "人間活動", legends: ["港湾シグナル"] },
