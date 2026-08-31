@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "data:geo": "node tools/build-geo.mjs",
     "validate:geo": "node tools/verify-borders.mjs",
+    "check:links": "node tools/check-external-links.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
     "preview": "vite preview"

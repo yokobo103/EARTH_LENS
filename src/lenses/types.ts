@@ -4,6 +4,15 @@ export type ConfidenceLevel = "high" | "medium" | "low" | "unknown";
 export type TemporalMode = "present" | "deep-time" | "historical" | "all";
 export type LensCategory = "earth" | "resources" | "human" | "power";
 export type DataClassification = "real" | "demo" | "derived" | "schematic";
+export type ReadingLanguage = "en" | "ja" | "multi";
+
+export interface FurtherReadingLink {
+  title: string;
+  url: string;
+  note: string;
+  language: ReadingLanguage;
+  checkedAt: string;
+}
 
 export interface DataProvenance {
   source: string;
@@ -40,6 +49,7 @@ export interface EarthLensDefinition {
   visibleByDefault: boolean;
   legend: LensLegendItem[];
   disclosures?: string[];
+  furtherReading?: readonly FurtherReadingLink[];
 }
 
 export interface GeographicPoint {
@@ -76,6 +86,7 @@ export interface LensFeature {
       };
   provenance: DataProvenance;
   attributes: Record<string, string | number | boolean>;
+  furtherReading?: readonly FurtherReadingLink[];
 }
 
 export interface LensDataset {

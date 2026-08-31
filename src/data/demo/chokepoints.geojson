@@ -2,8 +2,7 @@
   "type": "FeatureCollection",
   "metadata": {
     "source": "EARTH LENS editorial demo dataset",
-    "sourceUrl": "https://en.wikipedia.org/wiki/Choke_point",
-    "license": "CC0-1.0 for this original demo compilation; linked pages are reference only",
+    "license": "CC0-1.0 for this original demo compilation",
     "updatedAt": "2026-08-27",
     "confidence": "high",
     "dataKind": "demo",

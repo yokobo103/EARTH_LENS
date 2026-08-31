@@ -90,6 +90,11 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
           {feature.provenance.sourceUrl && (
             <a className="source-link" href={feature.provenance.sourceUrl} target="_blank" rel="noreferrer">{t(locale, "viewReference")}</a>
           )}
+          {(() => {
+            const readings = feature.furtherReading ?? lens?.furtherReading;
+            if (!readings?.length) return null;
+            return <section className="further-reading"><div className="further-reading-heading"><strong>{t(locale, "furtherReading")}</strong><small>{t(locale, "externalGuide")}</small></div>{readings.map((reading) => <article key={reading.url}><a href={reading.url} target="_blank" rel="noreferrer">{reading.title} ↗</a><p>{reading.note}</p><small>{reading.language === "en" ? t(locale, "englishOnly") : reading.language.toUpperCase()} · {t(locale, "checked")} {reading.checkedAt}</small></article>)}</section>;
+          })()}
           {analysisLocation && <WhyHerePanel result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} />}
         </div>
       ) : location ? (

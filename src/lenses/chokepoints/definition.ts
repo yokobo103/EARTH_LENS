@@ -1,6 +1,14 @@
 import chokepointsGeoJsonText from "../../data/demo/chokepoints.geojson?raw";
 import type { DataProvenance, EarthLensDefinition, LensDataset, LensFeature } from "../types";
 
+const CHOKEPOINT_READING = [{
+  title: "Choke point · Wikipedia",
+  url: "https://en.wikipedia.org/wiki/Choke_point",
+  note: "External background reading on the term; it is not the source of this original demo compilation.",
+  language: "en",
+  checkedAt: "2026-08-31",
+}] as const;
+
 interface ChokepointGeoJson {
   metadata: DataProvenance;
   features: Array<{
@@ -22,6 +30,7 @@ export const chokepointsDefinition: EarthLensDefinition = {
   provenance: { ...rawData.metadata, classifications: ["demo", "derived"] },
   visibleByDefault: true,
   legend: [{ label: "Strategic passage", color: "#ffb454", symbol: "point" }],
+  furtherReading: CHOKEPOINT_READING,
 };
 
 export async function loadChokepoints(): Promise<LensDataset> {
@@ -39,6 +48,7 @@ export async function loadChokepoints(): Promise<LensDataset> {
     },
     provenance: { ...rawData.metadata, classifications: ["demo", "derived"] },
     attributes: { type: feature.properties.type },
+    furtherReading: CHOKEPOINT_READING,
   }));
 
   return { lensId: chokepointsDefinition.id, features };

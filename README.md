@@ -75,6 +75,10 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 
 WHY HERE?は近傍Evidenceを構造化するところまでです。AI/LLMによる解釈は行いません。
 
+### Further reading
+
+展開したFeatureまたはLensの詳細には、データの出典（`source`）とは別に、理解を深めるための外部案内を表示します。案内はこのアプリの根拠や取り込みデータではなく、要約・転載・計測は行いません。リンクの到達確認はアプリ実行時にはせず、必要なときに `npm run check:links` を手動で実行します。
+
 ## Language support
 
 ヘッダーの`EN / 日本語`で、Explore、Mission、Hint、Details、WHY HERE?、Deep Timeの表示言語を切り替えられます。切替時もMission進行、Hint使用数、選択地点は維持され、選択言語はブラウザへ保存されます。

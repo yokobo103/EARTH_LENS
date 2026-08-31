@@ -7,6 +7,23 @@ import type {
   LensFeature,
 } from "../types";
 
+const CABLE_READING = [
+  {
+    title: "TeleGeography Submarine Cable Map",
+    url: "https://www.submarinecablemap.com/",
+    note: "External interactive map for researching real cable systems; it is not the source of this schematic demo layer.",
+    language: "en",
+    checkedAt: "2026-08-31",
+  },
+  {
+    title: "TeleGeography Submarine Cable FAQs",
+    url: "https://www2.telegeography.com/submarine-cable-faqs-frequently-asked-questions",
+    note: "External background reading on cable systems and landing points.",
+    language: "en",
+    checkedAt: "2026-08-31",
+  },
+] as const;
+
 export type CableRouteType = "schematic" | "approximate" | "actual";
 
 export interface CableConnection {
@@ -39,6 +56,7 @@ export const submarineCablesDefinition: EarthLensDefinition = {
     { label: "Schematic route", color: "#55d8ff", symbol: "line" },
     { label: "Regional endpoint", color: "#b8f3ff", symbol: "point" },
   ],
+  furtherReading: CABLE_READING,
 };
 
 export async function loadSubmarineCableConnections(): Promise<LensDataset> {
@@ -55,6 +73,7 @@ export async function loadSubmarineCableConnections(): Promise<LensDataset> {
       actualRouteRepresented: connection.actualRouteRepresented,
       demo: connection.demo,
     },
+    furtherReading: CABLE_READING,
   }));
   return { lensId: submarineCablesDefinition.id, features };
 }
