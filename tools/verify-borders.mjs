@@ -8,6 +8,7 @@ const bordersPath = path.join(projectRoot, "public", "geo", "admin0-countries.ge
 const bordersText = await readFile(bordersPath, "utf8");
 const portsText = await readFile(path.join(projectRoot, "public", "geo", "major-ports.geojson"), "utf8");
 const seaIceText = await readFile(path.join(projectRoot, "public", "geo", "sea-ice-median-edges.geojson"), "utf8");
+const seaIceExtentText = await readFile(path.join(projectRoot, "public", "geo", "sea-ice-extent-2025.geojson"), "utf8");
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
@@ -19,6 +20,9 @@ globalThis.fetch = async (input, init) => {
   }
   if (url.endsWith("/geo/sea-ice-median-edges.geojson")) {
     return new Response(seaIceText, { status: 200, headers: { "content-type": "application/geo+json" } });
+  }
+  if (url.endsWith("/geo/sea-ice-extent-2025.geojson")) {
+    return new Response(seaIceExtentText, { status: 200, headers: { "content-type": "application/geo+json" } });
   }
   return originalFetch(input, init);
 };
@@ -63,12 +67,28 @@ try {
   }
   console.log(`PASS sea-ice coverage: winter ${pathCountByEdge.winter} paths / summer ${pathCountByEdge.summer} paths / normalized longitude gap ${maximumLongitudeGap.toFixed(2)}°`);
 
-  const greenwichSanity = await analyzeLocation({ latitude: 60, longitude: 0 }, 500);
-  const falseAntimeridianMatches = greenwichSanity.lensResults.find((lens) => lens.lensId === "sea-ice-edges")?.features ?? [];
-  if (falseAntimeridianMatches.length) {
-    throw new Error(`Sea-ice antimeridian distance regression: ${JSON.stringify(falseAntimeridianMatches)}`);
+  const extentGeoJson = JSON.parse(seaIceExtentText);
+  const extentById = new Map(extentGeoJson.features.map((feature) => [feature.id, feature]));
+  const extentInspection = extentGeoJson.metadata?.inspection;
+  if (extentGeoJson.metadata?.observationYear !== 2025 || extentGeoJson.features.length !== 2
+    || !extentById.has("winter-observed-extent-2025") || !extentById.has("summer-observed-extent-2025")
+    || extentInspection?.holes !== 82 || extentInspection?.antimeridianSegments !== 12) {
+    throw new Error(`Sea-ice extent metadata/topology failed: ${JSON.stringify(extentGeoJson.metadata)}`);
   }
-  console.log("PASS sea-ice antimeridian distance: no false Greenwich match");
+  console.log(`PASS 2025 extent topology: ${extentInspection.holes} source holes preserved / ${extentInspection.antimeridianSegments} dateline-crossing segments`);
+
+  const seaIceCheck = async (label, location, featureId, expectedRelation) => {
+    const result = await analyzeLocation(location, 500);
+    const seaIce = result.lensResults.find((lens) => lens.lensId === "sea-ice-edges");
+    const match = seaIce?.features.find((feature) => feature.featureId === featureId);
+    if (!match || match.relation !== expectedRelation) {
+      throw new Error(`${label}: expected ${featureId} / ${expectedRelation}, received ${JSON.stringify(seaIce?.features)}`);
+    }
+    console.log(`PASS ${label}: ${match.name} / ${match.relation} / edge distance ${match.distanceKm} km`);
+  };
+  await seaIceCheck("North Pole extent", { latitude: 89, longitude: 0 }, "summer-observed-extent-2025", "inside-area");
+  await seaIceCheck("Murmansk winter state", { latitude: 68.9725, longitude: 33.0415 }, "winter-observed-extent-2025", "outside-area");
+  await seaIceCheck("Arkhangelsk winter state", { latitude: 64.5425, longitude: 40.5564 }, "winter-observed-extent-2025", "inside-area");
 } finally {
   await vite.close();
   globalThis.fetch = originalFetch;

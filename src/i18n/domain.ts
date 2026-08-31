@@ -3,10 +3,14 @@ import type { EarthMission } from "../missions/types";
 import type { WhyHereNearbyFeature } from "../why-here/types";
 import type { Locale } from "./types";
 
-const lensJa: Record<string, { name: string; category: string; legends: string[] }> = {
+const lensJa: Record<string, { name: string; category: string; legends: string[]; disclosures?: string[] }> = {
   "terrain-relief": { name: "地形・起伏", category: "地球", legends: ["陰影起伏表現"] },
   "physical-features": { name: "主要物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
-  "sea-ice-edges": { name: "凍る海", category: "地球", legends: ["一年中凍る · 夏の縁より内側", "冬に凍る · 2本の縁の間", "通常は凍らない · 冬の縁より外側"] },
+  "sea-ice-edges": {
+    name: "凍る海", category: "地球",
+    legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 平年の縁"],
+    disclosures: ["面 · 2025年実測域 · 北3月/9月＋南9月/3月", "線 · 1981–2010年 平年の縁", "現在状況ではありません · 航行用途不可"],
+  },
   "major-ports": { name: "主要港湾", category: "人間活動", legends: ["港湾シグナル"] },
   "shipping-flows": { name: "海上物流フロー", category: "人間活動", legends: ["模式フロー"] },
   "submarine-cable-connections": { name: "海底通信接続", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
@@ -29,6 +33,8 @@ const featureJa: Record<string, { name: string; description?: string }> = {
   "physical-bosporus": { name: "ボスポラス海峡", description: "黒海とマルマラ海を結ぶ狭い自然水路。" },
   "winter-median-edge": { name: "冬の海氷中央値の縁", description: "典型的な季節最大域の縁。北半球は3月、南半球は9月の1981〜2010年中央値です。" },
   "summer-median-edge": { name: "夏の海氷中央値の縁", description: "典型的な季節最小域の縁。北半球は9月、南半球は3月の1981〜2010年中央値です。" },
+  "winter-observed-extent-2025": { name: "2025年 冬季実測海氷域", description: "2025年の月平均海氷濃度が15%以上だった冬季スナップショット。北半球は3月、南半球は9月です。" },
+  "summer-observed-extent-2025": { name: "2025年 夏季実測海氷域", description: "2025年の月平均海氷濃度が15%以上だった夏季スナップショット。北半球は9月、南半球は3月です。" },
   "port-singapore": { name: "シンガポール港" },
   "port-shanghai": { name: "上海港" },
   "port-rotterdam": { name: "ロッテルダム港" },
@@ -113,6 +119,7 @@ const valueJa: Record<string, string> = {
   March: "3月",
   September: "9月",
   "Median sea-ice extent edge": "海氷域中央値の縁",
+  "Observed monthly sea-ice extent": "月次実測海氷域",
 };
 
 export function localizeLensName(lensId: string, fallback: string, locale: Locale): string {
@@ -127,6 +134,7 @@ export function localizeLensDefinition(lens: EarthLensDefinition, locale: Locale
     ...lens,
     name: localized.name,
     legend: lens.legend.map((item, index) => ({ ...item, label: localized.legends[index] ?? item.label })),
+    disclosures: localized.disclosures ?? lens.disclosures,
   };
 }
 
@@ -180,6 +188,7 @@ export function localizeRelation(feature: WhyHereNearbyFeature, locale: Locale, 
   if (feature.relation === "near-area") return "周辺エリア";
   if (feature.relation === "near-line") return "縁まで";
   if (feature.relation === "inside-area") return "領域内";
+  if (feature.relation === "outside-area") return "実測域の外";
   return fallback;
 }
 

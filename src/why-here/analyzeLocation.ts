@@ -25,19 +25,42 @@ function bboxCouldBeWithinRadius(location: GeographicPoint, bbox: GeographicBoun
   ) <= longitudeMargin;
 }
 
-function pointInRing(location: GeographicPoint, ring: GeographicPoint[]): boolean {
-  if (ring.length < 3) return false;
+function pointInPlanarRing(x: number, y: number, ring: Array<{ x: number; y: number }>): boolean {
   let inside = false;
   for (let currentIndex = 0, previousIndex = ring.length - 1; currentIndex < ring.length; previousIndex = currentIndex, currentIndex += 1) {
     const current = ring[currentIndex]!;
     const previous = ring[previousIndex]!;
-    const currentX = normalizedLongitudeDelta(current.longitude, location.longitude);
-    const previousX = normalizedLongitudeDelta(previous.longitude, location.longitude);
-    const intersects = ((current.latitude > location.latitude) !== (previous.latitude > location.latitude))
-      && (0 < (previousX - currentX) * (location.latitude - current.latitude) / (previous.latitude - current.latitude) + currentX);
+    const intersects = ((current.y > y) !== (previous.y > y))
+      && (x < (previous.x - current.x) * (y - current.y) / (previous.y - current.y) + current.x);
     if (intersects) inside = !inside;
   }
   return inside;
+}
+
+function polarHemisphereForRing(ring: GeographicPoint[]): "north" | "south" | undefined {
+  let longitudeWinding = 0;
+  for (let index = 0; index < ring.length - 1; index += 1) {
+    longitudeWinding += normalizedLongitudeDelta(ring[index + 1]!.longitude, ring[index]!.longitude);
+  }
+  if (Math.abs(longitudeWinding) < 180) return undefined;
+  return ring.reduce((sum, point) => sum + point.latitude, 0) >= 0 ? "north" : "south";
+}
+
+function pointInRing(location: GeographicPoint, ring: GeographicPoint[]): boolean {
+  if (ring.length < 3) return false;
+  const polarHemisphere = polarHemisphereForRing(ring);
+  if (polarHemisphere) {
+    const toPolarPlane = (point: GeographicPoint) => {
+      const radius = polarHemisphere === "north" ? 90 - point.latitude : 90 + point.latitude;
+      const angle = toRadians(point.longitude);
+      return { x: radius * Math.sin(angle), y: -radius * Math.cos(angle) };
+    };
+    const point = toPolarPlane(location);
+    return pointInPlanarRing(point.x, point.y, ring.map(toPolarPlane));
+  }
+  return pointInPlanarRing(0, location.latitude, ring.map((point) => ({
+    x: normalizedLongitudeDelta(point.longitude, location.longitude), y: point.latitude,
+  })));
 }
 
 function pointInPolygon(location: GeographicPoint, polygon: GeographicAreaPolygon): boolean {
@@ -91,7 +114,7 @@ export function haversineDistanceKm(a: GeographicPoint, b: GeographicPoint): num
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(value));
 }
 
-function measureFeature(location: GeographicPoint, feature: LensFeature, radiusKm: number): { distanceKm: number; relation: WhyHereNearbyFeature["relation"]; relationLabel?: string } {
+function measureFeature(location: GeographicPoint, feature: LensFeature, radiusKm: number): { distanceKm: number; relation: WhyHereNearbyFeature["relation"]; relationLabel?: string; includeRegardlessOfRadius?: boolean } {
   if (feature.geometry.type === "point") {
     return { distanceKm: haversineDistanceKm(location, feature.geometry.coordinates), relation: "near-point" };
   }
@@ -113,15 +136,26 @@ function measureFeature(location: GeographicPoint, feature: LensFeature, radiusK
     }
     return { distanceKm: distanceToPathsKm(location, feature.geometry.paths), relation: "near-line" };
   }
-  if (!bboxCouldBeWithinRadius(location, feature.geometry.bbox, radiusKm)) {
+  const reportsContainment = feature.attributes.containmentEvidence === true && Math.abs(location.latitude) >= 55;
+  if (!reportsContainment && !bboxCouldBeWithinRadius(location, feature.geometry.bbox, radiusKm)) {
     return { distanceKm: Number.POSITIVE_INFINITY, relation: "near-area" };
   }
-  const relevantPolygons = feature.geometry.polygons.filter((polygon) => bboxCouldBeWithinRadius(location, polygon.bbox, radiusKm));
+  const relevantPolygons = reportsContainment
+    ? feature.geometry.polygons
+    : feature.geometry.polygons.filter((polygon) => bboxCouldBeWithinRadius(location, polygon.bbox, radiusKm));
   if (relevantPolygons.some((polygon) => pointInPolygon(location, polygon))) {
-    return { distanceKm: 0, relation: "inside-area", relationLabel: "Inside area" };
+    return { distanceKm: 0, relation: "inside-area", relationLabel: reportsContainment ? "Inside observed extent" : "Inside area", includeRegardlessOfRadius: reportsContainment };
+  }
+  const distanceKm = Math.min(...relevantPolygons.map((polygon) => distanceToPolygonEdgesKm(location, polygon)));
+  if (reportsContainment) {
+    const toleranceKm = typeof feature.attributes.containmentToleranceKm === "number" ? feature.attributes.containmentToleranceKm : 0;
+    if (distanceKm <= toleranceKm) {
+      return { distanceKm: 0, relation: "inside-area", relationLabel: `Inside observed extent (${toleranceKm} km coastal tolerance)`, includeRegardlessOfRadius: true };
+    }
+    return { distanceKm, relation: "outside-area", relationLabel: "Outside observed extent", includeRegardlessOfRadius: true };
   }
   return {
-    distanceKm: Math.min(...relevantPolygons.map((polygon) => distanceToPolygonEdgesKm(location, polygon))),
+    distanceKm,
     relation: "near-area",
   };
 }
@@ -132,7 +166,7 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
   const lensResults = lensRegistry.map((lens) => {
     const nearby = (datasetById.get(lens.definition.id)?.features ?? [])
       .map((feature) => ({ feature, measurement: measureFeature(location, feature, radiusKm) }))
-      .filter(({ measurement }) => measurement.distanceKm <= radiusKm)
+      .filter(({ measurement }) => measurement.distanceKm <= radiusKm || measurement.includeRegardlessOfRadius === true)
       .sort((a, b) => a.measurement.distanceKm - b.measurement.distanceKm)
       .map(({ feature, measurement }): WhyHereNearbyFeature => ({
         featureId: feature.id,

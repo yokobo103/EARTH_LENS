@@ -23,9 +23,18 @@ function signalMaximumDistance(scaleRank: number): number {
   return 10_000_000;
 }
 
+function labelMaximumDistanceForScaleRank(scaleRank: number): number {
+  if (scaleRank <= 4) return 6_000_000;
+  if (scaleRank === 5) return 4_500_000;
+  if (scaleRank === 6) return 3_300_000;
+  if (scaleRank === 7) return 2_300_000;
+  return 1_500_000;
+}
+
 export function renderPorts(viewer: Viewer, dataset: LensDataset): LensRenderHandle {
   const entities = new Map<string, LensFeature>();
   const labelsByFeature = new Map<string, Entity>();
+  const normalLabelDistance = new Map<string, number>();
 
   for (const feature of dataset.features) {
     if (feature.geometry.type !== "point") continue;
@@ -62,11 +71,12 @@ export function renderPorts(viewer: Viewer, dataset: LensDataset): LensRenderHan
         style: LabelStyle.FILL_AND_OUTLINE,
         pixelOffset: new Cartesian2(0, -18),
         verticalOrigin: VerticalOrigin.BOTTOM,
-        distanceDisplayCondition: new DistanceDisplayCondition(0, labelMaximumDistance("normal")),
+        distanceDisplayCondition: new DistanceDisplayCondition(0, labelMaximumDistanceForScaleRank(scaleRank)),
       },
     }));
     entities.set(entity.id, feature);
     labelsByFeature.set(feature.id, entity);
+    normalLabelDistance.set(feature.id, labelMaximumDistanceForScaleRank(scaleRank));
   }
 
   return {
@@ -79,7 +89,9 @@ export function renderPorts(viewer: Viewer, dataset: LensDataset): LensRenderHan
     setSelectedFeature(featureId) {
       for (const [id, entity] of labelsByFeature) {
         if (!entity.label) continue;
-        entity.label.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(0, labelMaximumDistance(id === featureId ? "selected" : "normal")));
+        entity.label.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(0, id === featureId
+          ? labelMaximumDistance("selected")
+          : normalLabelDistance.get(id) ?? labelMaximumDistanceForScaleRank(8)));
       }
     },
     getFeatureForPick(picked) {
@@ -90,6 +102,7 @@ export function renderPorts(viewer: Viewer, dataset: LensDataset): LensRenderHan
       for (const entityId of entities.keys()) viewer.entities.removeById(entityId);
       entities.clear();
       labelsByFeature.clear();
+      normalLabelDistance.clear();
     },
   };
 }

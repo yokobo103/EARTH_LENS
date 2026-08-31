@@ -70,6 +70,8 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
             {feature.attributes.flowType !== undefined && <><dt>{t(locale, "flowType")}</dt><dd>{localizeValue(feature.attributes.flowType, locale)}</dd></>}
             {feature.attributes.actualRouteRepresented !== undefined && <><dt>{t(locale, "actualSeabedRoute")}</dt><dd>{feature.attributes.actualRouteRepresented ? t(locale, "represented") : t(locale, "notRepresented")}</dd></>}
             {feature.attributes.edgeSeason !== undefined && <><dt>{t(locale, "edgeSeason")}</dt><dd>{localizeValue(feature.attributes.edgeSeason, locale)}</dd></>}
+            {feature.attributes.extentSeason !== undefined && <><dt>{t(locale, "extentSeason")}</dt><dd>{localizeValue(feature.attributes.extentSeason, locale)}</dd></>}
+            {feature.attributes.observationYear !== undefined && <><dt>{t(locale, "observationYear")}</dt><dd>{localizeValue(feature.attributes.observationYear, locale)}</dd></>}
             {feature.attributes.northernHemisphereMonth !== undefined && <><dt>{t(locale, "northernHemisphereMonth")}</dt><dd>{localizeValue(feature.attributes.northernHemisphereMonth, locale)}</dd></>}
             {feature.attributes.southernHemisphereMonth !== undefined && <><dt>{t(locale, "southernHemisphereMonth")}</dt><dd>{localizeValue(feature.attributes.southernHemisphereMonth, locale)}</dd></>}
             {feature.attributes.climatology !== undefined && <><dt>{t(locale, "climatology")}</dt><dd>{localizeValue(feature.attributes.climatology, locale)}</dd></>}
