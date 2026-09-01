@@ -21,6 +21,7 @@ interface LensInfoState {
 
 export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds }: LayerPanelProps) {
   const [info, setInfo] = useState<LensInfoState | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClickFor = useRef<string | null>(null);
   const categoryOrder: LensCategory[] = ["earth", "resources", "human", "power"];
@@ -65,6 +66,13 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
   return (
     <aside className={`layer-panel lens-rail${suspended ? " is-suspended" : ""}`} aria-label="Lens rail">
       <div className="lens-rail-heading"><span>{t(locale, "layers")}</span><small>{t(locale, "holdForDetails")}</small></div>
+      <div className="mobile-lens-summary">
+        <span>{t(locale, "activeLenses")}</span>
+        <div className="mobile-lens-chips">
+          {lenses.filter((lens) => activeLensIds.has(lens.id)).map((lens) => <button type="button" key={lens.id} onClick={() => onToggle(lens.id)}>{lens.shortName}</button>)}
+          <button type="button" className="mobile-lens-add" onClick={() => setPaletteOpen((open) => !open)} aria-expanded={paletteOpen}>{t(locale, "addLens")}</button>
+        </div>
+      </div>
       <div className="layer-list">
         {categoryOrder.map((category) => {
           const categoryLenses = lenses.filter((lens) => lens.category === category);
@@ -106,6 +114,12 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
         })}
       </div>
       {suspended && <p className="lens-rail-status">{t(locale, "modernSuspended")}</p>}
+      {paletteOpen && <div className="mobile-lens-palette" role="dialog" aria-label={t(locale, "lensPalette")}>
+        <div className="mobile-lens-palette-heading"><strong>{t(locale, "lensPalette")}</strong><button type="button" onClick={() => setPaletteOpen(false)} aria-label={t(locale, "closePalette")}>×</button></div>
+        <div className="mobile-lens-palette-grid">
+          {lenses.map((lens) => <button type="button" key={lens.id} aria-pressed={activeLensIds.has(lens.id)} disabled={suspended} onClick={() => onToggle(lens.id)}><i className="lens-rail-swatch legend-point" aria-hidden="true" /><span>{lens.shortName}</span><small>{activeLensIds.has(lens.id) ? t(locale, "on") : t(locale, "off")}</small></button>)}
+        </div>
+      </div>}
       {info && <aside className="lens-info-card" role="dialog" aria-label={`${info.lens.name} ${t(locale, "details")}`} style={{ top: info.top, left: info.left }}>
         <button type="button" className="anchor-close" onClick={() => setInfo(null)} aria-label={t(locale, "close")}>×</button>
         <span className="eyebrow">{info.lens.category.toUpperCase()} LENS</span>
