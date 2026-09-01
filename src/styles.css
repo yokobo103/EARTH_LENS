@@ -601,15 +601,16 @@ body { overscroll-behavior: none; }
   .timeline-options button { min-width: 44px; min-height: 44px; padding: 5px; font-size: 9px; }
   .paleo-status { right: -91px; width: min(270px, calc(100vw - 16px)); }
 
-  .lens-rail { position: fixed; top: auto; right: 0; bottom: 0; left: 0; display: block; width: auto; height: calc(66px + env(safe-area-inset-bottom)); padding: 5px max(7px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left)); border: 0; border-top: 1px solid rgb(129 210 198 / 24%); background: rgb(3 12 15 / 96%); }
+  .lens-rail { position: fixed; top: auto; right: 0; bottom: 0; left: 0; display: block; width: auto; height: calc(54px + env(safe-area-inset-bottom)); padding: 4px max(7px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left)); border: 0; border-top: 1px solid rgb(129 210 198 / 24%); background: rgb(3 12 15 / 96%); }
   .lens-rail-heading, .lens-rail .layer-category-heading, .lens-rail-status { display: none; }
   .lens-rail .layer-list { display: flex; gap: 4px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
   .lens-rail .layer-list::-webkit-scrollbar { display: none; }
   .lens-rail .layer-category, .lens-rail .layer-category-items { display: flex; flex: 0 0 auto; gap: 4px; margin: 0; }
-  .lens-rail .layer-item { flex: 0 0 auto; height: 50px; }
+  .lens-rail .layer-category + .layer-category { margin-top: 0; }
+  .lens-rail .layer-item { flex: 0 0 auto; height: 42px; }
   .lens-rail { padding-right: 22px; }
   .lens-rail::after { top: 0; right: 0; bottom: 0; left: auto; width: 24px; height: auto; background: linear-gradient(90deg, transparent, rgb(3 12 15 / 96%)); }
-  .lens-rail .layer-toggle { grid-template-columns: 12px minmax(44px, auto); min-width: 68px; min-height: 0; padding: 5px 4px; gap: 5px; }
+  .lens-rail .layer-toggle { grid-template-columns: 12px minmax(40px, auto); min-width: 64px; min-height: 0; padding: 4px 4px; gap: 4px; }
   .lens-rail .layer-toggle strong { font-size: 8px; }
   .lens-rail .layer-toggle > span { display: none; }
   .lens-info-card { top: auto !important; right: 8px; bottom: calc(72px + env(safe-area-inset-bottom)); left: 8px !important; width: auto; max-height: min(58vh, 440px); }
