@@ -515,9 +515,9 @@ body { overscroll-behavior: none; }
 .lens-rail .layer-category + .layer-category { margin-top: 7px; }
 .lens-rail .layer-category-heading { padding: 4px; font-size: 6px; }
 .lens-rail .layer-category-items { gap: 3px; }
-.lens-rail .layer-item { border: 1px solid color-mix(in srgb, var(--lens-color) 27%, transparent); background: rgb(2 12 15 / 48%); }
+.lens-rail .layer-item { height: 44px; border: 1px solid color-mix(in srgb, var(--lens-color) 27%, transparent); background: rgb(2 12 15 / 48%); }
 .lens-rail .layer-item.is-active { border-color: var(--lens-color); background: color-mix(in srgb, var(--lens-color) 16%, #061318 84%); box-shadow: inset 2px 0 0 var(--lens-color); }
-.lens-rail .layer-toggle { display: grid; grid-template-columns: 15px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-height: 44px; padding: 6px 7px; }
+.lens-rail .layer-toggle { display: grid; grid-template-columns: 15px minmax(0, 1fr) auto; gap: 7px; align-items: center; width: 100%; height: 100%; min-height: 0; padding: 6px 7px; overflow: hidden; }
 .lens-rail .layer-toggle strong { overflow: hidden; color: #8ba3a0; font: 700 8px/1.25 ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
 .lens-rail .layer-item.is-active .layer-toggle strong { color: #edfffc; }
 .lens-rail .layer-toggle > span { color: #536c69; font: 750 6px ui-monospace, monospace; }
@@ -606,10 +606,10 @@ body { overscroll-behavior: none; }
   .lens-rail .layer-list { display: flex; gap: 4px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
   .lens-rail .layer-list::-webkit-scrollbar { display: none; }
   .lens-rail .layer-category, .lens-rail .layer-category-items { display: flex; flex: 0 0 auto; gap: 4px; margin: 0; }
-  .lens-rail .layer-item { flex: 0 0 auto; }
+  .lens-rail .layer-item { flex: 0 0 auto; height: 50px; }
   .lens-rail { padding-right: 22px; }
   .lens-rail::after { top: 0; right: 0; bottom: 0; left: auto; width: 24px; height: auto; background: linear-gradient(90deg, transparent, rgb(3 12 15 / 96%)); }
-  .lens-rail .layer-toggle { grid-template-columns: 12px minmax(44px, auto); min-width: 68px; min-height: 50px; padding: 5px 4px; gap: 5px; }
+  .lens-rail .layer-toggle { grid-template-columns: 12px minmax(44px, auto); min-width: 68px; min-height: 0; padding: 5px 4px; gap: 5px; }
   .lens-rail .layer-toggle strong { font-size: 8px; }
   .lens-rail .layer-toggle > span { display: none; }
   .lens-info-card { top: auto !important; right: 8px; bottom: calc(72px + env(safe-area-inset-bottom)); left: 8px !important; width: auto; max-height: min(58vh, 440px); }

@@ -201,6 +201,7 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
       lensId: lens.definition.id,
       lensName: lens.definition.name,
       nearbyCount: nearby.length,
+      totalFeatureCount: datasetById.get(lens.definition.id)?.features.length ?? 0,
       features: nearby,
     };
   });

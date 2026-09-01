@@ -15,11 +15,11 @@ interface WhyHerePanelProps {
 export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze }: WhyHerePanelProps) {
   const summary = result ? summarizeWhyHere(result) : null;
   const toneCopy: Record<WhyHereSummaryTone, string> = {
-    "human-overlap": t(locale, "summaryHumanOverlap"),
-    "flow-hub": t(locale, "summaryFlowHub"),
-    corridor: t(locale, "summaryCorridor"),
-    "earth-only": t(locale, "summaryEarthOnly"),
-    quiet: t(locale, "summaryQuiet"),
+    "dense-cluster": t(locale, "summaryDenseCluster"),
+    "cross-category": t(locale, "summaryCrossCategory"),
+    "single-signal": t(locale, "summarySingleSignal"),
+    "open-space": t(locale, "summaryOpenSpace"),
+    "physical-signal": t(locale, "summaryPhysicalSignal"),
   };
 
   return (
@@ -43,6 +43,7 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
                 <span>{t(locale, "summaryBasis")}: {summary.evidenceLenses.length > 0
                   ? summary.evidenceLenses.map((lens) => localizeLensName(lens.lensId, lens.lensName, locale)).join(" · ")
                   : t(locale, "noReaction")}</span>
+                {summary.primarySignal && <span>{localizeLensName(summary.primarySignal.lensId, summary.primarySignal.lensName, locale)} · {summary.primarySignal.nearbyCount} / {summary.primarySignal.totalFeatureCount} {t(locale, "summaryFeatures")}</span>}
               </div>
               {summary.nearest && <NearestFeature feature={summary.nearest} locale={locale} />}
               {summary.evidenceLenses.length > 0 && (

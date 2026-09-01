@@ -15,6 +15,8 @@ export interface WhyHereLensResult {
   lensId: string;
   lensName: string;
   nearbyCount: number;
+  /** Total named features available to this Lens in the current dataset snapshot. */
+  totalFeatureCount?: number;
   features: WhyHereNearbyFeature[];
 }
 
