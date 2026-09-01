@@ -31,7 +31,7 @@ function parsePolygons(data: PaleoGeoJson, ageMa: number) {
 export class DemoPaleoEarthProvider implements PaleoEarthProvider {
   async getSnapshot(ageMa: number): Promise<PaleoEarthSnapshot> {
     const selectedAge = nearestAvailableAge(ageMa);
-    const response = await fetch(`/geo/paleo-coastlines-${selectedAge}.json`);
+    const response = await fetch(`${import.meta.env.BASE_URL}geo/paleo-coastlines-${selectedAge}.json`);
     if (!response.ok) throw new Error(`Paleo coastline snapshot unavailable (${response.status})`);
     const data = await response.json() as PaleoGeoJson;
     return {
