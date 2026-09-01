@@ -2,6 +2,7 @@ import type { EarthLensDefinition, LensDataset } from "../types";
 
 export const terrainDefinition: EarthLensDefinition = {
   id: "terrain-relief",
+  urlCode: "tr",
   name: "TERRAIN / RELIEF",
   shortName: "Terrain",
   category: "earth",

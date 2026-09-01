@@ -25,12 +25,31 @@ import type { Locale } from "../i18n/types";
 import type { TemporalSelection } from "../temporal/types";
 import { analyzeLocation } from "../why-here/analyzeLocation";
 import type { WhyHereResult } from "../why-here/types";
-import { readSharedViewState, writeSharedViewState, type SharedCameraState } from "../share/urlState";
+import { readSharedViewState, type SharedCameraState, type SharedViewState } from "../share/urlState";
 
 type MissionView = "passport" | "field";
 const defaultMission = getDefaultMission();
 const initialSharedView = readSharedViewState();
 const hasSharedView = new URLSearchParams(window.location.search).get("v") === "1";
+const CAMERA_STORAGE_KEY = "earth-lens-camera";
+
+function readStoredCamera(): SharedCameraState | null {
+  try {
+    const raw = window.localStorage.getItem(CAMERA_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<SharedCameraState>;
+    if ([parsed.longitude, parsed.latitude, parsed.height, parsed.heading, parsed.pitch, parsed.roll].every((value) => typeof value === "number" && Number.isFinite(value))
+      && Math.abs(parsed.longitude ?? 0) <= 180
+      && Math.abs(parsed.latitude ?? 0) <= 90
+      && (parsed.height ?? 0) >= 10_000
+      && (parsed.height ?? 0) <= 100_000_000) {
+      return parsed as SharedCameraState;
+    }
+  } catch {
+    // localStorage may be unavailable in private browsing or embedded previews.
+  }
+  return null;
+}
 const openingLocation = { latitude: 1.264, longitude: 103.84 };
 const openingFeature = { lensId: "major-ports", featureId: "port-singapore" };
 
@@ -76,7 +95,7 @@ export function App() {
   const [whyHereResult, setWhyHereResult] = useState<WhyHereResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [temporalSelection, setTemporalSelection] = useState<TemporalSelection>(initialSharedView.temporal ?? { mode: "present", ageMa: 0 });
-  const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(initialSharedView.camera);
+  const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(() => initialSharedView.camera ?? (!hasSharedView ? readStoredCamera() : null));
   const [aboutOpen, setAboutOpen] = useState(!hasSharedView && shouldShowAboutSplash);
   const [utilityOpen, setUtilityOpen] = useState(false);
   const [missionBriefingOpen, setMissionBriefingOpen] = useState(false);
@@ -86,8 +105,23 @@ export function App() {
     try { localStorage.setItem("earth-lens-locale", locale); } catch { /* private browsing */ }
   }, [locale]);
   useEffect(() => {
-    writeSharedViewState({ camera: sharedCamera, lensIds: [...(appMode === "explore" ? activeLensIds : missionLensIds)], location: anchorPoint, feature: sharedFeature, mode: appMode, locale, temporal: temporalSelection });
-  }, [activeLensIds, appMode, locale, missionLensIds, sharedCamera, sharedFeature, temporalSelection, anchorPoint]);
+    if (!sharedCamera) return;
+    try {
+      window.localStorage.setItem(CAMERA_STORAGE_KEY, JSON.stringify(sharedCamera));
+    } catch {
+      // localStorage may be unavailable in private browsing or embedded previews.
+    }
+  }, [sharedCamera]);
+
+  const shareState: SharedViewState = {
+    camera: sharedCamera,
+    lensIds: [...(appMode === "explore" ? activeLensIds : missionLensIds)],
+    location: anchorPoint,
+    feature: sharedFeature,
+    mode: appMode,
+    locale: null,
+    temporal: temporalSelection,
+  };
 
   const toggleExploreLens = (lensId: string) => setActiveLensIds((current) => toggleSetValue(current, lensId));
   const toggleMissionLens = (lensId: string) => setMissionLensIds((current) => toggleSetValue(current, lensId));
@@ -149,7 +183,7 @@ export function App() {
   return (
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}`}>
       {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onExpand={() => setAnchorExpanded(true)} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null) : missionAnchorContent} initialCamera={sharedCamera} initialFeature={initialSharedView.feature ?? (!hasSharedView ? openingFeature : null)} onCameraChange={setSharedCamera} />}
-      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} onClick={() => setUtilityOpen((open) => !open)}>{t(locale, "tools")}</button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}>{appMode === "explore" && timeline}<ShareButton locale={locale} /><LanguageSelector locale={locale} onChange={setLocale} /><button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}<button type="button" className="utility-sheet-close" onClick={() => setUtilityOpen(false)}>{t(locale, "close")}</button></div></div></header>
+      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} onClick={() => setUtilityOpen((open) => !open)}>{t(locale, "tools")}</button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}>{appMode === "explore" && timeline}<ShareButton locale={locale} state={shareState} /><LanguageSelector locale={locale} onChange={setLocale} /><button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}<button type="button" className="utility-sheet-close" onClick={() => setUtilityOpen(false)}>{t(locale, "close")}</button></div></div></header>
       {showGlobe && layerPanel}
       {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
       {aboutOpen && <AboutSplash locale={locale} onLocaleChange={setLocale} onClose={() => setAboutOpen(false)} />}

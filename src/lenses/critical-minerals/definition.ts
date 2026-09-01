@@ -20,6 +20,7 @@ const rawData = JSON.parse(criticalMineralsText) as MineralsGeoJson;
 
 export const criticalMineralsDefinition: EarthLensDefinition = {
   id: "critical-minerals",
+  urlCode: "cm",
   name: "CRITICAL MINERALS",
   shortName: "Minerals",
   category: "resources",

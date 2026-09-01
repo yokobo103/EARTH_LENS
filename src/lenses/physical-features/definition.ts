@@ -22,6 +22,7 @@ const rawData = JSON.parse(physicalFeaturesText) as PhysicalFeatureSource;
 
 export const physicalFeaturesDefinition: EarthLensDefinition = {
   id: "physical-features",
+  urlCode: "pf",
   name: "PHYSICAL FEATURES",
   shortName: "Physical",
   category: "earth",

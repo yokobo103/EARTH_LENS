@@ -22,6 +22,7 @@ const provenance: DataProvenance = {
 
 export const riversDefinition: EarthLensDefinition = {
   id: "rivers",
+  urlCode: "rv",
   name: "RIVERS",
   shortName: "Rivers",
   category: "earth",

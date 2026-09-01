@@ -23,6 +23,7 @@ const provenance: DataProvenance = {
 
 export const desertsDefinition: EarthLensDefinition = {
   id: "deserts",
+  urlCode: "ds",
   name: "ARID REGIONS",
   shortName: "Arid",
   category: "earth",

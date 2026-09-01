@@ -23,6 +23,7 @@ const provenance: DataProvenance = {
 
 export const eezDefinition: EarthLensDefinition = {
   id: "eez",
+  urlCode: "ez",
   name: "EXCLUSIVE ECONOMIC ZONES",
   shortName: "EEZ",
   category: "power",

@@ -14,6 +14,7 @@ const rawData = JSON.parse(shippingText) as ShippingSource;
 
 export const shippingDefinition: EarthLensDefinition = {
   id: "shipping-flows",
+  urlCode: "sh",
   name: "SHIPPING",
   shortName: "Shipping",
   category: "human",

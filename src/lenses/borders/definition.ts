@@ -23,6 +23,7 @@ const provenance: DataProvenance = {
 
 export const bordersDefinition: EarthLensDefinition = {
   id: "admin0-borders",
+  urlCode: "bd",
   name: "COUNTRY BORDERS",
   shortName: "Borders",
   category: "power",

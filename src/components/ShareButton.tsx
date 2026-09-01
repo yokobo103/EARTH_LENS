@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { t } from "../i18n/copy";
 import type { Locale } from "../i18n/types";
+import { writeSharedViewState, type SharedViewState } from "../share/urlState";
 
-interface ShareButtonProps { locale: Locale }
+interface ShareButtonProps {
+  locale: Locale;
+  state: SharedViewState;
+}
 
-export function ShareButton({ locale }: ShareButtonProps) {
+export function ShareButton({ locale, state }: ShareButtonProps) {
   const [status, setStatus] = useState<"idle" | "shared" | "copied" | "fallback">("idle");
   const share = async () => {
-    const url = window.location.href;
+    const url = writeSharedViewState(state);
     try {
       if (navigator.share) {
         try {

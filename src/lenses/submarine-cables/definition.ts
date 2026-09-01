@@ -44,7 +44,7 @@ interface CableConnectionData {
 const rawData = cableConnectionData as CableConnectionData;
 
 export const submarineCablesDefinition: EarthLensDefinition = {
-  id: "submarine-cable-connections",
+  id: "submarine-cable-connections", urlCode: "cb",
   name: "SUBMARINE CABLE CONNECTIONS",
   shortName: "Cable connections",
   category: "human",

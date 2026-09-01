@@ -54,7 +54,8 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - localStorageへcompletion / best rank / best hints / attempts / completed dateを保存
 - 取得済みStickerからのMission replayと、再挑戦時のbest rank更新
 - 初回訪問時のABOUTスプラッシュ（提供コンセプトシートをWebP化、原本PNGはdocsに保管）
-- 現在のカメラ・Lens・選択地点/Feature・モード・言語・年代を共有できるURL（`replaceState`、サーバー不要）
+- 共有ボタンから発行する短縮URL（Lensは安定した2文字コード、カメラは丸めたkm表記）。旧形式のフルLens ID・`lang`・メートル精度カメラも後方互換で読めます
+- 通常操作ではアドレスバーを書き換えず、カメラはlocalStorageへ保存。共有時だけ`replaceState`で現在の観測状態をURLへ反映します
 - Mission実行中の回答地点・不正解・結果を地球上の名札へ固定するアンカーUI
 
 既存EXPLOREでは以下を使用できます。

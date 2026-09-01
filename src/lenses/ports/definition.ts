@@ -16,6 +16,7 @@ const provenance: DataProvenance = {
 
 export const portsDefinition: EarthLensDefinition = {
   id: "major-ports",
+  urlCode: "po",
   name: "PORTS",
   shortName: "Ports",
   category: "human",

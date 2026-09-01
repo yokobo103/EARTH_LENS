@@ -22,6 +22,7 @@ const rawData = JSON.parse(chokepointsGeoJsonText) as ChokepointGeoJson;
 
 export const chokepointsDefinition: EarthLensDefinition = {
   id: "strategic-chokepoints",
+  urlCode: "cp",
   name: "STRATEGIC CHOKEPOINTS",
   shortName: "Chokepoints",
   category: "power",

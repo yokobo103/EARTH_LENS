@@ -40,6 +40,8 @@ export interface LensTimeRange {
 
 export interface EarthLensDefinition {
   id: string;
+  /** Stable two-character code used in shared URLs. Never recycle a published code. */
+  urlCode: string;
   name: string;
   shortName: string;
   category: LensCategory;
