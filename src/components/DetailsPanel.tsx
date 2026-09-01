@@ -22,8 +22,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
   const featureName = feature ? localizeFeatureDisplayName(feature, locale) : "";
   return (
     <aside className={`glass-panel details-panel${embedded ? " is-embedded" : ""}`} aria-label="Details">
-      <span className="eyebrow">{t(locale, "fieldReport")}</span>
-      <h2>{t(locale, "details")}</h2>
+      {(feature || !location) && <><span className="eyebrow">{t(locale, "fieldReport")}</span><h2>{t(locale, "details")}</h2></>}
       {!feature && !location ? (
         <div className="empty-state">
           <span className="target-reticle" aria-hidden="true" />
@@ -103,7 +102,6 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
             <dt>{t(locale, "latitude")}</dt><dd>{location.latitude.toFixed(5)}°</dd>
             <dt>{t(locale, "longitude")}</dt><dd>{location.longitude.toFixed(5)}°</dd>
           </dl>
-          <p className="feature-description">{t(locale, "locationScanDescription")}</p>
           <WhyHerePanel result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} />
         </div>
       ) : null}

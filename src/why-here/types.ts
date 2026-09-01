@@ -9,6 +9,8 @@ export interface WhyHereNearbyFeature extends ObservationEvidence {
   relationship: "nearby" | "overlap" | "connected";
   relation: "near-point" | "associated-endpoint" | "near-line" | "near-area" | "inside-area" | "outside-area";
   relationLabel?: string;
+  /** Small, source-provided context values used for relative readouts. */
+  context?: { populationEstimate?: number; scaleRank?: number };
 }
 
 export interface WhyHereLensResult {

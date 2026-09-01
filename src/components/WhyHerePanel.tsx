@@ -25,30 +25,28 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
   return (
     <section className="why-here-panel" aria-label="Why Here analysis">
       <div className="why-heading">
-        <div><span>{t(locale, "crossLensScan")}</span><h3>{t(locale, "whyHere")}</h3></div>
+        <div><h3>{t(locale, "scan")}</h3></div>
         <span className="radius-readout">R {radiusKm} KM</span>
       </div>
       {!result && (
         <button type="button" className="why-button" onClick={onAnalyze} disabled={isAnalyzing}>
-          {isAnalyzing ? t(locale, "scanning") : t(locale, "scanNearby")}
+          {isAnalyzing ? t(locale, "scanning") : t(locale, "scan")}
         </button>
       )}
       {result && (
         <div className="why-results" aria-live="polite">
           {summary && (
-            <section className="why-summary" aria-label={t(locale, "observationReadout")}>
-              <div className="why-summary-tone">
-                <span className="why-summary-label">{t(locale, "observationReadout")}</span>
-                <strong>{toneCopy[summary.tone]}</strong>
-                <span>{t(locale, "summaryBasis")}: {summary.evidenceLenses.length > 0
-                  ? summary.evidenceLenses.map((lens) => localizeLensName(lens.lensId, lens.lensName, locale)).join(" · ")
-                  : t(locale, "noReaction")}</span>
-                {summary.primarySignal && <span>{localizeLensName(summary.primarySignal.lensId, summary.primarySignal.lensName, locale)} · {summary.primarySignal.nearbyCount} / {summary.primarySignal.totalFeatureCount} {t(locale, "summaryFeatures")}</span>}
+            <section className="why-summary" aria-label={t(locale, "scan")}>
+              <div className="why-summary-location">
+                <strong>{summary.nearest ? displayNearbyName(summary.nearest, locale) : t(locale, "selectedLocation")}</strong>
+                <span>{result.location.latitude.toFixed(2)}° {result.location.latitude >= 0 ? "N" : "S"} · {result.location.longitude.toFixed(2)}° {result.location.longitude >= 0 ? "E" : "W"}{summary.nearest ? ` · ${summary.nearest.distanceKm} km` : ""}</span>
               </div>
-              {summary.nearest && <NearestFeature feature={summary.nearest} locale={locale} />}
+              <div className="why-summary-tone">
+                <strong>{toneCopy[summary.tone]}</strong>
+                <span className="why-summary-count">{summary.evidenceLenses.length}{locale === "ja" ? "" : " "}{t(locale, "scanOverlap")} · {summary.nearbyFeatureCount} {t(locale, "scanNearbyFeatures")}</span>
+              </div>
               {summary.evidenceLenses.length > 0 && (
                 <div className="why-summary-section">
-                  <span className="why-summary-label">{t(locale, "reactingLenses")}</span>
                   <div className="why-summary-lenses">
                     {summary.evidenceLenses.map((lens) => (
                       <span className="why-summary-lens" key={lens.lensId}>
@@ -58,11 +56,13 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
                   </div>
                 </div>
               )}
-              {summary.silentLenses.length > 0 && (
-                <details className="why-summary-silent">
-                  <summary>{t(locale, "noReaction")} · {summary.silentLenses.length}</summary>
-                  <span>{summary.silentLenses.map((lens) => localizeLensName(lens.lensId, lens.lensName, locale)).join(" · ")}</span>
-                </details>
+              {summary.primarySignal && <span className="why-summary-rarity">{localizeLensName(summary.primarySignal.lensId, summary.primarySignal.lensName, locale)} · {summary.primarySignal.nearbyCount} / {summary.primarySignal.totalFeatureCount} {t(locale, "summaryFeatures")} · {summary.primarySignal.coveragePercent}%</span>}
+              {summary.nearest?.context?.populationEstimate !== undefined && summary.nearest.context.populationEstimate > 0 && <span className="why-summary-rarity">POP_EST · {summary.nearest.context.populationEstimate.toLocaleString(locale === "ja" ? "ja-JP" : "en-US")}</span>}
+              {summary.readingLinks.length > 0 && (
+                <div className="why-summary-guides">
+                  <span className="why-summary-label">{t(locale, "scanGuides")}</span>
+                  {summary.readingLinks.map((reading) => <a key={reading.url} href={reading.url} target="_blank" rel="noreferrer">{reading.title} ↗</a>)}
+                </div>
               )}
             </section>
           )}
@@ -79,7 +79,7 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
           ))}
           <p className="evidence-note">{t(locale, "evidenceOnly")}</p>
           <button type="button" className="why-button is-secondary" onClick={onAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing ? t(locale, "scanning") : t(locale, "scanAgain")}
+            {isAnalyzing ? t(locale, "scanning") : t(locale, "scan")}
           </button>
         </div>
       )}
@@ -91,14 +91,4 @@ function displayNearbyName(feature: WhyHereNearbyFeature, locale: Locale): strin
   const localized = localizeFeatureName(feature.featureId, locale === "ja" ? feature.nameJa ?? feature.name : feature.name, locale);
   if (locale === "ja" && feature.nameJa && feature.name !== feature.nameJa) return `${localized} / ${feature.name}`;
   return localized;
-}
-
-function NearestFeature({ feature, locale }: { feature: WhyHereNearbyFeature; locale: Locale }) {
-  return (
-    <div className="why-summary-nearest">
-      <span className="why-summary-label">{t(locale, "nearestNamedFeature")}</span>
-      <strong>{displayNearbyName(feature, locale)}</strong>
-      <span>{feature.distanceKm} km {locale === "ja" ? t(locale, "summaryFrom") : t(locale, "summaryDistanceAway")}</span>
-    </div>
-  );
 }

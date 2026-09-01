@@ -178,6 +178,10 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
           relationship: measurement.relation === "associated-endpoint" ? "connected" : measurement.relation === "near-line" || measurement.relation === "near-area" || measurement.relation === "inside-area" ? "overlap" : "nearby",
           relation: measurement.relation,
           relationLabel: measurement.relationLabel,
+          context: {
+            ...(typeof feature.attributes.populationEstimate === "number" ? { populationEstimate: feature.attributes.populationEstimate } : {}),
+            ...(typeof feature.attributes.scaleRank === "number" ? { scaleRank: feature.attributes.scaleRank } : {}),
+          },
         };
         if (Number.isFinite(measurement.distanceKm) && (!closestNamedFeature || measurement.distanceKm < closestNamedFeature.distanceKm)) {
           closestNamedFeature = candidate;
@@ -196,6 +200,10 @@ export async function analyzeLocation(location: GeographicPoint, radiusKm = 500)
         relationship: measurement.relation === "associated-endpoint" ? "connected" : measurement.relation === "near-line" || measurement.relation === "near-area" || measurement.relation === "inside-area" ? "overlap" : "nearby",
         relation: measurement.relation,
         relationLabel: measurement.relationLabel,
+        context: {
+          ...(typeof feature.attributes.populationEstimate === "number" ? { populationEstimate: feature.attributes.populationEstimate } : {}),
+          ...(typeof feature.attributes.scaleRank === "number" ? { scaleRank: feature.attributes.scaleRank } : {}),
+        },
       }));
     return {
       lensId: lens.definition.id,

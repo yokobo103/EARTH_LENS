@@ -1,5 +1,5 @@
 import { lensRegistry } from "../lenses/registry";
-import type { LensCategory } from "../lenses/types";
+import type { FurtherReadingLink, LensCategory } from "../lenses/types";
 import type { WhyHereLensResult, WhyHereNearbyFeature, WhyHereResult } from "./types";
 
 /**
@@ -15,6 +15,8 @@ export interface WhyHerePrimarySignal {
   nearbyCount: number;
   totalFeatureCount: number;
   rarityScore: number;
+  /** Share of this Lens' named dataset that falls inside the scan radius. */
+  coveragePercent: number;
 }
 
 export interface WhyHereSummary {
@@ -23,6 +25,9 @@ export interface WhyHereSummary {
   silentLenses: WhyHereLensResult[];
   nearest: (WhyHereNearbyFeature & { lensName: string }) | null;
   primarySignal: WhyHerePrimarySignal | null;
+  /** Lens-level guides are the honest external door behind the local scan. */
+  readingLinks: FurtherReadingLink[];
+  nearbyFeatureCount: number;
 }
 
 interface ScoredLens {
@@ -76,8 +81,11 @@ export function summarizeWhyHere(result: WhyHereResult): WhyHereSummary {
     nearbyCount: primary.lens.nearbyCount,
     totalFeatureCount: primary.lens.totalFeatureCount ?? primary.lens.nearbyCount,
     rarityScore: Math.round(primary.score),
+    coveragePercent: Math.round((primary.lens.nearbyCount / Math.max(1, primary.lens.totalFeatureCount ?? primary.lens.nearbyCount)) * 1000) / 10,
   } : null;
-  return { tone, evidenceLenses, silentLenses, nearest, primarySignal };
+  const readingLinks = uniqueReadingLinks(evidenceLenses);
+  const nearbyFeatureCount = evidenceLenses.reduce((sum, lens) => sum + lens.nearbyCount, 0);
+  return { tone, evidenceLenses, silentLenses, nearest, primarySignal, readingLinks, nearbyFeatureCount };
 }
 
 function rarityScore(lens: WhyHereLensResult): number {
@@ -85,6 +93,20 @@ function rarityScore(lens: WhyHereLensResult): number {
   const ratio = lens.nearbyCount / total;
   // Ratio and count are precomputed from the in-memory dataset snapshot; no global scan is performed here.
   return Math.min(55, lens.nearbyCount * 9) + Math.min(35, ratio * 2_000) + (lens.nearbyCount >= 2 ? 10 : 0);
+}
+
+function uniqueReadingLinks(lenses: WhyHereLensResult[]): FurtherReadingLink[] {
+  const links: FurtherReadingLink[] = [];
+  const seen = new Set<string>();
+  for (const lens of lenses) {
+    const definition = lensRegistry.find((candidate) => candidate.definition.id === lens.lensId)?.definition;
+    for (const link of definition?.furtherReading ?? []) {
+      if (seen.has(link.url)) continue;
+      seen.add(link.url);
+      links.push(link);
+    }
+  }
+  return links;
 }
 
 function nearestDistance(lens: WhyHereLensResult): number {
