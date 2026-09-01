@@ -186,7 +186,7 @@ export function App() {
     ? currentMission.target
     : cameraEffect?.type === "camera-focus" ? { ...cameraEffect.location, altitude: cameraEffect.altitude } : null,
   [cameraEffect, currentMission.target, missionState.status]);
-  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} suspended={appMode === "explore" && temporalSelection.mode === "deep-time"} missionRecommendedLensIds={appMode === "mission" ? currentMission.recommendedLensIds : undefined} />;
+  const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} missionRecommendedLensIds={appMode === "mission" ? currentMission.recommendedLensIds : undefined} />;
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
   const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
   const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} onSubmit={submitMissionAnswer} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onCollectSticker={collectSticker} onExpand={() => setAnchorExpanded(true)} /> : null;

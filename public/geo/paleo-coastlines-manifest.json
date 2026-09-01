@@ -1,0 +1,87 @@
+{
+  "model": "ZAHIROVIC2022",
+  "agesMa": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250
+  ],
+  "source": "EarthByte / GPlates Web Service reconstructed coastlines",
+  "sourceUrl": "https://www.earthbyte.org/gplates-2-3-software-and-data-sets/",
+  "serviceUrlTemplate": "https://gws2.gplates.org/reconstruct/coastlines/?time={ageMa}&model=ZAHIROVIC2022&wrap=true",
+  "license": "Creative Commons Attribution 3.0 Unported (EarthByte data)",
+  "generatedAt": "2026-09-02",
+  "processing": "0 / 50 / 100 / 150 / 200 / 250 Ma · 5% keep-shapes · precision 0.001°",
+  "runtimeNetwork": false,
+  "files": [
+    {
+      "ageMa": 0,
+      "path": "paleo-coastlines-0.json",
+      "featureCount": 2454,
+      "size": 546918,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 1
+      }
+    },
+    {
+      "ageMa": 50,
+      "path": "paleo-coastlines-50.json",
+      "featureCount": 2092,
+      "size": 478036,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 1
+      }
+    },
+    {
+      "ageMa": 100,
+      "path": "paleo-coastlines-100.json",
+      "featureCount": 1880,
+      "size": 435065,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 1
+      }
+    },
+    {
+      "ageMa": 150,
+      "path": "paleo-coastlines-150.json",
+      "featureCount": 1729,
+      "size": 398848,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 2
+      }
+    },
+    {
+      "ageMa": 200,
+      "path": "paleo-coastlines-200.json",
+      "featureCount": 1682,
+      "size": 390112,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 0
+      }
+    },
+    {
+      "ageMa": 250,
+      "path": "paleo-coastlines-250.json",
+      "featureCount": 1632,
+      "size": 379331,
+      "inspection": {
+        "holes": 0,
+        "poleVertices": 0,
+        "antimeridianSegments": 1
+      }
+    }
+  ],
+  "note": "The coastline geometry is a model-derived reconstruction. Modern lens coordinates are overlaid without paleo-position conversion."
+}

@@ -14,6 +14,7 @@ const mapshaperBin = path.join(projectRoot, "node_modules", "mapshaper", "bin", 
 const naturalEarthRepository = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson";
 const nsidcArchive = "https://noaadata.apps.nsidc.org/NOAA/G02135";
 const seaIceExtentYear = 2025;
+const paleoAges = [0, 50, 100, 150, 200, 250];
 const polarStereographic = {
   north: "+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +x_0=0 +y_0=0 +a=6378273 +rf=298.279411123064 +units=m +no_defs",
   south: "+proj=stere +lat_0=-90 +lat_ts=-70 +lon_0=0 +x_0=0 +y_0=0 +a=6378273 +rf=298.279411123064 +units=m +no_defs",
@@ -100,6 +101,17 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "paleo-coastlines",
+    sourceUrls: paleoAges.map((ageMa) => `https://gws2.gplates.org/reconstruct/coastlines/?time=${ageMa}&model=ZAHIROVIC2022&wrap=true`),
+    outputPath: path.join(outputDirectory, "paleo-coastlines-manifest.json"),
+    license: "Creative Commons Attribution 3.0 Unported (EarthByte data)",
+    retrievedAt: "2026-09-02",
+    processing: "0 / 50 / 100 / 150 / 200 / 250 Ma · 5% keep-shapes · precision 0.001°",
+    steps: ["-simplify", "5%", "keep-shapes"],
+    precision: "0.001",
+    build: buildPaleoCoastlines,
+  },
+  {
     id: "eez",
     sourceUrls: ["https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=eez&cql_filter=iso_sov1%20IN%20(%27FJI%27,%27KIR%27,%27MHL%27,%27FSM%27,%27PLW%27,%27TON%27,%27WSM%27,%27NRU%27,%27TUV%27,%27VUT%27,%27PNG%27,%27SLB%27,%27NZL%27,%27AUS%27,%27JPN%27,%27IDN%27,%27PHL%27,%27CHL%27,%27ECU%27)&outputformat=application/json"],
     outputPath: path.join(outputDirectory, "eez.geojson"),
@@ -174,6 +186,17 @@ function verifyGeoJson(text, label) {
   return parsed;
 }
 
+function normalizePaleoGeoJson(parsed, label) {
+  if (parsed?.type === "FeatureCollection" && Array.isArray(parsed.features)) return parsed;
+  if (parsed?.type === "GeometryCollection" && Array.isArray(parsed.geometries)) {
+    return {
+      type: "FeatureCollection",
+      features: parsed.geometries.map((geometry, index) => ({ type: "Feature", id: `${label}-${index}`, properties: {}, geometry })),
+    };
+  }
+  throw new Error(`${label} was not a supported GeoJSON collection`);
+}
+
 async function buildNaturalEarthLayer(layer) {
   const sourceUrl = layer.sourceUrls[0];
   const rawPath = path.join(cacheDirectory, `${layer.sourceCacheKey ?? layer.id}.source.geojson`);
@@ -203,6 +226,40 @@ async function buildNaturalEarthLayer(layer) {
       ? [`NAME_JA available: ${hasJapaneseNames ? "yes" : "no (English name retained)"}`]
       : [`NAME_JA available: ${hasJapaneseNames ? "yes" : "no"}`, "Existing committed output: byte-identical"],
   };
+}
+
+async function buildPaleoCoastlines(layer) {
+  const generated = [];
+  for (const ageMa of paleoAges) {
+    const sourceUrl = `https://gws2.gplates.org/reconstruct/coastlines/?time=${ageMa}&model=ZAHIROVIC2022&wrap=true`;
+    const rawPath = path.join(cacheDirectory, `paleo-coastlines-${ageMa}.source.geojson`);
+    const temporaryOutput = path.join(buildDirectory, `paleo-coastlines-${ageMa}.geojson`);
+    const sourceBuffer = await download(sourceUrl, rawPath);
+    verifyGeoJson(sourceBuffer.toString("utf8"), `paleo-coastlines-${ageMa}`);
+    await runMapshaper(rawPath, layer.steps, layer.precision, temporaryOutput);
+    const outputPath = path.join(outputDirectory, `paleo-coastlines-${ageMa}.json`);
+    const output = normalizePaleoGeoJson(JSON.parse(await readFile(temporaryOutput, "utf8")), `paleo-coastlines-${ageMa}`);
+    const inspection = inspectPolygons(output.features
+      .filter((feature) => feature.geometry?.type === "Polygon")
+      .map((feature) => feature.geometry.coordinates));
+    await writeFile(outputPath, `${JSON.stringify(output)}\n`, "utf8");
+    generated.push({ ageMa, featureCount: output.features.length, size: (await stat(outputPath)).size, inspection });
+  }
+  const manifest = {
+    model: "ZAHIROVIC2022",
+    agesMa: paleoAges,
+    source: "EarthByte / GPlates Web Service reconstructed coastlines",
+    sourceUrl: "https://www.earthbyte.org/gplates-2-3-software-and-data-sets/",
+    serviceUrlTemplate: "https://gws2.gplates.org/reconstruct/coastlines/?time={ageMa}&model=ZAHIROVIC2022&wrap=true",
+    license: layer.license,
+    generatedAt: layer.retrievedAt,
+    processing: layer.processing,
+    runtimeNetwork: false,
+    files: generated.map(({ ageMa, featureCount, size, inspection }) => ({ ageMa, path: `paleo-coastlines-${ageMa}.json`, featureCount, size, inspection })),
+    note: "The coastline geometry is a model-derived reconstruction. Modern lens coordinates are overlaid without paleo-position conversion.",
+  };
+  await writeFile(layer.outputPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return { featureCount: generated.reduce((total, item) => total + item.featureCount, 0), notes: generated.map((item) => `${item.ageMa} Ma: ${item.featureCount} polygons / ${item.size} bytes`) };
 }
 
 function extractMultiLineStrings(geojson, label) {

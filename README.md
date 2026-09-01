@@ -274,9 +274,11 @@ Critical Mineralsの値はrenderer検証用に発明した正規化デモ指数�
 
 ## Deep Time policy
 
-250 Ma表示は科学的復元ではありません。`DemoPaleoEarthProvider`が返す手続き生成の一塊を使い、時間モード切替の体験だけを検証します。画面にも`SCHEMATIC LANDMASS · NOT A SCIENTIFIC RECONSTRUCTION`と表示します。
+Deep Timeは、EarthByte / GPlatesの`ZAHIROVIC2022`モデルから一度だけ取得した復元海岸線を、0 / 50 / 100 / 150 / 200 / 250 Maの静的GeoJSONとして同梱します。実行時に外部APIへ接続しません。
 
-`PaleoEarthProvider#getSnapshot(ageMa)`を、将来GPlates、pyGPlates、EarthByteモデル、GPlates Web Serviceなどの適法なproviderへ差し替える想定です。
+データはEarthByteのCC BY 3.0に従い、5% keep-shapes簡略化・0.001度精度で処理しています。復元はモデル由来で、古い年代ほど不確かさが大きくなります。現代Lensは現在座標のまま重ねて表示し、古代の位置へ復元移動させません。
+
+`PaleoEarthProvider#getSnapshot(ageMa)`を境界として残しているため、将来GPlates、pyGPlates、別のEarthByteモデルなどへ差し替えられます。
 
 ## Future bathymetry
 

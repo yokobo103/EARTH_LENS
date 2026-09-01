@@ -47,7 +47,7 @@ export function readSharedViewState(search = window.location.search): SharedView
       mode: parseMode(params.get("m")),
       // Kept for backwards compatibility. New share URLs deliberately omit lang.
       locale: params.get("lang") === "ja" ? "ja" : params.get("lang") === "en" ? "en" : null,
-      temporal: params.get("t") === "250" ? { mode: "deep-time", ageMa: 250 } : params.get("t") === "p" ? { mode: "present", ageMa: 0 } : null,
+      temporal: parseTemporal(params.get("t")),
     };
   } catch {
     return emptyState;
@@ -67,7 +67,7 @@ export function writeSharedViewState(state: SharedViewState): string {
   if (state.location) pairs.push(`p=${encodeCsv([round(state.location.longitude), round(state.location.latitude)])}`);
   if (state.feature) pairs.push(`f=${encodeURIComponent(state.feature.lensId)}:${encodeURIComponent(state.feature.featureId)}`);
   if (state.mode === "mission") pairs.push("m=m");
-  if (state.temporal?.mode === "deep-time") pairs.push("t=250");
+  if (state.temporal?.mode === "deep-time") pairs.push(`t=${state.temporal.ageMa}`);
   const url = `${window.location.pathname}?${pairs.join("&")}${window.location.hash}`;
   window.history.replaceState(null, "", url);
   return window.location.href;
@@ -145,6 +145,12 @@ function parseLensIds(value: string | null): string[] | null {
 
 function parseMode(value: string | null): AppMode | null {
   return value === "m" ? "mission" : value === "e" ? "explore" : null;
+}
+
+function parseTemporal(value: string | null): TemporalSelection | null {
+  if (value === "p" || value === "0") return { mode: "present", ageMa: 0 };
+  const ageMa = Number(value);
+  return Number.isInteger(ageMa) && ageMa >= 0 && ageMa <= 1000 ? { mode: "deep-time", ageMa } : null;
 }
 
 function encodeCsv(values: string[]): string {
