@@ -27,7 +27,7 @@ export function MissionWhyHerePanel({
   return (
     <section className="mission-why-here" aria-label="Mission Why Here evidence">
       <div className="mission-why-heading">
-        <div><span>{t(locale, "evidenceReview")}</span><h3>{t(locale, "whyHere")}</h3></div>
+        <div><span>{t(locale, "evidenceReview")}</span><h3>{t(locale, "scan")}</h3></div>
         <span>R 500 KM</span>
       </div>
       <button type="button" className="mission-evidence-button" onClick={onAnalyze} disabled={isAnalyzing}>

@@ -32,5 +32,5 @@ come from the current demo snapshot when the same coordinates are scanned.
 | Sahara interior | A physical signal or cross-category lead appears when the arid-region/border evidence reacts. |
 
 Lens-level further-reading links appear only when at least one reacting Lens has
-an external guide. This keeps `WHY HERE?` an honest door to deeper material,
-not an unsupported explanation of why a place matters.
+an external guide. The single `LEARN MORE / もっと知る` door leads to deeper
+material; it does not pretend to explain why a place matters.

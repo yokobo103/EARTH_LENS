@@ -21,8 +21,8 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
   const lens = feature ? getLensModule(feature.lensId)?.definition : undefined;
   const featureName = feature ? localizeFeatureDisplayName(feature, locale) : "";
   return (
-    <aside className={`glass-panel details-panel${embedded ? " is-embedded" : ""}`} aria-label="Details">
-      {(feature || !location) && <><span className="eyebrow">{t(locale, "fieldReport")}</span><h2>{t(locale, "details")}</h2></>}
+    <aside className={`glass-panel details-panel${embedded ? " is-embedded" : ""}`} aria-label="Observation information">
+      {!embedded && (feature || !location) && <><span className="eyebrow">{t(locale, "fieldReport")}</span><h2>{t(locale, "details")}</h2></>}
       {!feature && !location ? (
         <div className="empty-state">
           <span className="target-reticle" aria-hidden="true" />
@@ -34,7 +34,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
           {feature.provenance.dataKind === "demo" && <div className="demo-badge">{t(locale, "demoData")}</div>}
           {feature.provenance.classifications && <div className="provenance-tags" aria-label="Data classification">{feature.provenance.classifications.map((classification) => <span key={classification}>{classification.toUpperCase()}</span>)}</div>}
           <p className="feature-layer">{localizeLensName(feature.lensId, lens?.name ?? feature.lensId, locale)}</p>
-          <h3>{featureName}</h3>
+          <p className="feature-title">{featureName}</p>
           <p className="feature-description">{localizeFeatureDescription(feature, locale)}</p>
 
           {feature.geometry.type === "connection" && feature.lensId !== "shipping-flows" && (
@@ -97,7 +97,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
       ) : location ? (
         <div className="location-details">
           <p className="feature-layer">{t(locale, "selectedLocation")}</p>
-          <h3>{location.latitude.toFixed(3)}°, {location.longitude.toFixed(3)}°</h3>
+          <p className="feature-title">{location.latitude.toFixed(3)}°, {location.longitude.toFixed(3)}°</p>
           <dl className="detail-grid location-grid">
             <dt>{t(locale, "latitude")}</dt><dd>{location.latitude.toFixed(5)}°</dd>
             <dt>{t(locale, "longitude")}</dt><dd>{location.longitude.toFixed(5)}°</dd>

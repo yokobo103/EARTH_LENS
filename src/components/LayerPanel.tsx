@@ -106,7 +106,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
         })}
       </div>
       {suspended && <p className="lens-rail-status">{t(locale, "modernSuspended")}</p>}
-      {info && <aside className="lens-info-card" role="dialog" aria-label={`${info.lens.name} ${t(locale, "details")}`} style={{ top: info.top, left: info.left }}>
+      {info && <aside className="lens-info-card" role="dialog" aria-label={`${info.lens.name} ${t(locale, "lensInfo")}`} style={{ top: info.top, left: info.left }}>
         <button type="button" className="anchor-close" onClick={() => setInfo(null)} aria-label={t(locale, "close")}>×</button>
         <span className="eyebrow">{info.lens.category.toUpperCase()} LENS</span>
         <h2>{info.lens.name}</h2>
