@@ -79,6 +79,7 @@ export function App() {
   const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(initialSharedView.camera);
   const [aboutOpen, setAboutOpen] = useState(!hasSharedView && shouldShowAboutSplash);
   const [utilityOpen, setUtilityOpen] = useState(false);
+  const [missionBriefingOpen, setMissionBriefingOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -136,9 +137,10 @@ export function App() {
   };
 
   const showGlobe = appMode === "explore" || missionView === "field";
-  const missionFocus = missionState.status === "completed"
+  const missionFocus = useMemo(() => missionState.status === "completed"
     ? currentMission.target
-    : cameraEffect?.type === "camera-focus" ? { ...cameraEffect.location, altitude: cameraEffect.altitude } : null;
+    : cameraEffect?.type === "camera-focus" ? { ...cameraEffect.location, altitude: cameraEffect.altitude } : null,
+  [cameraEffect, currentMission.target, missionState.status]);
   const layerPanel = <LayerPanel lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} onToggle={appMode === "explore" ? toggleExploreLens : toggleMissionLens} suspended={appMode === "explore" && temporalSelection.mode === "deep-time"} missionRecommendedLensIds={appMode === "mission" ? currentMission.recommendedLensIds : undefined} />;
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
   const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
@@ -149,7 +151,7 @@ export function App() {
       {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onExpand={() => setAnchorExpanded(true)} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null) : missionAnchorContent} initialCamera={sharedCamera} initialFeature={initialSharedView.feature ?? (!hasSharedView ? openingFeature : null)} onCameraChange={setSharedCamera} />}
       <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} onClick={() => setUtilityOpen((open) => !open)}>{t(locale, "tools")}</button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}>{appMode === "explore" && timeline}<ShareButton locale={locale} /><LanguageSelector locale={locale} onChange={setLocale} /><button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}</div></div></header>
       {showGlobe && layerPanel}
-      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : <details className="mission-briefing-dock"><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small></summary>{missionPanel}</details>)}
+      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
       {aboutOpen && <AboutSplash locale={locale} onLocaleChange={setLocale} onClose={() => setAboutOpen(false)} />}
     </main>
   );

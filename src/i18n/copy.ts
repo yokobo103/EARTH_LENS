@@ -193,6 +193,8 @@ const copy = {
     stickerAcquired: "TRAVEL STICKER ACQUIRED",
     placeInPassport: "PLACE STICKER IN PASSPORT",
     missionFocus: "FOCUS",
+    openBriefing: "OPEN BRIEFING",
+    closeBriefing: "CLOSE BRIEFING",
     standby: "STANDBY",
   },
   ja: {
@@ -387,6 +389,8 @@ const copy = {
     stickerAcquired: "トラベルステッカー獲得",
     placeInPassport: "パスポートに貼る",
     missionFocus: "推奨",
+    openBriefing: "任務を開く",
+    closeBriefing: "任務を閉じる",
     standby: "待機",
   },
 } as const;

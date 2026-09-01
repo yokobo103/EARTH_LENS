@@ -546,13 +546,16 @@ body { overscroll-behavior: none; }
 
 .mission-panel { left: 214px; }
 .mission-briefing-dock { position: absolute; z-index: 7; top: 92px; left: 214px; width: 320px; color: #e8f5f2; }
-.mission-briefing-dock > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 9px 12px; color: #ffd39a; border: 1px solid rgb(255 180 84 / 30%); background: rgb(22 17 8 / 88%); box-shadow: 0 14px 38px rgb(0 0 0 / 25%); cursor: pointer; list-style: none; backdrop-filter: blur(14px); }
+.mission-briefing-dock > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 9px 12px; color: #ffd39a; border: 1px solid rgb(255 180 84 / 30%); background: rgb(22 17 8 / 88%); box-shadow: 0 14px 38px rgb(0 0 0 / 25%); cursor: pointer; list-style: none; backdrop-filter: blur(14px); }
 .mission-briefing-dock > summary::-webkit-details-marker { display: none; }
 .mission-briefing-dock > summary::after { color: #b8915f; content: "+"; font: 700 15px ui-monospace, monospace; }
 .mission-briefing-dock[open] > summary::after { content: "−"; }
 .mission-briefing-dock > summary span { overflow: hidden; font: 750 9px ui-monospace, monospace; letter-spacing: .08em; text-overflow: ellipsis; white-space: nowrap; }
 .mission-briefing-dock > summary small { flex: 0 0 auto; color: #a99067; font: 700 7px ui-monospace, monospace; letter-spacing: .08em; }
+.mission-briefing-dock > summary b { flex: 0 0 auto; padding: 4px 6px; color: #1b1207; border: 1px solid #c28e4b; background: #d7a15a; font: 800 7px ui-monospace, monospace; letter-spacing: .06em; }
 .mission-briefing-dock .mission-panel { position: static; width: 100%; max-height: calc(100vh - 150px); margin-top: 5px; }
+.mission-briefing-dock[open] { display: flex; flex-direction: column; }
+.mission-briefing-dock[open] .mission-panel { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .mission-observation-embedded, .mission-result-embedded { position: relative; width: auto; min-height: 0; padding: 0; color: #e8f5f2; }
 .mission-observation-embedded::before, .mission-result-embedded::before { display: none; }
 .mission-observation-embedded h2 { margin: 4px 30px 15px 0; color: #f4e5d1; }
@@ -607,7 +610,9 @@ body { overscroll-behavior: none; }
   .mission-briefing-dock > summary { min-height: 48px; padding: 10px; }
   .mission-briefing-dock > summary span { font-size: 10px; }
   .mission-briefing-dock > summary small { font-size: 8px; }
-  .mission-briefing-dock .mission-panel { max-height: calc(100vh - 150px); padding: 16px; }
+  .mission-briefing-dock > summary b { padding: 6px 7px; font-size: 9px; }
+  .mission-briefing-dock[open] { max-height: calc(100vh - 146px - env(safe-area-inset-bottom)); }
+  .mission-briefing-dock .mission-panel { max-height: none; padding: 16px; }
   .mission-anchor-card.is-expanded { width: calc(100vw - 16px); max-height: calc(100vh - 146px - env(safe-area-inset-bottom)); }
 }
 
