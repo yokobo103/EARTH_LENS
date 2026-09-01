@@ -274,7 +274,7 @@ Critical Mineralsの値はrenderer検証用に発明した正規化デモ指数�
 
 ## Deep Time policy
 
-Deep Timeは、EarthByte / GPlatesの`ZAHIROVIC2022`モデルから一度だけ取得した復元海岸線を、0 / 50 / 100 / 150 / 200 / 250 Maの静的GeoJSONとして同梱します。実行時に外部APIへ接続しません。
+古代地球は常設レールを占有しない「特殊Lens」として、Deep Timeコントロールから切り替えます。EarthByte / GPlatesの`ZAHIROVIC2022`モデルから一度だけ取得した復元海岸線を、0 / 50 / 100 / 150 / 200 / 250 Maの静的GeoJSONとして同梱します。実行時に外部APIへ接続しません。
 
 データはEarthByteのCC BY 3.0に従い、5% keep-shapes簡略化・0.001度精度で処理しています。復元はモデル由来で、古い年代ほど不確かさが大きくなります。現代Lensは現在座標のまま重ねて表示し、古代の位置へ復元移動させません。
 
