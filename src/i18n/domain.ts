@@ -19,6 +19,7 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
   "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", legends: ["国境線"] },
   rivers: { name: "河川", shortName: "河川", category: "地球", legends: ["一般化した河川中心線"], disclosures: ["一般化した河川網", "河川流量データではありません", "Natural Earth · Public Domain"] },
   deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", legends: ["概略砂漠地域"], disclosures: ["概略地域", "気候指数ではありません", "Natural Earth · Public Domain"] },
+  eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
 };
 
 const featureJa: Record<string, { name: string; description?: string }> = {

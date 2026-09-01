@@ -20,6 +20,8 @@ import { riversDefinition, loadRivers } from "./rivers/definition";
 import { renderRivers } from "./rivers/renderer";
 import { desertsDefinition, loadDeserts } from "./deserts/definition";
 import { renderDeserts } from "./deserts/renderer";
+import { eezDefinition, loadEez } from "./eez/definition";
+import { renderEez } from "./eez/renderer";
 import type { LensModule } from "./types";
 
 export const lensRegistry: readonly LensModule[] = [
@@ -38,6 +40,7 @@ export const lensRegistry: readonly LensModule[] = [
   { definition: bordersDefinition, load: loadBorders, render: renderBorders },
   { definition: riversDefinition, load: loadRivers, render: renderRivers },
   { definition: desertsDefinition, load: loadDeserts, render: renderDeserts },
+  { definition: eezDefinition, load: loadEez, render: renderEez },
 ] as const;
 
 export function getLensModule(id: string): LensModule | undefined {

@@ -88,6 +88,17 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "eez",
+    sourceUrls: ["https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=eez&cql_filter=iso_sov1%20IN%20(%27FJI%27,%27KIR%27,%27MHL%27,%27FSM%27,%27PLW%27,%27TON%27,%27WSM%27,%27NRU%27,%27TUV%27,%27VUT%27,%27PNG%27,%27SLB%27,%27NZL%27,%27AUS%27,%27JPN%27,%27IDN%27,%27PHL%27,%27CHL%27,%27ECU%27)&outputformat=application/json"],
+    outputPath: path.join(outputDirectory, "eez.geojson"),
+    license: "Creative Commons Attribution 4.0 International (Marine Regions)",
+    retrievedAt: "2026-09-01",
+    processing: "20 Pacific-facing EEZ features · 7 source fields · simplify 2% keep-shapes · precision 0.001°",
+    steps: ["-filter-fields", "mrgid,geoname,territory1,iso_ter1,sovereign1,iso_sov1,area_km2", "-simplify", "2%", "keep-shapes"],
+    precision: "0.001",
+    build: buildNaturalEarthLayer,
+  },
+  {
     id: "sea-ice-edges",
     sourceUrls: seaIceSources.map((source) => source.sourceUrl),
     outputPath: path.join(outputDirectory, "sea-ice-median-edges.geojson"),

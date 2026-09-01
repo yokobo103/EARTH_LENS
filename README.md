@@ -65,6 +65,7 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
 - Natural Earth 1:10mの一般化した河川・湖心線を重ねるRivers Lens
 - Natural Earthの地理地域から抽出した概略乾燥帯を重ねるArid Regions Lens
+- Marine Regionsの太平洋周辺を中心としたEEZ（排他的経済水域）Lens
 - 物理的役割を持つ11件の概略Physical Features
 - 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
 - endpointからコード生成する6本のSchematic Shipping Flow
@@ -153,6 +154,7 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 | Country Borders | 242か国の簡略化outline | `real + derived` | Natural Earth 1:50m Admin 0 / Public Domain |
 | Rivers | 1,455件の一般化した河川・湖心線 | `real + derived` | Natural Earth 1:10m Rivers + lake centerlines / Public Domain |
 | Arid Regions | 58件の概略砂漠地域ポリゴン | `real + derived` | Natural Earth 1:10m Geography Regions / Public Domain |
+| EEZ | 太平洋周辺を中心に選定した36件の200海里海域 | `real + derived` | Marine Regions World EEZ v12 / CC BY 4.0 |
 
 ## Geographic data import
 
@@ -166,6 +168,7 @@ npm run data:geo -- admin0-countries
 npm run data:geo -- major-ports
 npm run data:geo -- rivers
 npm run data:geo -- deserts
+npm run data:geo -- eez
 npm run data:geo -- sea-ice-edges
 ```
 
@@ -178,6 +181,8 @@ Sea Ice LensはNSIDC Sea Ice Index v4（G02135）の1981–2010年月別中央�
 Rivers LensはNatural Earth 1:10m Rivers + lake centerlinesを8%へ簡略化した一般化中心線です。河川の流量、幅、季節性、航行可否を示すものではなく、国境・港湾・都市などとの位置関係を観察するための参照線です。
 
 Arid Regions LensはNatural EarthのGeography Regionsから`FEATURECLA = Desert`を抽出した概略ポリゴンです。気候指数や土地被覆の連続値ではなく、河川・港湾・都市との重なりを観察するための視覚的な地域参照です。
+
+EEZ LensはMarine Regions World EEZ v12から太平洋周辺を中心に選定した200海里海域の派生サブセットです。EEZは主権領域そのものではなく、境界紛争の判断や法的な海図用途を意図しません。出典・ライセンス・バージョンを表示し、最新版はMarine Regionsの公式配布ページを参照してください。
 
 ShippingとCableは保存済み実経路を持ちません。どちらもendpointからgeodesicを生成し、Shippingは太い半透明amber帯＋破線、Cableは細いcyan networkとして区別します。
 
