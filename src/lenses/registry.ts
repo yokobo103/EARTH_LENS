@@ -4,8 +4,6 @@ import { criticalMineralsDefinition, loadCriticalMinerals } from "./critical-min
 import { renderCriticalMinerals } from "./critical-minerals/renderer";
 import { submarineCablesDefinition, loadSubmarineCableConnections } from "./submarine-cables/definition";
 import { renderSubmarineCableConnections } from "./submarine-cables/renderer";
-import { terrainDefinition, loadTerrainDataset } from "./terrain/definition";
-import { renderTerrainRelief } from "./terrain/renderer";
 import { physicalFeaturesDefinition, loadPhysicalFeatures } from "./physical-features/definition";
 import { renderPhysicalFeatures } from "./physical-features/renderer";
 import { seaIceDefinition, loadSeaIceEdges } from "./sea-ice/definition";
@@ -25,7 +23,6 @@ import { renderEez } from "./eez/renderer";
 import type { LensModule } from "./types";
 
 export const lensRegistry: readonly LensModule[] = [
-  { definition: terrainDefinition, load: loadTerrainDataset, render: renderTerrainRelief },
   { definition: physicalFeaturesDefinition, load: loadPhysicalFeatures, render: renderPhysicalFeatures },
   { definition: seaIceDefinition, load: loadSeaIceEdges, render: renderSeaIceEdges },
   { definition: portsDefinition, load: loadPorts, render: renderPorts },

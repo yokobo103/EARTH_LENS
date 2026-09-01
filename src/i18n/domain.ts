@@ -5,7 +5,7 @@ import type { Locale } from "./types";
 
 const lensJa: Record<string, { name: string; shortName: string; category: string; legends: string[]; disclosures?: string[] }> = {
   "terrain-relief": { name: "地形・起伏", shortName: "地形", category: "地球", legends: ["陰影起伏表現"] },
-  "physical-features": { name: "主要物理地形", shortName: "物理地形", category: "地球", legends: ["障壁・高原", "回廊・狭窄部"] },
+  "physical-features": { name: "山脈・高原", shortName: "山脈・高原", category: "地球", legends: ["山脈地域", "高原地域"], disclosures: ["概略地域", "標高ジオメトリではありません", "Natural Earth · Public Domain"] },
   "sea-ice-edges": {
     name: "凍る海", shortName: "海氷", category: "地球",
     legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 冬季平年の縁 · 破線", "1981–2010年 夏季平年の縁 · 実線"],
@@ -31,8 +31,6 @@ const featureJa: Record<string, { name: string; description?: string }> = {
   "zagros-mountains": { name: "ザグロス山脈", description: "イラン高原西側に沿って明瞭な障壁をつくる山岳帯。" },
   sahara: { name: "サハラ砂漠", description: "居住・インフラ・陸上移動を制約する広大な乾燥地域。" },
   gobi: { name: "ゴビ砂漠", description: "モンゴルから中国北部に広がる大規模な乾燥地域。" },
-  "physical-malacca": { name: "マラッカ海峡", description: "マレー半島とスマトラ島の間にある狭い自然海上回廊。" },
-  "physical-hormuz": { name: "ホルムズ海峡", description: "ペルシャ湾とオマーン湾を結ぶ狭い自然出口。" },
   "physical-bosporus": { name: "ボスポラス海峡", description: "黒海とマルマラ海を結ぶ狭い自然水路。" },
   "winter-median-edge": { name: "冬の海氷中央値の縁", description: "典型的な季節最大域の縁。北半球は3月、南半球は9月の1981〜2010年中央値です。" },
   "summer-median-edge": { name: "夏の海氷中央値の縁", description: "典型的な季節最小域の縁。北半球は9月、南半球は3月の1981〜2010年中央値です。" },

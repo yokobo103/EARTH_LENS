@@ -88,6 +88,18 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "physical-features",
+    sourceCacheKey: "deserts",
+    sourceUrls: [`${naturalEarthRepository}/ne_10m_geography_regions_polys.geojson`],
+    outputPath: path.join(outputDirectory, "physical-features.geojson"),
+    license: "Natural Earth · Public Domain",
+    retrievedAt: "2026-09-02",
+    processing: "Range/mtn + Plateau features only · 8 source fields · simplify 8% keep-shapes · precision 0.001°",
+    steps: ["-filter", "FEATURECLA == 'Range/mtn' || FEATURECLA == 'Plateau'", "-filter-fields", "NAME,NAME_JA,FEATURECLA,REGION,SUBREGION,SCALERANK,NE_ID,WIKIDATAID", "-simplify", "8%", "keep-shapes"],
+    precision: "0.001",
+    build: buildNaturalEarthLayer,
+  },
+  {
     id: "eez",
     sourceUrls: ["https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=eez&cql_filter=iso_sov1%20IN%20(%27FJI%27,%27KIR%27,%27MHL%27,%27FSM%27,%27PLW%27,%27TON%27,%27WSM%27,%27NRU%27,%27TUV%27,%27VUT%27,%27PNG%27,%27SLB%27,%27NZL%27,%27AUS%27,%27JPN%27,%27IDN%27,%27PHL%27,%27CHL%27,%27ECU%27)&outputformat=application/json"],
     outputPath: path.join(outputDirectory, "eez.geojson"),
@@ -164,7 +176,7 @@ function verifyGeoJson(text, label) {
 
 async function buildNaturalEarthLayer(layer) {
   const sourceUrl = layer.sourceUrls[0];
-  const rawPath = path.join(cacheDirectory, `${layer.id}.source.geojson`);
+  const rawPath = path.join(cacheDirectory, `${layer.sourceCacheKey ?? layer.id}.source.geojson`);
   const temporaryOutput = path.join(buildDirectory, `${layer.id}.geojson`);
   const sourceBuffer = await download(sourceUrl, rawPath);
   const source = verifyGeoJson(sourceBuffer.toString("utf8"), layer.id);

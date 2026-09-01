@@ -12,7 +12,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-01-malacca", number: 1, type: "bottleneck", title: "FIND THE BOTTLENECK",
     prompt: "Find where major maritime traffic between East Asia and the Indian Ocean is squeezed most tightly by geography.",
-    region: "asia", recommendedLensIds: ["terrain-relief", "shipping-flows", "strategic-chokepoints"],
+    region: "asia", recommendedLensIds: ["shipping-flows", "strategic-chokepoints"],
     target: { name: "STRAIT OF MALACCA", latitude: 2.5, longitude: 101.2, successRadiusKm: 450 },
     hints: [
       { id: "malacca-oceans", number: 1, title: "OCEAN CLUE", text: "The passage links the Indian Ocean with the Pacific side of Asia." },
@@ -21,7 +21,7 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-malacca", missionId: "mission-01-malacca", title: "MALACCA", region: "Southeast Asia", image: malaccaSticker, shape: "oval", icon: "strait", description: "Container ship and tropical strait", coordinateLabel: "2.5°N / 101.2°E" },
     completion: { evidenceChain: [
-      { lensId: "physical-features", featureId: "physical-malacca", relationship: "corridor", title: "TERRAIN", text: "Narrow maritime corridor" },
+      { lensId: "strategic-chokepoints", featureId: "strait-of-malacca", relationship: "corridor", title: "PHYSICAL CORRIDOR", text: "Narrow maritime corridor" },
       { lensId: "shipping-flows", featureId: "flow-east-asia-europe", relationship: "overlap", title: "SHIPPING", text: "Major flow concentration" },
       { lensId: "strategic-chokepoints", featureId: "strait-of-malacca", relationship: "connected", title: "CHOKEPOINT", text: "Strategic bottleneck" },
     ] },
@@ -29,7 +29,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-02-himalayas", number: 2, type: "barrier", title: "FIND THE BARRIER",
     prompt: "Find the immense natural barrier between South Asia and the Tibetan Plateau.",
-    region: "asia", recommendedLensIds: ["terrain-relief", "physical-features"],
+    region: "asia", recommendedLensIds: ["physical-features"],
     target: { name: "HIMALAYAS", latitude: 28.2, longitude: 86.5, successRadiusKm: 650 },
     hints: [
       { id: "himalayas-scale", number: 1, title: "SCALE CLUE", text: "The answer is a mountain system, not a border or a city." },
@@ -38,14 +38,13 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-himalayas", missionId: "mission-02-himalayas", title: "HIMALAYAS", region: "High Asia", image: himalayasSticker, shape: "shield", icon: "mountain", description: "Snow mountains and expedition motif", coordinateLabel: "28.2°N / 86.5°E" },
     completion: { evidenceChain: [
-      { lensId: "terrain-relief", featureId: "terrain-himalayas", relationship: "barrier", title: "TERRAIN", text: "Extreme high-relief belt" },
-      { lensId: "physical-features", featureId: "himalayas", relationship: "overlap", title: "PHYSICAL FEATURE", text: "Continental-scale mountain barrier" },
+      { lensId: "physical-features", featureId: "physical-ne-1159104307", relationship: "barrier", title: "PHYSICAL FEATURE", text: "Continental-scale mountain barrier" },
     ] },
   },
   {
     id: "mission-03-hormuz", number: 3, type: "gateway", title: "FIND THE GATEWAY",
     prompt: "Find the narrow gateway energy shipping must first cross when leaving the Persian Gulf for the open ocean.",
-    region: "middle-east", recommendedLensIds: ["terrain-relief", "shipping-flows", "strategic-chokepoints"],
+    region: "middle-east", recommendedLensIds: ["shipping-flows", "strategic-chokepoints"],
     target: { name: "STRAIT OF HORMUZ", latitude: 26.56, longitude: 56.25, successRadiusKm: 380 },
     hints: [
       { id: "hormuz-text", number: 1, title: "REGIONAL CLUE", text: "This gateway lies in the Middle East." },
@@ -54,7 +53,7 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-hormuz", missionId: "mission-03-hormuz", title: "HORMUZ", region: "Persian Gulf", image: hormuzSticker, shape: "arch", icon: "tanker", description: "Tanker and Persian Gulf sunset", coordinateLabel: "26.6°N / 56.3°E" },
     completion: { evidenceChain: [
-      { lensId: "terrain-relief", featureId: "physical-hormuz", relationship: "corridor", title: "TERRAIN", text: "Confined gulf exit" },
+      { lensId: "strategic-chokepoints", featureId: "strait-of-hormuz", relationship: "corridor", title: "PHYSICAL CORRIDOR", text: "Confined gulf exit" },
       { lensId: "shipping-flows", featureId: "flow-middle-east-europe", relationship: "overlap", title: "SHIPPING", text: "Outbound maritime flow" },
       { lensId: "strategic-chokepoints", featureId: "strait-of-hormuz", relationship: "connected", title: "GATEWAY", text: "Strategic energy passage" },
     ] },
@@ -62,7 +61,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-04-suez", number: 4, type: "shortcut", title: "FIND THE SHORTCUT",
     prompt: "Find the passage that lets Europe–Indian Ocean shipping avoid the long voyage around Africa.",
-    region: "middle-east", recommendedLensIds: ["terrain-relief", "shipping-flows", "strategic-chokepoints"],
+    region: "middle-east", recommendedLensIds: ["shipping-flows", "strategic-chokepoints"],
     target: { name: "SUEZ CANAL", latitude: 30.58, longitude: 32.3, successRadiusKm: 300 },
     hints: [
       { id: "suez-text", number: 1, title: "ROUTE CLUE", text: "The answer joins two seas across an arid isthmus." },
@@ -94,7 +93,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-06-gibraltar", number: 6, type: "gateway", title: "FIND THE GATEWAY",
     prompt: "Find where maritime traffic concentrates between the Mediterranean Sea and the Atlantic Ocean.",
-    region: "europe", recommendedLensIds: ["terrain-relief", "shipping-flows"],
+    region: "europe", recommendedLensIds: ["shipping-flows"],
     target: { name: "STRAIT OF GIBRALTAR", latitude: 36.0, longitude: -5.6, successRadiusKm: 320 },
     hints: [
       { id: "gibraltar-text", number: 1, title: "SEA CLUE", text: "The passage separates Europe and Africa." },
@@ -103,14 +102,13 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-gibraltar", missionId: "mission-06-gibraltar", title: "GIBRALTAR", region: "Western Mediterranean", image: gibraltarSticker, shape: "shield", icon: "rock", description: "Rock and passing ship", coordinateLabel: "36.0°N / 5.6°W" },
     completion: { evidenceChain: [
-      { lensId: "terrain-relief", featureId: "gibraltar-terrain", relationship: "corridor", title: "TERRAIN", text: "Narrow opening between land masses" },
       { lensId: "shipping-flows", featureId: "flow-mediterranean-atlantic", relationship: "overlap", title: "SHIPPING", text: "Sea traffic converges at the gateway" },
     ] },
   },
   {
     id: "mission-07-lithium", number: 7, type: "resource", title: "FIND THE RESOURCE REGION",
     prompt: "Find the high-altitude salt-flat region where Chile, Bolivia, and Argentina meet.",
-    region: "south-america", recommendedLensIds: ["terrain-relief", "critical-minerals", "admin0-borders"],
+    region: "south-america", recommendedLensIds: ["critical-minerals", "admin0-borders"],
     target: { name: "LITHIUM TRIANGLE", latitude: -23.5, longitude: -67.5, successRadiusKm: 700 },
     hints: [
       { id: "lithium-text", number: 1, title: "LANDSCAPE CLUE", text: "Look for an arid plateau beside the Andes." },
@@ -119,7 +117,7 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-lithium", missionId: "mission-07-lithium", title: "LITHIUM TRIANGLE", region: "Central Andes", image: lithiumSticker, shape: "custom", icon: "salt-flat", description: "Salt flat and Andes", coordinateLabel: "23.5°S / 67.5°W" },
     completion: { evidenceChain: [
-      { lensId: "terrain-relief", featureId: "andes", relationship: "nearby", title: "TERRAIN", text: "High arid plateau beside the Andes" },
+      { lensId: "physical-features", featureId: "physical-ne-1159104309", relationship: "nearby", title: "MOUNTAINS", text: "High arid plateau beside the Andes" },
       { lensId: "critical-minerals", featureId: "chile-copper-demo", relationship: "nearby", title: "MINERALS", text: "Prototype coverage is demo-only and incomplete" },
       { lensId: "admin0-borders", featureId: "country-bol", relationship: "overlap", title: "BORDERS", text: "Three-country resource region" },
     ] },
@@ -127,7 +125,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-08-rift", number: 8, type: "terrain", title: "FIND THE RIFT",
     prompt: "Find the immense terrain belt where the African continent is slowly pulling apart.",
-    region: "africa", recommendedLensIds: ["terrain-relief", "physical-features"],
+    region: "africa", recommendedLensIds: ["physical-features"],
     target: { name: "EAST AFRICAN RIFT", latitude: -1.5, longitude: 36.2, successRadiusKm: 900 },
     hints: [
       { id: "rift-text", number: 1, title: "TECTONIC CLUE", text: "The feature runs through eastern Africa rather than along a coastline." },
@@ -136,8 +134,6 @@ export const missionCatalog: readonly EarthMission[] = [
     ],
     sticker: { id: "sticker-rift", missionId: "mission-08-rift", title: "EAST AFRICAN RIFT", region: "East Africa", image: riftSticker, shape: "arch", icon: "rift", description: "Rift valley and volcano", coordinateLabel: "1.5°S / 36.2°E" },
     completion: { evidenceChain: [
-      { lensId: "terrain-relief", featureId: "east-african-rift", relationship: "overlap", title: "TERRAIN", text: "Long valley-and-highland system" },
-      { lensId: "physical-features", featureId: "east-african-rift", relationship: "corridor", title: "PHYSICAL GEOGRAPHY", text: "Future plate-boundary data will deepen this evidence" },
     ] },
   },
 ] as const;

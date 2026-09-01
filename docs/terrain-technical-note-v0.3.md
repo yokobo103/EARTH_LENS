@@ -8,7 +8,7 @@ CesiumJSで全球の実標高geometryを扱う標準的な方法はCesium World 
 
 このため、v0.3のSTOP条件「API key必須」または「巨大な追加インフラ必須」に該当し、一度実装を停止しました。その後、Natural Earth II shaded reliefを使うkeyless方式が採択されました。v0.3では実標高geometry、Cesium ion、GEBCO tile化を使用しません。
 
-実装は`TerrainObservationProvider`を最小境界とし、現在は`NaturalEarthReliefProvider`がimageryのbrightness / contrast / saturation / gammaを切り替えます。UIには`SHADED RELIEF / NO ELEVATION GEOMETRY / NATURAL EARTH · PUBLIC DOMAIN`を表示します。
+実装は`TerrainObservationProvider`を最小境界とし、現在は`NaturalEarthReliefProvider`がimageryのbrightness / contrast / saturation / gammaを切り替えます。TerrainはLens Registryではなく、ツール内の「地球の見た目」設定として既定ONで提供します。UIには`SHADED RELIEF / NO ELEVATION GEOMETRY / NATURAL EARTH · PUBLIC DOMAIN`を表示します。
 
 ## 候補比較
 
@@ -41,9 +41,9 @@ CesiumJSで全球の実標高geometryを扱う標準的な方法はCesium World 
 
 ## 選択肢
 
-### A — Keyless shaded-relief Lens（推奨）
+### A — Keyless shaded-relief appearance（推奨）
 
-現行Natural Earth IIを活用し、Terrain Lens ON時にimageryのcontrast / saturation、globe lightingなどを調整します。物理地形の読み取りを改善しますが、実標高geometryやvertical exaggerationは提供しません。
+現行Natural Earth IIを活用し、Earth Appearance設定ON時にimageryのcontrast / saturation、globe lightingなどを調整します。物理地形の読み取りを改善しますが、実標高geometryやvertical exaggerationは提供しません。
 
 表示:
 

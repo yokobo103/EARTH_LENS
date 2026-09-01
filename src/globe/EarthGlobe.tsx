@@ -47,6 +47,7 @@ interface EarthGlobeProps {
   anchorContent: ReactNode;
   initialCamera: SharedCameraState | null;
   initialFeature: SharedFeatureState | null;
+  terrainReliefEnabled: boolean;
   onCameraChange?: (camera: SharedCameraState) => void;
 }
 
@@ -87,7 +88,7 @@ function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Enti
   });
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, initialCamera, initialFeature, onCameraChange }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, initialCamera, initialFeature, terrainReliefEnabled, onCameraChange }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRootRef = useRef<HTMLDivElement>(null);
   const anchorPinRef = useRef<HTMLSpanElement>(null);
@@ -297,7 +298,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     paleoEntitiesRef.current = [];
 
     if (temporalSelection.mode === "present") {
-      reapplyNaturalEarthRelief(viewer, activeLensIdsRef.current.has("terrain-relief"));
+      reapplyNaturalEarthRelief(viewer, terrainReliefEnabled);
     } else {
       for (let index = 0; index < viewer.imageryLayers.length; index += 1) {
         const layer = viewer.imageryLayers.get(index);
@@ -317,7 +318,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       viewer.camera.flyTo({ destination: Cartesian3.fromDegrees(0, 8, 19_500_000), duration: 0.8 });
     });
     return () => { cancelled = true; };
-  }, [temporalSelection]);
+  }, [temporalSelection, terrainReliefEnabled]);
 
   useEffect(() => {
     const viewer = viewerRef.current;

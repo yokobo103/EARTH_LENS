@@ -61,13 +61,13 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 既存EXPLOREでは以下を使用できます。
 
 - APIキー不要で回転・ズームできるCesiumJS 3D globe
-- Natural Earth II shaded reliefを読みやすく調整するTerrain Lens
+- ツール内の「地球の見た目」設定でNatural Earth II shaded reliefの見え方を切替（既定ON）
 - NSIDC Sea Ice Index v4の1981–2010年中央値から、南北両極の冬／夏の海氷縁を比較する「凍る海」Lens
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
 - Natural Earth 1:10mの一般化した河川・湖心線を重ねるRivers Lens
 - Natural Earthの地理地域から抽出した概略乾燥帯を重ねるArid Regions Lens
 - Marine Regionsの太平洋周辺を中心としたEEZ（排他的経済水域）Lens
-- 物理的役割を持つ11件の概略Physical Features
+- Natural Earthの山脈・高原294件（Range/mtn / Plateau）を実形状で表示するPhysical Features
 - 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
 - endpointからコード生成する6本のSchematic Shipping Flow
 - manifest / registry / rendererで分離したLayer system
@@ -131,9 +131,9 @@ Mission rewardはLens unlockではありません。Lensは観測道具として
 
 Shippingは発明した抽象anchor間をコードで補間する観測用デモです。実船舶、実航路、商用データは使わず、画面にも`SCHEMATIC ACTIVITY / DEMO DATA / NOT ACTUAL SHIPPING ROUTES`と表示します。
 
-## Terrain implementation
+## Terrain appearance implementation
 
-Terrain Lensは実標高geometryではありません。Cesium同梱のNatural Earth II imageryへ、低彩度・中程度のcontrast・brightness / gamma調整を適用し、山脈、高原、砂漠、海岸線、大陸配置を読みやすくします。
+Terrainはレンズではなく、ツール内の「地球の見た目」設定です。実標高geometryではありません。Cesium同梱のNatural Earth II imageryへ、低彩度・中程度のcontrast・brightness / gamma調整を適用し、山脈、高原、砂漠、海岸線、大陸配置を読みやすくします。
 
 - provider境界: `TerrainObservationProvider`
 - 現在の実装: `NaturalEarthReliefProvider`
@@ -148,7 +148,7 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 | Lens | 内容 | 分類 | Source / License |
 | --- | --- | --- | --- |
 | Terrain | Natural Earth II shaded reliefの視覚調整 | `real + derived` | Natural Earth II / Public Domain |
-| Physical Features | 11件の代表中心と概略footprint | `demo + derived + schematic` | Project-authored demo / no external geometry |
+| Physical Features | 294件の山脈・高原ポリゴン（Range/mtn / Plateau） | `real + derived` | Natural Earth 1:10m Geography Regions / Public Domain |
 | Sea Ice | 南北両極の冬／夏の1981–2010月別中央値の海氷縁 | `real + derived` | NSIDC Sea Ice Index v4 / free and open use; citation required |
 | Ports | 1,081件の港湾point | `real + derived` | Natural Earth 1:10m Ports / Public Domain |
 | Shipping | 地域endpointから生成する6模式flow | `demo + derived + schematic` | Project-authored demo / no external route geometry |
@@ -159,7 +159,7 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 
 ## Geographic data import
 
-国境・港湾・河川・海氷データは`src`へimportせず、生成済みの`public/geo/*.geojson`を各Lensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。国境の`NAME_JA`は配布データに含まれていることを実測済みで、日本語表示では手書き辞書の次に利用します。
+国境・港湾・河川・山脈高原・海氷データは`src`へimportせず、生成済みの`public/geo/*.geojson`を各Lensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。`NAME_JA`はNatural Earth配布データに含まれており、日本語表示では手書き辞書の次に利用します。
 
 再生成時だけ次を実行します。引数なしは全レイヤー、ID指定は1レイヤーだけを更新します。
 
@@ -169,6 +169,7 @@ npm run data:geo -- admin0-countries
 npm run data:geo -- major-ports
 npm run data:geo -- rivers
 npm run data:geo -- deserts
+npm run data:geo -- physical-features
 npm run data:geo -- eez
 npm run data:geo -- sea-ice-edges
 ```
@@ -293,8 +294,8 @@ GEBCOは将来の`BATHYMETRY / OCEAN FLOOR` Lens候補として記録します�
 - Shipping ActivityとRegional Signalは探索体験用の模式表現で、交通量や地理的影響範囲を定量化していません。
 - Mission中の選択地点と開示中Hintはページ再読み込みでリセットされますが、完了記録、best rank、best hint数、累積attemptはブラウザへ保存します。account / cloud syncはありません。
 - 完成済みMissionはオーナー提供画像由来のWebP artwork、未取得MissionはCSS silhouetteです。画像の外部配布元や第三者権利は独立検証していないため、公開利用の根拠はオーナーからの明示的な利用依頼です。
-- Terrain Lensはimagery調整であり、標高値、斜面、可視遮蔽、3D地形geometryを提供しません。
-- Physical Featureのellipseは概略footprintで、実測境界や地質Polygonではありません。
+- 地球の見た目設定はimagery調整であり、標高値、斜面、可視遮蔽、3D地形geometryを提供しません。
+- Physical FeaturesはNatural Earthの概略地域ポリゴンです。実測標高、地質境界、行政境界ではありません。
 - PortsはNatural Earthの実在港湾pointですが、港湾施設やterminal境界、処理能力、稼働状況、通年の無氷性は示しません。
 - Sea Iceは1981–2010年の月別中央値の縁で、特定年・現在の海氷分布、氷厚、航行安全を示しません。ゾーンは夏／冬の縁の相対関係を読む凡例で、塗りPolygonを捏造していません。
 - Shippingは交通量を符号化せず、実AIS・実航路・通航頻度を表しません。
@@ -330,7 +331,6 @@ src/
     cable-connections.json
     chokepoints.geojson
     critical-minerals.geojson
-    physical-features.json
     shipping-connections.json
   temporal/
     types.ts
