@@ -18,6 +18,8 @@ import { bordersDefinition, loadBorders } from "./borders/definition";
 import { renderBorders } from "./borders/renderer";
 import { riversDefinition, loadRivers } from "./rivers/definition";
 import { renderRivers } from "./rivers/renderer";
+import { desertsDefinition, loadDeserts } from "./deserts/definition";
+import { renderDeserts } from "./deserts/renderer";
 import type { LensModule } from "./types";
 
 export const lensRegistry: readonly LensModule[] = [
@@ -35,6 +37,7 @@ export const lensRegistry: readonly LensModule[] = [
   { definition: criticalMineralsDefinition, load: loadCriticalMinerals, render: renderCriticalMinerals },
   { definition: bordersDefinition, load: loadBorders, render: renderBorders },
   { definition: riversDefinition, load: loadRivers, render: renderRivers },
+  { definition: desertsDefinition, load: loadDeserts, render: renderDeserts },
 ] as const;
 
 export function getLensModule(id: string): LensModule | undefined {

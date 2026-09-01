@@ -77,6 +77,17 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "deserts",
+    sourceUrls: [`${naturalEarthRepository}/ne_10m_geography_regions_polys.geojson`],
+    outputPath: path.join(outputDirectory, "deserts.geojson"),
+    license: "Natural Earth · Public Domain",
+    retrievedAt: "2026-09-01",
+    processing: "Desert features only · 6 source fields · simplify 8% keep-shapes · precision 0.001°",
+    steps: ["-filter", "FEATURECLA == 'Desert'", "-filter-fields", "NAME,NAME_JA,FEATURECLA,REGION,SUBREGION,SCALERANK", "-simplify", "8%", "keep-shapes"],
+    precision: "0.001",
+    build: buildNaturalEarthLayer,
+  },
+  {
     id: "sea-ice-edges",
     sourceUrls: seaIceSources.map((source) => source.sourceUrl),
     outputPath: path.join(outputDirectory, "sea-ice-median-edges.geojson"),
