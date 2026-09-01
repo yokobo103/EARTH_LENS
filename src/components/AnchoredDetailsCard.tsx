@@ -15,10 +15,9 @@ interface AnchoredDetailsCardProps {
   isAnalyzing: boolean;
   locale: Locale;
   onAnalyze: () => void;
-  onClose: () => void;
 }
 
-export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, whyHereResult, isAnalyzing, locale, onAnalyze, onClose }: AnchoredDetailsCardProps) {
+export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, whyHereResult, isAnalyzing, locale, onAnalyze }: AnchoredDetailsCardProps) {
   const lens = feature ? getLensModule(feature.lensId)?.definition : undefined;
   const featureName = feature ? localizeFeatureDisplayName(feature, locale) : "";
   const isOpeningRegion = !feature && Math.abs(anchorPoint.latitude - 1.264) < 0.02 && Math.abs(anchorPoint.longitude - 103.84) < 0.02;
@@ -27,7 +26,6 @@ export function AnchoredDetailsCard({ feature, location, anchorPoint, expanded, 
   const description = feature ? localizeFeatureDescription(feature, locale) : "";
 
   return <section className={`anchor-card-content${expanded ? " is-expanded" : ""}`} aria-label={expanded ? t(locale, "scan") : title}>
-    <button type="button" className="anchor-close" onClick={onClose} aria-label={t(locale, "close")}>×</button>
     {expanded ? <DetailsPanel feature={feature} location={feature ? location : anchorPoint} analysisLocation={anchorPoint} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={onAnalyze} embedded /> : <>
       <p className="anchor-layer">{layerName}</p>
       <p className="anchor-title">{title}</p>

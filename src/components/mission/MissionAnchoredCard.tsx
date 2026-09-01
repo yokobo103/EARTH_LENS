@@ -16,15 +16,13 @@ interface MissionAnchoredCardProps {
   onAnalyze: () => void;
   onCollectSticker: () => void;
   onExpand: () => void;
-  onClose: () => void;
 }
 
-export function MissionAnchoredCard({ mission, state, locale, expanded, whyHereResult, isAnalyzing, onSubmit, onAnalyze, onCollectSticker, onExpand, onClose }: MissionAnchoredCardProps) {
+export function MissionAnchoredCard({ mission, state, locale, expanded, whyHereResult, isAnalyzing, onSubmit, onAnalyze, onCollectSticker, onExpand }: MissionAnchoredCardProps) {
   const latestAttempt = state.attempts.at(-1);
   const latestMatchesSelection = Boolean(latestAttempt && state.selectedLocation && latestAttempt.location.latitude === state.selectedLocation.latitude && latestAttempt.location.longitude === state.selectedLocation.longitude);
   const title = state.status === "completed" ? t(locale, "targetIdentified") : state.selectedLocation ? `${state.selectedLocation.latitude.toFixed(3)}°, ${state.selectedLocation.longitude.toFixed(3)}°` : t(locale, "observationPoint");
   return <section className={`anchor-card-content mission-anchor-card${expanded ? " is-expanded" : ""}`} aria-label={title}>
-    <button type="button" className="anchor-close" onClick={onClose} aria-label={t(locale, "close")}>×</button>
     {state.status === "completed" ? <MissionResultPanel mission={mission} state={state} locale={locale} onCollectSticker={onCollectSticker} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} onAnalyze={onAnalyze} embedded /> : expanded ? <MissionObservationPanel state={state} locale={locale} onSubmit={onSubmit} embedded /> : <>
       <p className="anchor-layer">{t(locale, "observationPoint")}</p>
       <h2>{title}</h2>

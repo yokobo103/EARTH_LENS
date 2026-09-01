@@ -17,6 +17,7 @@ import {
 import type { AppMode } from "../app/types";
 import { localizeDataset } from "../i18n/domain";
 import type { Locale } from "../i18n/types";
+import { t } from "../i18n/copy";
 import { loadLensDataset } from "../lenses/dataStore";
 import { lensRegistry } from "../lenses/registry";
 import type { LensFeature, LensRenderHandle } from "../lenses/types";
@@ -45,6 +46,7 @@ interface EarthGlobeProps {
   anchorPoint: GeographicPoint | null;
   anchorExpanded: boolean;
   anchorContent: ReactNode;
+  onAnchorClose: () => void;
   initialCamera: SharedCameraState | null;
   initialFeature: SharedFeatureState | null;
   terrainReliefEnabled: boolean;
@@ -88,7 +90,7 @@ function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Enti
   });
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, initialCamera, initialFeature, terrainReliefEnabled, onCameraChange }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, onCameraChange }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRootRef = useRef<HTMLDivElement>(null);
   const anchorPinRef = useRef<HTMLSpanElement>(null);
@@ -201,8 +203,16 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       top = clamp(top, safeTop, Math.max(safeTop, stageHeight - cardHeight - safeBottom));
 
       if (anchorExpandedRef.current) {
-        frozenCardPositionRef.current ??= { left, top };
-        ({ left, top } = frozenCardPositionRef.current);
+        // The card grows after the expand click. Revalidate the frozen position
+        // against the current (expanded) height so it cannot remain anchored
+        // below the viewport from the compact-card measurement.
+        const maxExpandedTop = Math.max(safeTop, stageHeight - cardHeight - safeBottom);
+        const frozen = frozenCardPositionRef.current;
+        if (!frozen || frozen.top < safeTop || frozen.top > maxExpandedTop) {
+          frozenCardPositionRef.current = { left, top: clamp(top, safeTop, maxExpandedTop) };
+        }
+        const resolvedPosition = frozenCardPositionRef.current;
+        if (resolvedPosition) ({ left, top } = resolvedPosition);
       } else {
         frozenCardPositionRef.current = null;
       }
@@ -351,7 +361,10 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     {anchorPoint && anchorContent && <div ref={anchorRootRef} className={`globe-anchor${anchorExpanded ? " is-expanded" : ""}`}>
       <span ref={anchorLineRef} className="anchor-leader" aria-hidden="true" />
       <span ref={anchorPinRef} className="anchor-pin" aria-hidden="true" />
-      <div ref={anchorCardRef} className="anchor-card">{anchorContent}</div>
+      <div ref={anchorCardRef} className="anchor-card">
+        <button type="button" className="anchor-close" onClick={onAnchorClose} aria-label={t(locale, "close")}>×</button>
+        {anchorContent}
+      </div>
     </div>}
   </div>;
 }
