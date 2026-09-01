@@ -17,6 +17,7 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
   "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", legends: ["戦略的通過地点"] },
   "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", legends: ["国別デモ指数", "高さ = 正規化指数"] },
   "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", legends: ["国境線"] },
+  rivers: { name: "河川", shortName: "河川", category: "地球", legends: ["一般化した河川中心線"], disclosures: ["一般化した河川網", "河川流量データではありません", "Natural Earth · Public Domain"] },
 };
 
 const featureJa: Record<string, { name: string; description?: string }> = {

@@ -16,6 +16,8 @@ import { shippingDefinition, loadShippingFlows } from "./shipping/definition";
 import { renderShippingFlows } from "./shipping/renderer";
 import { bordersDefinition, loadBorders } from "./borders/definition";
 import { renderBorders } from "./borders/renderer";
+import { riversDefinition, loadRivers } from "./rivers/definition";
+import { renderRivers } from "./rivers/renderer";
 import type { LensModule } from "./types";
 
 export const lensRegistry: readonly LensModule[] = [
@@ -32,6 +34,7 @@ export const lensRegistry: readonly LensModule[] = [
   { definition: chokepointsDefinition, load: loadChokepoints, render: renderChokepoints },
   { definition: criticalMineralsDefinition, load: loadCriticalMinerals, render: renderCriticalMinerals },
   { definition: bordersDefinition, load: loadBorders, render: renderBorders },
+  { definition: riversDefinition, load: loadRivers, render: renderRivers },
 ] as const;
 
 export function getLensModule(id: string): LensModule | undefined {

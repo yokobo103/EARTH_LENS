@@ -63,6 +63,7 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - Natural Earth II shaded reliefを読みやすく調整するTerrain Lens
 - NSIDC Sea Ice Index v4の1981–2010年中央値から、南北両極の冬／夏の海氷縁を比較する「凍る海」Lens
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
+- Natural Earth 1:10mの一般化した河川・湖心線を重ねるRivers Lens
 - 物理的役割を持つ11件の概略Physical Features
 - 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
 - endpointからコード生成する6本のSchematic Shipping Flow
@@ -149,10 +150,11 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 | Ports | 1,081件の港湾point | `real + derived` | Natural Earth 1:10m Ports / Public Domain |
 | Shipping | 地域endpointから生成する6模式flow | `demo + derived + schematic` | Project-authored demo / no external route geometry |
 | Country Borders | 242か国の簡略化outline | `real + derived` | Natural Earth 1:50m Admin 0 / Public Domain |
+| Rivers | 1,455件の一般化した河川・湖心線 | `real + derived` | Natural Earth 1:10m Rivers + lake centerlines / Public Domain |
 
 ## Geographic data import
 
-国境・港湾・海氷データは`src`へimportせず、生成済みの`public/geo/*.geojson`を各Lensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。国境の`NAME_JA`は配布データに含まれていることを実測済みで、日本語表示では手書き辞書の次に利用します。
+国境・港湾・河川・海氷データは`src`へimportせず、生成済みの`public/geo/*.geojson`を各Lensが初回ON時に`fetch`します。これによりデータ本体を初期JavaScript bundleへ含めず、通常の`dev`と`build`はネット接続なしで動きます。国境の`NAME_JA`は配布データに含まれていることを実測済みで、日本語表示では手書き辞書の次に利用します。
 
 再生成時だけ次を実行します。引数なしは全レイヤー、ID指定は1レイヤーだけを更新します。
 
@@ -160,6 +162,7 @@ Terrain Lensは実標高geometryではありません。Cesium同梱のNatural E
 npm run data:geo
 npm run data:geo -- admin0-countries
 npm run data:geo -- major-ports
+npm run data:geo -- rivers
 npm run data:geo -- sea-ice-edges
 ```
 
@@ -168,6 +171,8 @@ npm run data:geo -- sea-ice-edges
 Sea Ice LensはNSIDC Sea Ice Index v4（G02135）の1981–2010年月別中央値polylineを使用します。北半球は3月＝冬／9月＝夏、南半球は9月＝冬／3月＝夏として統合し、各極投影で25 km densify後にWGS84へ変換します。表示は観測された中央値の「縁」と薄いhaloであり、面積値、現在の海氷、航行可否を表しません。引用: Fetterer et al. (2025), DOI `10.7265/a98x-0f50`。
 
 国境はNatural Earthの編集判断を反映するもので、国家・領域の承認を表明するものではありません。この注記はCountry BordersのFeature Detailsからも確認できます。
+
+Rivers LensはNatural Earth 1:10m Rivers + lake centerlinesを8%へ簡略化した一般化中心線です。河川の流量、幅、季節性、航行可否を示すものではなく、国境・港湾・都市などとの位置関係を観察するための参照線です。
 
 ShippingとCableは保存済み実経路を持ちません。どちらもendpointからgeodesicを生成し、Shippingは太い半透明amber帯＋破線、Cableは細いcyan networkとして区別します。
 

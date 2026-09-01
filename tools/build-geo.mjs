@@ -66,6 +66,17 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "rivers",
+    sourceUrls: [`${naturalEarthRepository}/ne_10m_rivers_lake_centerlines.geojson`],
+    outputPath: path.join(outputDirectory, "rivers.geojson"),
+    license: "Natural Earth · Public Domain",
+    retrievedAt: "2026-09-01",
+    processing: "3 source fields · simplify 8% keep-shapes · precision 0.001°",
+    steps: ["-filter-fields", "name,featurecla,scalerank", "-simplify", "8%", "keep-shapes"],
+    precision: "0.001",
+    build: buildNaturalEarthLayer,
+  },
+  {
     id: "sea-ice-edges",
     sourceUrls: seaIceSources.map((source) => source.sourceUrl),
     outputPath: path.join(outputDirectory, "sea-ice-median-edges.geojson"),
