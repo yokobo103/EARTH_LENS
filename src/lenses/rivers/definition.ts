@@ -39,7 +39,7 @@ interface RiversGeoJson {
   type: "FeatureCollection";
   features: Array<{
     type: "Feature";
-    geometry: { type: "LineString"; coordinates: Position[] } | { type: "MultiLineString"; coordinates: Position[][] };
+    geometry: { type: "LineString"; coordinates: Position[] } | { type: "MultiLineString"; coordinates: Position[][] } | null;
     properties?: { name?: string; featurecla?: string; scalerank?: number };
   }>;
 }
@@ -58,6 +58,7 @@ export async function loadRivers(): Promise<LensDataset> {
   if (!response.ok) throw new Error(`Natural Earth rivers failed to load: ${response.status} ${response.statusText}`);
   const geojson = await response.json() as RiversGeoJson;
   const features: LensFeature[] = geojson.features.flatMap((sourceFeature, index) => {
+    if (!sourceFeature.geometry) return [];
     const rawPaths = sourceFeature.geometry.type === "LineString"
       ? [sourceFeature.geometry.coordinates]
       : sourceFeature.geometry.coordinates;
