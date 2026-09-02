@@ -325,7 +325,6 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     void provider.getSnapshot(temporalSelection.ageMa).then((snapshot) => {
       if (cancelled || viewer.isDestroyed()) return;
       paleoEntitiesRef.current = renderPaleoSnapshot(viewer, snapshot);
-      viewer.camera.flyTo({ destination: Cartesian3.fromDegrees(0, 8, 19_500_000), duration: 0.8 });
     });
     return () => { cancelled = true; };
   }, [temporalSelection, terrainReliefEnabled]);
