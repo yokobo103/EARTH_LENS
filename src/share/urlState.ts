@@ -148,6 +148,7 @@ function parseMode(value: string | null): AppMode | null {
 }
 
 function parseTemporal(value: string | null): TemporalSelection | null {
+  if (!value) return null;
   if (value === "p" || value === "0") return { mode: "present", ageMa: 0 };
   const ageMa = Number(value);
   return Number.isInteger(ageMa) && ageMa >= 0 && ageMa <= 1000 ? { mode: "deep-time", ageMa } : null;
