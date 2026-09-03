@@ -209,7 +209,7 @@ npm run dev
 - 375×812と812×375で、sheet閉時のglobe可視率80%以上、開時40%以上を実測
 - Viteの相対`base`とdocument-relativeな`CESIUM_BASE_URL`により、GitHub Pagesのサブパス配信へ対応
 
-公開版: [https://yokobo103.github.io/20260827_EARTH_LENS/](https://yokobo103.github.io/20260827_EARTH_LENS/)
+公開版: [https://yokobo103.github.io/EARTH_LENS/](https://yokobo103.github.io/EARTH_LENS/)
 
 品質検査:
 
