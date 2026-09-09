@@ -12,6 +12,8 @@ interface LayerPanelProps {
   onToggle: (lensId: string) => void;
   suspended?: boolean;
   missionRecommendedLensIds?: readonly string[];
+  /** レンズではないが、レンズの棚の端に置くもの。押すと年代の線が出る。 */
+  bonusLens?: { active: boolean; onToggle: () => void };
 }
 
 interface LensInfoState {
@@ -20,7 +22,7 @@ interface LensInfoState {
   left: number;
 }
 
-export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds }: LayerPanelProps) {
+export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds, bonusLens }: LayerPanelProps) {
   const [info, setInfo] = useState<LensInfoState | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClickFor = useRef<string | null>(null);
@@ -104,7 +106,15 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                   {missionRecommendedLensIds && <span><em className={recommended ? "lens-kit-focus" : "lens-kit-standby"}>{recommended ? t(locale, "missionFocus") : t(locale, "standby")}</em></span>}
                 </button>
               </section>;
-            })}</div>
+            })}
+            {bonusLens && group === lensGroups[lensGroups.length - 1] && (
+              <section className={`layer-item is-bonus${bonusLens.active ? " is-active" : ""}`} style={{ "--lens-color": "#ffd690" } as CSSProperties}>
+                <button type="button" className="layer-toggle" aria-pressed={bonusLens.active} disabled={suspended} onClick={bonusLens.onToggle}>
+                  <i className="lens-rail-swatch legend-bonus" aria-hidden="true" />
+                  <span className="lens-chip-label"><strong>{t(locale, "bonusLensChip")}</strong></span>
+                </button>
+              </section>
+            )}</div>
           </section>;
         })}
       </div>
