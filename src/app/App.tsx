@@ -33,7 +33,9 @@ const defaultMission = getDefaultMission();
 const initialSharedView = readSharedViewState();
 const hasSharedView = new URLSearchParams(window.location.search).get("v") === "1";
 const CAMERA_STORAGE_KEY = "earth-lens-camera";
-const TERRAIN_APPEARANCE_KEY = "earth-lens-terrain-appearance";
+// 旧 earth-lens-terrain-appearance は意味が逆（ONで彩度を落とす）だったので、
+// 別のキーにして混ざらないようにする。既定は「鮮やかにしない」＝下地に徹する。
+const VIVID_EARTH_KEY = "earth-lens-vivid-earth";
 
 function readStoredCamera(): SharedCameraState | null {
   try {
@@ -53,8 +55,8 @@ function readStoredCamera(): SharedCameraState | null {
   return null;
 }
 
-function readTerrainAppearance(): boolean {
-  try { return window.localStorage.getItem(TERRAIN_APPEARANCE_KEY) !== "off"; } catch { return true; }
+function readVividEarth(): boolean {
+  try { return window.localStorage.getItem(VIVID_EARTH_KEY) === "on"; } catch { return false; }
 }
 const openingLocation = { latitude: 1.264, longitude: 103.84 };
 const openingFeature = { lensId: "major-ports", featureId: "port-singapore" };
@@ -102,7 +104,7 @@ export function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [temporalSelection, setTemporalSelection] = useState<TemporalSelection>(initialSharedView.temporal ?? { mode: "present", ageMa: 0 });
   const [paleoToolEnabled, setPaleoToolEnabled] = useState(() => initialSharedView.temporal?.mode === "deep-time");
-  const [terrainReliefEnabled, setTerrainReliefEnabled] = useState(readTerrainAppearance);
+  const [vividEarth, setVividEarth] = useState(readVividEarth);
   const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(() => initialSharedView.camera ?? (!hasSharedView ? readStoredCamera() : null));
   const [aboutOpen, setAboutOpen] = useState(!hasSharedView && shouldShowAboutSplash);
   const [utilityOpen, setUtilityOpen] = useState(false);
@@ -121,10 +123,10 @@ export function App() {
     }
   }, [sharedCamera]);
   useEffect(() => {
-    try { window.localStorage.setItem(TERRAIN_APPEARANCE_KEY, terrainReliefEnabled ? "on" : "off"); } catch {
+    try { window.localStorage.setItem(VIVID_EARTH_KEY, vividEarth ? "on" : "off"); } catch {
       // localStorage may be unavailable in private browsing or embedded previews.
     }
-  }, [terrainReliefEnabled]);
+  }, [vividEarth]);
 
   const shareState: SharedViewState = {
     camera: sharedCamera,
@@ -195,9 +197,9 @@ export function App() {
   const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} onSubmit={submitMissionAnswer} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onCollectSticker={collectSticker} onExpand={() => setAnchorExpanded(true)} /> : null;
 
   return (
-    <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}`}>
-      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} /> : null) : missionAnchorContent} onAnchorClose={clearSelection} initialCamera={sharedCamera} initialFeature={initialSharedView.feature ?? (!hasSharedView ? openingFeature : null)} terrainReliefEnabled={terrainReliefEnabled} onCameraChange={setSharedCamera} />}
-      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} onClick={() => setUtilityOpen((open) => !open)}>{t(locale, "tools")}</button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}>{appMode === "explore" && <div className="paleo-tool-control"><div><strong>{t(locale, "paleoTool")}</strong><small>{t(locale, "paleoToolDescription")}</small></div><button type="button" aria-pressed={paleoToolEnabled} onClick={() => { const nextEnabled = !paleoToolEnabled; setPaleoToolEnabled(nextEnabled); if (!nextEnabled && temporalSelection.mode === "deep-time") changeTime({ mode: "present", ageMa: 0 }); }}>{paleoToolEnabled ? t(locale, "on") : t(locale, "off")}</button></div>}<div className="terrain-appearance-control"><div><strong>{t(locale, "earthAppearance")}</strong><small>{t(locale, "shadedRelief")}</small></div><button type="button" aria-pressed={terrainReliefEnabled} onClick={() => setTerrainReliefEnabled((enabled) => !enabled)}>{terrainReliefEnabled ? t(locale, "on") : t(locale, "off")}</button></div><ShareButton locale={locale} state={shareState} /><LanguageSelector locale={locale} onChange={setLocale} /><button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}<button type="button" className="utility-sheet-close" onClick={() => setUtilityOpen(false)}>{t(locale, "close")}</button></div></div></header>
+    <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${showGlobe && appMode === "explore" && paleoToolEnabled ? " paleo-band-open" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}`}>
+      {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} /> : null) : missionAnchorContent} onAnchorClose={clearSelection} initialCamera={sharedCamera} initialFeature={initialSharedView.feature ?? (!hasSharedView ? openingFeature : null)} terrainReliefEnabled={!vividEarth} onCameraChange={setSharedCamera} />}
+      <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls"><LanguageSelector locale={locale} onChange={setLocale} /><button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} aria-label={t(locale, "menu")} onClick={() => setUtilityOpen((open) => !open)}><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" /></button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}>{appMode === "explore" && <div className="paleo-tool-control"><div><strong>{t(locale, "paleoTool")}</strong><small>{t(locale, "paleoToolDescription")}</small></div><button type="button" aria-pressed={paleoToolEnabled} onClick={() => { const nextEnabled = !paleoToolEnabled; setPaleoToolEnabled(nextEnabled); if (!nextEnabled && temporalSelection.mode === "deep-time") changeTime({ mode: "present", ageMa: 0 }); }}>{paleoToolEnabled ? t(locale, "on") : t(locale, "off")}</button></div>}<div className="terrain-appearance-control"><div><strong>{t(locale, "vividEarth")}</strong><small>{t(locale, "vividEarthDescription")}</small></div><button type="button" aria-pressed={vividEarth} onClick={() => setVividEarth((enabled) => !enabled)}>{vividEarth ? t(locale, "on") : t(locale, "off")}</button></div><ShareButton locale={locale} state={shareState} /><button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}<button type="button" className="utility-sheet-close" onClick={() => setUtilityOpen(false)}>{t(locale, "close")}</button></div></div></header>
       {showGlobe && appMode === "explore" && paleoToolEnabled && <div className="paleo-time-band">{timeline}</div>}
       {showGlobe && activeLensLegend}
       {showGlobe && layerPanel}

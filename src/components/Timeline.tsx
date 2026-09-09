@@ -8,17 +8,66 @@ interface TimelineProps {
   onChange: (selection: TemporalSelection) => void;
 }
 
-const deepTimeAges = [50, 100, 150, 200, 250] as const;
+/** 復元海岸線を持っている年代。ここに無い年代へは行けない。 */
+const availableAges = [0, 50, 100, 150, 200, 250] as const;
+const OLDEST_MA = 250;
 
+/** 線の上での位置。左が今、右が昔。 */
+const position = (ageMa: number) => `${(ageMa / OLDEST_MA) * 100}%`;
+
+/** 新生代は6600万年前まで。線の上ではここまでしか占めない。 */
+const CENOZOIC_MA = 66;
+
+/**
+ * 年代を「数直線」で選ぶ。
+ *
+ * ボタンを6個並べると設定画面に見えるが、行き先は場所ではなく時間なので、
+ * 選ぶ前に「どこからどこまで動けるのか」が見えている方がいい。
+ * 線の長さがそのまま時間の長さで、新生代が中生代の隣で薄いのは事実そのもの。
+ *
+ * 目盛りは押せるが、押しボタンには見せない。線を触ると年代が変わる、
+ * という以上の説明は要らないはず。
+ */
 export function Timeline({ selection, locale, onChange }: TimelineProps) {
+  const here = selection.mode === "present" ? 0 : selection.ageMa;
+  const select = (ageMa: number) => onChange(ageMa === 0 ? { mode: "present", ageMa: 0 } : { mode: "deep-time", ageMa });
+
   return (
-    <div className="time-control">
-      <nav className="timeline-options" aria-label="Deep Time">
-        <span className="timeline-label" aria-hidden="true"><i>◈</i>{t(locale, "deepTime")}</span>
-        <button type="button" aria-pressed={selection.mode === "present"} onClick={() => onChange({ mode: "present", ageMa: 0 })}>{t(locale, "present")}</button>
-        {deepTimeAges.map((ageMa) => <button key={ageMa} type="button" aria-pressed={selection.mode === "deep-time" && selection.ageMa === ageMa} onClick={() => onChange({ mode: "deep-time", ageMa })}>{ageMa} Ma</button>)}
-      </nav>
-      {selection.mode === "deep-time" && <span className="paleo-status"><strong>{selection.ageMa} Ma · ZAHIROVIC2022</strong><small>{t(locale, "paleoModelNote")}</small></span>}
+    <div className="time-scale">
+      <div className="time-scale-eras" aria-hidden="true">
+        <span style={{ flexGrow: CENOZOIC_MA }}>{t(locale, "eraCenozoic")}</span>
+        <span style={{ flexGrow: OLDEST_MA - CENOZOIC_MA }}>{t(locale, "eraMesozoic")}</span>
+      </div>
+
+      <div className="time-scale-track" role="radiogroup" aria-label={t(locale, "deepTime")}>
+        <i className="time-scale-line" aria-hidden="true" />
+        <i className="time-scale-past" style={{ width: position(here) }} aria-hidden="true" />
+        {availableAges.map((ageMa) => (
+          <button
+            key={ageMa}
+            type="button"
+            role="radio"
+            aria-checked={here === ageMa}
+            aria-label={ageMa === 0 ? t(locale, "present") : `${ageMa} Ma`}
+            className={`time-scale-stop${here === ageMa ? " is-here" : ""}`}
+            style={{ left: position(ageMa) }}
+            onClick={() => select(ageMa)}
+          >
+            <i aria-hidden="true" />
+          </button>
+        ))}
+      </div>
+
+      <div className="time-scale-ends" aria-hidden="true">
+        <span>{t(locale, "present")}</span>
+        <span>{OLDEST_MA} Ma</span>
+      </div>
+
+      <p className="time-scale-readout">
+        {selection.mode === "present"
+          ? <span>{t(locale, "timeScaleHint")}</span>
+          : <><strong>{selection.ageMa} Ma · ZAHIROVIC2022</strong><small>{t(locale, "paleoModelNote")}</small></>}
+      </p>
     </div>
   );
 }
