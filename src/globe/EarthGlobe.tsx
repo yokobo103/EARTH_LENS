@@ -1,17 +1,17 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import * as CesiumRuntime from "cesium";
 import {
-  ArcType,
   Cartesian2,
   Cartesian3,
   Cartographic,
   Color,
-  Entity,
+  Credit,
   Math as CesiumMath,
-  PolygonHierarchy,
   SceneTransforms,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
+  SingleTileImageryProvider,
+  type ImageryLayer,
   type Viewer,
 } from "cesium";
 import type { AppMode } from "../app/types";
@@ -26,9 +26,8 @@ import { reapplyNaturalEarthRelief } from "../lenses/terrain/NaturalEarthReliefP
 import { renderMissionEffects } from "../missions/effects/renderMissionEffects";
 import type { MissionOverlayHandle } from "../missions/overlays/types";
 import type { MissionHintEffect } from "../missions/types";
-import { DemoPaleoEarthProvider } from "../temporal/DemoPaleoEarthProvider";
 import { TimeController } from "../temporal/TimeController";
-import type { PaleoEarthSnapshot, TemporalSelection } from "../temporal/types";
+import type { TemporalSelection } from "../temporal/types";
 import type { SharedCameraState, SharedFeatureState } from "../share/urlState";
 import { createEarthViewer } from "./cesium/createViewer";
 
@@ -62,32 +61,20 @@ const EllipsoidalOccluder = (CesiumRuntime as unknown as {
   EllipsoidalOccluder: new (ellipsoid: Viewer["scene"]["globe"]["ellipsoid"], cameraPosition?: Cartesian3) => EllipsoidalOccluderLike;
 }).EllipsoidalOccluder;
 
-function renderPaleoSnapshot(viewer: Viewer, snapshot: PaleoEarthSnapshot): Entity[] {
-  return snapshot.polygons.flatMap((polygon) => {
-    const degrees = polygon.coordinates.flatMap((point) => [point.longitude, point.latitude]);
-    const positions = Cartesian3.fromDegreesArray(degrees);
-    return [
-      viewer.entities.add(new Entity({
-        id: `paleo:${snapshot.ageMa}:${polygon.id}:fill`,
-        name: polygon.name,
-        polygon: {
-          hierarchy: new PolygonHierarchy(positions),
-          material: Color.fromCssColorString("#ba8b55").withAlpha(0.82),
-          outline: false,
-        },
-      })),
-      viewer.entities.add(new Entity({
-        id: `paleo:${snapshot.ageMa}:${polygon.id}:outline`,
-        name: polygon.name,
-        polyline: {
-          positions,
-          width: 2,
-          arcType: ArcType.GEODESIC,
-          material: Color.fromCssColorString("#ffd690").withAlpha(0.9),
-        },
-      })),
-    ];
-  });
+/**
+ * 復元された地球の1枚テクスチャ。
+ *
+ * 前は海岸線を数百本のポリラインで引いていて、線が多すぎて何を見ているのか
+ * 分からなかった。DEEP LENS が先に同じ問題を解いていて、答えは「線を描かない」
+ * ことだった。標高グリッドから焼いた等緯経度の画像を、現在の地球の上に1枚重ねる。
+ *
+ * 出典は Scotese & Wright (2018) PALEOMAP PaleoDEM（CC BY 4.0）。
+ * 元は1度グリッドなので、海岸線は測量された岸ではなくモデルの0m等値線。
+ */
+const PALEO_TEXTURE_CREDIT = "Scotese & Wright (2018) PALEOMAP PaleoDEM · 1° grid · CC BY 4.0";
+
+function paleoTextureUrl(ageMa: number): string {
+  return `${import.meta.env.BASE_URL}geo/paleodem-${ageMa}.webp`;
 }
 
 export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, onCameraChange }: EarthGlobeProps) {
@@ -98,7 +85,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const anchorCardRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const renderHandlesRef = useRef(new Map<string, LensRenderHandle>());
-  const paleoEntitiesRef = useRef<Entity[]>([]);
+  const paleoLayerRef = useRef<ImageryLayer | null>(null);
   const missionEffectHandlesRef = useRef<MissionOverlayHandle[]>([]);
   const activeLensIdsRef = useRef(activeLensIds);
   const temporalSelectionRef = useRef(temporalSelection);
@@ -323,28 +310,46 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || viewer.isDestroyed()) return;
-    for (const entity of paleoEntitiesRef.current) viewer.entities.remove(entity);
-    paleoEntitiesRef.current = [];
 
-    if (temporalSelection.mode === "present") {
-      reapplyNaturalEarthRelief(viewer, terrainReliefEnabled);
-    } else {
+    const dropPaleoLayer = () => {
+      const existing = paleoLayerRef.current;
+      if (!existing) return;
+      viewer.imageryLayers.remove(existing, true);
+      paleoLayerRef.current = null;
+    };
+
+    /** 現在の地球の下地。古代のテクスチャは別扱いなので触らない。 */
+    const restyleBaseLayers = (deepTime: boolean) => {
       for (let index = 0; index < viewer.imageryLayers.length; index += 1) {
         const layer = viewer.imageryLayers.get(index);
-        layer.alpha = 0.12;
-        layer.saturation = 0;
-        layer.brightness = 0.42;
+        if (layer === paleoLayerRef.current) continue;
+        if (deepTime) { layer.alpha = 0; }
+        else { layer.alpha = 1; }
       }
-    }
-    viewer.scene.globe.baseColor = Color.fromCssColorString(temporalSelection.mode === "present" ? "#071216" : "#13272a");
+    };
 
-    if (temporalSelection.mode === "present") return;
+    if (temporalSelection.mode === "present") {
+      dropPaleoLayer();
+      restyleBaseLayers(false);
+      reapplyNaturalEarthRelief(viewer, terrainReliefEnabled);
+      viewer.scene.globe.baseColor = Color.fromCssColorString("#071216");
+      return;
+    }
+
+    viewer.scene.globe.baseColor = Color.fromCssColorString("#13272a");
     let cancelled = false;
-    const provider = new DemoPaleoEarthProvider();
-    void provider.getSnapshot(temporalSelection.ageMa).then((snapshot) => {
-      if (cancelled || viewer.isDestroyed()) return;
-      paleoEntitiesRef.current = renderPaleoSnapshot(viewer, snapshot);
-    });
+    void SingleTileImageryProvider.fromUrl(paleoTextureUrl(temporalSelection.ageMa), { credit: new Credit(PALEO_TEXTURE_CREDIT) })
+      .then((provider) => {
+        if (cancelled || viewer.isDestroyed()) return;
+        const arriving = viewer.imageryLayers.addImageryProvider(provider);
+        // 先に足してから古い方を外す。入れ替えの一瞬だけ現代の地球が見えるのを防ぐ。
+        dropPaleoLayer();
+        paleoLayerRef.current = arriving;
+        restyleBaseLayers(true);
+      })
+      .catch((error: unknown) => {
+        console.warn(`Reconstructed Earth ${temporalSelection.ageMa} Ma could not be loaded`, error);
+      });
     return () => { cancelled = true; };
   }, [temporalSelection, terrainReliefEnabled]);
 

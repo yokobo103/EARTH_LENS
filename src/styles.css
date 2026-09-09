@@ -561,7 +561,7 @@ body { overscroll-behavior: none; }
 .time-scale-eras span { flex-basis: 0; min-width: 0; overflow: hidden; color: #6f8c88; font: 650 7px/1 ui-monospace, monospace; letter-spacing: .1em; text-align: center; white-space: nowrap; }
 .time-scale-track { position: relative; height: 18px; }
 .time-scale-line { position: absolute; top: 8px; right: 0; left: 0; height: 2px; background: rgb(129 210 198 / 20%); }
-.time-scale-past { position: absolute; top: 8px; left: 0; height: 2px; background: linear-gradient(90deg, rgb(121 227 210 / 45%), #ffd690); }
+.time-scale-past { position: absolute; top: 8px; right: 0; height: 2px; background: linear-gradient(90deg, #ffd690, rgb(121 227 210 / 45%)); }
 .time-scale-stop { position: absolute; top: 0; display: grid; place-content: center; width: 30px; height: 18px; padding: 0; transform: translateX(-50%); cursor: pointer; border: 0; background: transparent; }
 .time-scale-stop i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #5c7c79; transition: transform .15s, background .15s; }
 .time-scale-stop:hover i { background: #a9eee0; transform: scale(1.4); }
