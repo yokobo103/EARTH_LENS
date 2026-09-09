@@ -506,9 +506,10 @@ body { overscroll-behavior: none; }
   .compact-sheet .toggle-box { width: 20px; height: 20px; }
   .compact-sheet .source-link { display: inline-flex; align-items: center; min-height: 44px; }
   .time-scale { width: auto; padding: 5px 10px 6px; gap: 10px; }
-  .time-scale-stop { width: 40px; height: 26px; }
   .time-scale-track { height: 26px; }
-  .time-scale-line, .time-scale-past { top: 12px; }
+  .time-scale-line, .time-scale-past { top: 11px; }
+  .time-scale-stop { top: 10px; }
+  .time-scale-stop.is-here { top: 7px; }
   .paleo-notice { top: calc(66px + env(safe-area-inset-top)); width: min(330px, calc(100vw - 40px)); padding: 8px 10px; }
   .mission-effects-readout { display: none; }
   .mission-passport { top: calc(60px + env(safe-area-inset-top)); padding: 20px 10px max(24px, env(safe-area-inset-bottom)); }
@@ -559,13 +560,15 @@ body { overscroll-behavior: none; }
 .time-scale-body { display: grid; flex: 1; gap: 2px; min-width: 0; }
 .time-scale-eras { display: flex; gap: 2px; }
 .time-scale-eras span { flex-basis: 0; min-width: 0; overflow: hidden; color: #6f8c88; font: 650 7px/1 ui-monospace, monospace; letter-spacing: .1em; text-align: center; white-space: nowrap; }
-.time-scale-track { position: relative; height: 18px; }
-.time-scale-line { position: absolute; top: 8px; right: 0; left: 0; height: 2px; background: rgb(129 210 198 / 20%); }
-.time-scale-past { position: absolute; top: 8px; right: 0; height: 2px; background: linear-gradient(90deg, #ffd690, rgb(121 227 210 / 45%)); }
-.time-scale-stop { position: absolute; top: 0; display: grid; place-content: center; width: 30px; height: 18px; padding: 0; transform: translateX(-50%); cursor: pointer; border: 0; background: transparent; }
-.time-scale-stop i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #5c7c79; transition: transform .15s, background .15s; }
-.time-scale-stop:hover i { background: #a9eee0; transform: scale(1.4); }
-.time-scale-stop.is-here i { width: 10px; height: 10px; background: #ffd690; box-shadow: 0 0 10px rgb(255 214 144 / 75%); }
+.time-scale-track { position: relative; height: 17px; }
+.time-scale-line { position: absolute; top: 7px; right: 0; left: 0; height: 3px; border-radius: 2px; background: rgb(129 210 198 / 18%); }
+.time-scale-past { position: absolute; top: 7px; right: 0; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #ffd690, rgb(121 227 210 / 45%)); }
+.time-scale-track { cursor: pointer; touch-action: none; }
+.time-scale-track:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
+/* 目盛りは飾り。押す相手は線そのもので、近い年代に寄る。 */
+.time-scale-stop { position: absolute; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: #547471; transform: translateX(-50%); transition: transform .15s, background .15s; pointer-events: none; }
+.time-scale-track:hover .time-scale-stop { background: #6f9490; }
+.time-scale-stop.is-here { top: 3px; width: 11px; height: 11px; background: #ffd690; box-shadow: 0 0 11px rgb(255 214 144 / 80%); }
 
 .time-control { position: relative; pointer-events: auto; }
 .timeline-options { display: flex; align-items: center; gap: 3px; padding: 3px; border: 1px solid rgb(129 210 198 / 16%); background: rgb(4 15 19 / 55%); }
