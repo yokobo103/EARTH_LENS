@@ -276,7 +276,15 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
         if (renderGenerationRef.current !== generation || viewer.isDestroyed()) return;
         pendingLensLoadsRef.current.delete(lensId);
         if (renderHandles.has(lensId)) return;
-        const handle = lens.render(viewer, localizeDataset(dataset, locale));
+        let handle;
+        try {
+          handle = lens.render(viewer, localizeDataset(dataset, locale));
+        } catch (error) {
+          // 途中まで追加された entity が残ると、ハンドルが無いので二度と消せない。
+          // 片付けてから投げ直し、静かに壊れないようにする。
+          removeLensEntities(viewer, lensId);
+          throw error;
+        }
         handle.setSelectedFeature?.(selectedFeatureRef.current?.lensId === lensId ? selectedFeatureRef.current.id : undefined);
         handle.setVisible(
           activeLensIdsRef.current.has(lensId)
@@ -291,6 +299,9 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
             onFeatureSelectRef.current(restored, featureAnchorPoint(restored));
           }
         }
+      }).catch((error: unknown) => {
+        pendingLensLoadsRef.current.delete(lensId);
+        console.error(`Lens "${lensId}" failed to render`, error);
       });
     }
   }, [activeLensIds, locale, temporalSelection]);
@@ -366,6 +377,24 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       </div>
     </div>}
   </div>;
+}
+
+/**
+ * レンズの描画が途中で失敗したときの後片付け。
+ *
+ * どのレンダラーも entity の id を `<lensId>:...` で始めるので、接頭辞で拾える。
+ * ここを通らないと、追加済みの entity が viewer に残ったままハンドルが失われ、
+ * そのレンズを二度と消せなくなる（2026-09-09、山脈・高原で実際に起きた）。
+ */
+function removeLensEntities(viewer: Viewer, lensId: string): void {
+  const prefix = `${lensId}:`;
+  for (const entity of [...viewer.entities.values]) {
+    if (typeof entity.id === "string" && entity.id.startsWith(prefix)) viewer.entities.remove(entity);
+  }
+  for (let index = viewer.dataSources.length - 1; index >= 0; index -= 1) {
+    const dataSource = viewer.dataSources.get(index);
+    if (dataSource.name === lensId) viewer.dataSources.remove(dataSource, true);
+  }
 }
 
 function geographicPointFromCartesian(position: Cartesian3): GeographicPoint {

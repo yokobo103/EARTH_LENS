@@ -81,6 +81,9 @@ export async function loadPhysicalFeatures(): Promise<LensDataset> {
   const response = await fetch(`${import.meta.env.BASE_URL}geo/physical-features.geojson`);
   if (!response.ok) throw new Error(`Natural Earth physical features failed to load: ${response.status} ${response.statusText}`);
   const geojson = await response.json() as PhysicalFeaturesGeoJson;
+  // Natural Earth の NE_ID は一意ではない（同じ NE_ID を持つ組が実際に存在する）。
+  // 既に公開した id は変えられないので、2件目以降にだけ連番を足して衝突を避ける。
+  const idUseCount = new Map<string, number>();
   const features: LensFeature[] = geojson.features.flatMap((sourceFeature, index) => {
     const properties = sourceFeature.properties ?? {};
     if (!sourceFeature.geometry || !properties.NE_ID) return [];
@@ -92,8 +95,11 @@ export async function loadPhysicalFeatures(): Promise<LensDataset> {
     const bbox = bboxForPoints(polygons.flatMap((polygon) => polygon.rings.flat()));
     const name = properties.NAME?.trim() || `Physical region ${index + 1}`;
     const featureClass = properties.FEATURECLA === "Plateau" ? "Plateau" : "Range/mtn";
+    const baseId = `physical-ne-${properties.NE_ID}`;
+    const used = idUseCount.get(baseId) ?? 0;
+    idUseCount.set(baseId, used + 1);
     return [{
-      id: `physical-ne-${properties.NE_ID}`,
+      id: used === 0 ? baseId : `${baseId}-${used + 1}`,
       lensId: physicalFeaturesDefinition.id,
       name,
       description: `${name} is a Natural Earth ${featureClass === "Plateau" ? "plateau" : "mountain-range"} region used to observe physical constraints.`,
