@@ -12,7 +12,7 @@ import {
   VerticalOrigin,
   type Viewer,
 } from "cesium";
-import { labelMaximumDistance } from "../../globe/cesium/labelVisibility";
+import { areaSpanDegrees, labelDistanceForExtent, labelMaximumDistance } from "../../globe/cesium/labelVisibility";
 import type { GeographicAreaPolygon, LensDataset, LensFeature, LensRenderHandle } from "../types";
 
 const fillColor = Color.fromCssColorString("#d9ad62");
@@ -26,11 +26,12 @@ function hierarchy(polygon: GeographicAreaPolygon): PolygonHierarchy {
 }
 
 export function renderDeserts(viewer: Viewer, dataset: LensDataset): LensRenderHandle {
-  const entities = new Map<string, { entity: Entity; feature: LensFeature }>();
+  const entities = new Map<string, { entity: Entity; feature: LensFeature; labelDistance: number }>();
   let selectedFeatureId: string | undefined;
 
   for (const feature of dataset.features) {
     if (feature.geometry.type !== "area") continue;
+    const labelDistance = labelDistanceForExtent(areaSpanDegrees(feature.geometry.bbox));
     for (const [polygonIndex, polygon] of feature.geometry.polygons.entries()) {
       const entity = viewer.entities.add(new Entity({
         id: `${dataset.lensId}:${feature.id}:${polygonIndex}`,
@@ -53,10 +54,10 @@ export function renderDeserts(viewer: Viewer, dataset: LensDataset): LensRenderH
           style: LabelStyle.FILL_AND_OUTLINE,
           pixelOffset: new Cartesian2(0, -8),
           verticalOrigin: VerticalOrigin.BOTTOM,
-          distanceDisplayCondition: new DistanceDisplayCondition(0, labelMaximumDistance("normal")),
+          distanceDisplayCondition: new DistanceDisplayCondition(0, labelDistance),
         },
       }));
-      entities.set(entity.id, { entity, feature });
+      entities.set(entity.id, { entity, feature, labelDistance });
     }
   }
 
@@ -64,7 +65,7 @@ export function renderDeserts(viewer: Viewer, dataset: LensDataset): LensRenderH
     for (const rendered of entities.values()) {
       if (!rendered.entity.label) continue;
       const selected = rendered.feature.id === selectedFeatureId;
-      rendered.entity.label.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(0, labelMaximumDistance(selected ? "selected" : "normal")));
+      rendered.entity.label.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(0, selected ? labelMaximumDistance("selected") : rendered.labelDistance));
       if (rendered.entity.polygon) rendered.entity.polygon.material = new ColorMaterialProperty(fillColor.withAlpha(selected ? 0.3 : 0.17));
     }
   };

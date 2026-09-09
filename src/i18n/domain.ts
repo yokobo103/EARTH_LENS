@@ -5,7 +5,7 @@ import type { Locale } from "./types";
 
 const lensJa: Record<string, { name: string; shortName: string; category: string; legends: string[]; disclosures?: string[] }> = {
   "terrain-relief": { name: "地形・起伏", shortName: "地形", category: "地球", legends: ["陰影起伏表現"] },
-  "physical-features": { name: "山脈・高原", shortName: "山脈・高原", category: "地球", legends: ["山脈地域", "高原地域"], disclosures: ["概略地域", "標高ジオメトリではありません", "Natural Earth · Public Domain"] },
+  "physical-features": { name: "山脈・高原", shortName: "山脈・高原", category: "地球", legends: ["山脈地域（枠線）", "高原地域（面）"], disclosures: ["概略地域", "標高ジオメトリではありません", "Natural Earth · Public Domain"] },
   "sea-ice-edges": {
     name: "凍る海", shortName: "海氷", category: "地球",
     legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 冬季平年の縁 · 破線", "1981–2010年 夏季平年の縁 · 実線"],

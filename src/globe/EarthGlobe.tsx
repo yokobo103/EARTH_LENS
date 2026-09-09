@@ -124,12 +124,19 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; }, [anchorPoint]);
   useEffect(() => { anchorExpandedRef.current = anchorExpanded; frozenCardPositionRef.current = null; }, [anchorExpanded]);
   useEffect(() => { onCameraChangeRef.current = onCameraChange; }, [onCameraChange]);
+  const terrainReliefEnabledRef = useRef(terrainReliefEnabled);
+  useEffect(() => { terrainReliefEnabledRef.current = terrainReliefEnabled; }, [terrainReliefEnabled]);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const viewer = createEarthViewer(containerRef.current);
     viewerRef.current = viewer;
+    // 画像レイヤは viewer の生成後に非同期で足される。足された時点で当て直さないと、
+    // 初回だけ設定を無視した素の見た目で出る（設定はONなのに効かない、という状態になっていた）。
+    const removeImageryListener = viewer.imageryLayers.layerAdded.addEventListener(() => {
+      if (temporalSelectionRef.current.mode === "present") reapplyNaturalEarthRelief(viewer, terrainReliefEnabledRef.current);
+    });
     const startingCamera = initialCameraRef.current;
     if (startingCamera) viewer.camera.setView({ destination: Cartesian3.fromDegrees(startingCamera.longitude, startingCamera.latitude, startingCamera.height), orientation: { heading: startingCamera.heading, pitch: startingCamera.pitch, roll: startingCamera.roll } });
     const emitCamera = () => {
@@ -238,6 +245,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     viewer.scene.postRender.addEventListener(updateAnchor);
 
     return () => {
+      removeImageryListener();
       viewer.scene.postRender.removeEventListener(updateAnchor);
       viewer.camera.moveEnd.removeEventListener(scheduleCamera);
       viewer.camera.changed.removeEventListener(scheduleCamera);

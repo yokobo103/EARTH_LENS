@@ -10,7 +10,8 @@ interface ImageryStyle {
 }
 
 const normalStyle: ImageryStyle = { alpha: 1, brightness: 1, contrast: 1, saturation: 1, gamma: 1 };
-const reliefStyle: ImageryStyle = { alpha: 1, brightness: 0.82, contrast: 1.18, saturation: 0.48, gamma: 1.08 };
+// 地球は下地。レンズの色に主役を譲るところまで彩度を落とす。
+const reliefStyle: ImageryStyle = { alpha: 1, brightness: 0.76, contrast: 1.24, saturation: 0.3, gamma: 1.1 };
 
 function applyStyle(layer: ImageryLayer, style: ImageryStyle) {
   layer.alpha = style.alpha;

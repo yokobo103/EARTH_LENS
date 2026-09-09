@@ -32,8 +32,8 @@ export const physicalFeaturesDefinition: EarthLensDefinition = {
   provenance,
   visibleByDefault: false,
   legend: [
-    { label: "Mountain range", color: "#e7d49b", symbol: "area" },
-    { label: "Plateau", color: "#c99bdc", symbol: "area" },
+    { label: "Mountain range (outline)", color: "#93a9c9", symbol: "line" },
+    { label: "Plateau (filled)", color: "#93a9c9", symbol: "area" },
   ],
   disclosures: ["APPROXIMATE REGION", "NO ELEVATION GEOMETRY", "NATURAL EARTH · PUBLIC DOMAIN"],
 };
