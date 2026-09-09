@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
-import type { EarthLensDefinition, LensCategory } from "../lenses/types";
+import type { EarthLensDefinition } from "../lenses/types";
+import { groupLensesForDisplay, sampleDataLensIds, type LensGroupId } from "../lenses/registry";
 import { t } from "../i18n/copy";
 import { localizeConfidence } from "../i18n/domain";
 import type { Locale } from "../i18n/types";
@@ -23,11 +24,11 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
   const [info, setInfo] = useState<LensInfoState | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClickFor = useRef<string | null>(null);
-  const categoryOrder: LensCategory[] = ["earth", "resources", "human", "power"];
-  const categoryLabels: Record<LensCategory, string> = {
-    earth: t(locale, "categoryEarth"), resources: t(locale, "categoryResources"),
-    human: t(locale, "categoryHuman"), power: t(locale, "categoryPower"),
+  const groupLabels: Record<LensGroupId, string> = {
+    "human-lines": t(locale, "groupHumanLines"),
+    "earth-conditions": t(locale, "groupEarthConditions"),
   };
+  const lensGroups = groupLensesForDisplay(lenses);
 
   useEffect(() => () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
@@ -66,12 +67,11 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
     <aside className={`layer-panel lens-rail${suspended ? " is-suspended" : ""}`} aria-label="Lens rail">
       <div className="lens-rail-heading"><span>{t(locale, "layers")}</span><small>{t(locale, "holdForDetails")}</small></div>
       <div className="layer-list">
-        {categoryOrder.map((category) => {
-          const categoryLenses = lenses.filter((lens) => lens.category === category);
-          if (!categoryLenses.length) return null;
-          return <section className={`layer-category category-${category}`} key={category} aria-label={categoryLabels[category]}>
-            <h3 className="layer-category-heading">{categoryLabels[category]}</h3>
-            <div className="layer-category-items">{categoryLenses.map((lens) => {
+        {lensGroups.map((group) => {
+          if (!group.lenses.length) return null;
+          return <section className={`layer-category group-${group.id}`} key={group.id} aria-label={groupLabels[group.id]}>
+            <h3 className="layer-category-heading">{groupLabels[group.id]}</h3>
+            <div className="layer-category-items">{group.lenses.map((lens) => {
               const active = activeLensIds.has(lens.id);
               const recommended = missionRecommendedLensIds?.includes(lens.id) ?? false;
               const legend = lens.legend[0];
@@ -97,7 +97,10 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                   onPointerLeave={clearLongPress}
                 >
                   <i className={`lens-rail-swatch legend-${legend?.symbol ?? "point"}`} aria-hidden="true" />
-                  <strong>{lens.shortName}</strong>
+                  <span className="lens-chip-label">
+                    <strong>{lens.shortName}</strong>
+                    {sampleDataLensIds.has(lens.id) && <em className="lens-sample-tag">{t(locale, "sampleData")}</em>}
+                  </span>
                   {missionRecommendedLensIds && <span><em className={recommended ? "lens-kit-focus" : "lens-kit-standby"}>{recommended ? t(locale, "missionFocus") : t(locale, "standby")}</em></span>}
                 </button>
               </section>;

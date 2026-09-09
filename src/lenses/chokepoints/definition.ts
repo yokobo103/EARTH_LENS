@@ -30,7 +30,7 @@ export const chokepointsDefinition: EarthLensDefinition = {
   temporal: { mode: "present" },
   provenance: { ...rawData.metadata, classifications: ["demo", "derived"] },
   visibleByDefault: true,
-  legend: [{ label: "Strategic passage", color: "#ffb454", symbol: "point" }],
+  legend: [{ label: "Strategic passage", color: "#f4544c", symbol: "point" }],
   furtherReading: CHOKEPOINT_READING,
 };
 

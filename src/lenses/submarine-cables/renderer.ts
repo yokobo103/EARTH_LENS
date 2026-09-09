@@ -34,7 +34,7 @@ export function renderSubmarineCableConnections(viewer: Viewer, dataset: LensDat
         material: new PolylineGlowMaterialProperty({
           glowPower: 0.28,
           taperPower: 0.7,
-          color: Color.fromCssColorString("#55d8ff").withAlpha(0.82),
+          color: Color.fromCssColorString("#7cf6c9").withAlpha(0.82),
         }),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 42_000_000),
       },

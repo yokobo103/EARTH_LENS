@@ -46,15 +46,15 @@ const rawData = cableConnectionData as CableConnectionData;
 export const submarineCablesDefinition: EarthLensDefinition = {
   id: "submarine-cable-connections", urlCode: "cb",
   name: "SUBMARINE CABLE CONNECTIONS",
-  shortName: "Cable connections",
+  shortName: "Cables",
   category: "human",
   description: "Regional communication relationships drawn as conceptual geodesic links.",
   temporal: { mode: "present" },
   provenance: { ...rawData.metadata, classifications: ["demo", "schematic"] },
   visibleByDefault: true,
   legend: [
-    { label: "Schematic route", color: "#55d8ff", symbol: "line" },
-    { label: "Regional endpoint", color: "#b8f3ff", symbol: "point" },
+    { label: "Schematic route", color: "#7cf6c9", symbol: "line" },
+    { label: "Regional endpoint", color: "#c9fce9", symbol: "point" },
   ],
   furtherReading: CABLE_READING,
 };

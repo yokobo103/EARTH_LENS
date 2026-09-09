@@ -26,7 +26,7 @@ export function renderChokepoints(viewer: Viewer, dataset: LensDataset): LensRen
         position: Cartesian3.fromDegrees(longitude, latitude, 1_500),
         point: {
           pixelSize: 9,
-          color: Color.fromCssColorString("#ffb454"),
+          color: Color.fromCssColorString("#f4544c"),
           outlineColor: Color.fromCssColorString("#29190d"),
           outlineWidth: 3,
           heightReference: HeightReference.NONE,

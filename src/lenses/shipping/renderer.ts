@@ -30,7 +30,7 @@ export function renderShippingFlows(viewer: Viewer, dataset: LensDataset): LensR
         material: new PolylineGlowMaterialProperty({
           glowPower: 0.22,
           taperPower: 0.18,
-          color: Color.fromCssColorString("#f3a847").withAlpha(0.22),
+          color: Color.fromCssColorString("#ffb3de").withAlpha(0.22),
         }),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 42_000_000),
       },

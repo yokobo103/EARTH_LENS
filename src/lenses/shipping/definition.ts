@@ -22,7 +22,7 @@ export const shippingDefinition: EarthLensDefinition = {
   temporal: { mode: "present" },
   provenance: rawData.metadata,
   visibleByDefault: false,
-  legend: [{ label: "Schematic flow", color: "#f3a847", symbol: "line" }],
+  legend: [{ label: "Schematic flow", color: "#ffb3de", symbol: "line" }],
   disclosures: ["SCHEMATIC FLOW", "NOT ACTUAL SHIPPING ROUTE", "DEMO DATA"],
 };
 
