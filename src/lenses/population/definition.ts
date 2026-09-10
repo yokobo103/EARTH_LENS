@@ -10,7 +10,7 @@ const provenance: DataProvenance = {
   confidence: "medium",
   dataKind: "real",
   classifications: ["real"],
-  note: "Urban area population estimates compiled by Natural Earth from national censuses and other sources at differing dates. Places without a population figure are not carried. Read as where people are and are not, not as a current census.",
+  note: "Urban area population estimates compiled by Natural Earth from national censuses and other sources at differing dates. Only the 75 largest are carried, and places without a population figure are dropped. Read as where people are and are not, not as a current census.",
 };
 
 export const populationDefinition: EarthLensDefinition = {
@@ -19,7 +19,7 @@ export const populationDefinition: EarthLensDefinition = {
   name: "WHERE PEOPLE ARE",
   shortName: "People",
   category: "human",
-  description: "City populations as light on the globe. The point of this lens is the dark: the places the Earth does not let people gather.",
+  description: "The world's largest population centres as light on the globe. The point of this lens is the dark: the places the Earth does not let people gather.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,
@@ -56,9 +56,9 @@ export async function loadPopulatedPlaces(): Promise<LensDataset> {
   // 31.8万人のニューデリーが出て1,592万人のデリーが消える。このレンズの主題と逆になる。
   places.sort((a, b) => b.population - a.population);
 
-  // 見せたいのは人の分布であって町の一覧ではない。7,332すべてを持つと
-  // 一番寄ったときだけ使う6,000個のために常時メモリを払うことになる。
-  const CARRIED = 1_500;
+  // 見せたいのは人の分布であって町の一覧ではない。ズームで小都市を足すと
+  // 「都市点群」になり、このレンズが見せたい空白が埋まってしまう。対象は固定する。
+  const CARRIED = 75;
 
   const features: LensFeature[] = places.slice(0, CARRIED).map((place, rank) => ({
     id: `place-${place.longitude.toFixed(3)}-${place.latitude.toFixed(3)}`,
