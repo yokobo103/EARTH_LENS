@@ -28,7 +28,11 @@ export interface DataProvenance {
 export interface LensLegendItem {
   label: string;
   color: string;
-  symbol: "point" | "line" | "area";
+  /**
+   * 描き方。色ではなく形で区別するための語彙で、レンズが増えるほどここが効く。
+   * glow は輪郭を持たない発光で、印を置くのではなく気配を浮かべる用。
+   */
+  symbol: "point" | "line" | "area" | "glow";
 }
 
 export interface LensTimeRange {

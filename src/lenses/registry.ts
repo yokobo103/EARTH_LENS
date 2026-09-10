@@ -8,6 +8,8 @@ import { physicalFeaturesDefinition, loadPhysicalFeatures } from "./physical-fea
 import { renderPhysicalFeatures } from "./physical-features/renderer";
 import { seaIceDefinition, loadSeaIceEdges } from "./sea-ice/definition";
 import { renderSeaIceEdges } from "./sea-ice/renderer";
+import { populationDefinition, loadPopulatedPlaces } from "./population/definition";
+import { renderPopulatedPlaces } from "./population/renderer";
 import { portsDefinition, loadPorts } from "./ports/definition";
 import { renderPorts } from "./ports/renderer";
 import { shippingDefinition, loadShippingFlows } from "./shipping/definition";
@@ -26,6 +28,7 @@ export const lensRegistry: readonly LensModule[] = [
   { definition: physicalFeaturesDefinition, load: loadPhysicalFeatures, render: renderPhysicalFeatures },
   { definition: seaIceDefinition, load: loadSeaIceEdges, render: renderSeaIceEdges },
   { definition: portsDefinition, load: loadPorts, render: renderPorts },
+  { definition: populationDefinition, load: loadPopulatedPlaces, render: renderPopulatedPlaces },
   { definition: shippingDefinition, load: loadShippingFlows, render: renderShippingFlows },
   {
     definition: submarineCablesDefinition,
@@ -51,7 +54,7 @@ export function getLensModule(id: string): LensModule | undefined {
 export type LensGroupId = "human-lines" | "earth-conditions";
 
 const groupedLensIds: Readonly<Record<LensGroupId, readonly string[]>> = {
-  "human-lines": ["major-ports", "strategic-chokepoints", "shipping-flows", "submarine-cable-connections", "eez", "admin0-borders"],
+  "human-lines": ["major-ports", "populated-places", "strategic-chokepoints", "shipping-flows", "submarine-cable-connections", "eez", "admin0-borders"],
   "earth-conditions": ["sea-ice-edges", "physical-features", "deserts", "rivers", "critical-minerals"],
 };
 
