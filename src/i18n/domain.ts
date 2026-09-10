@@ -12,6 +12,11 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
     disclosures: ["面 · 2025年実測域 · 北3月/9月＋南9月/3月", "線 · 1981–2010年 平年の縁", "現在状況ではありません · 航行用途不可"],
   },
   "major-ports": { name: "主要港湾", shortName: "港", category: "人間活動", legends: ["港湾シグナル"] },
+  "populated-places": {
+    name: "人のいる場所", shortName: "人口", category: "人間活動",
+    legends: ["人口。多いほど明るい"],
+    disclosures: ["都市域の推計", "調査年はまちまち", "Natural Earth · Public Domain"],
+  },
   "shipping-flows": { name: "海上物流フロー", shortName: "物流", category: "人間活動", legends: ["模式フロー"] },
   "submarine-cable-connections": { name: "海底通信接続", shortName: "ケーブル", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
   "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", legends: ["戦略的通過地点"] },

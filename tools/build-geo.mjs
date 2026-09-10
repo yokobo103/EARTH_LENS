@@ -67,6 +67,18 @@ const layers = [
     build: buildNaturalEarthLayer,
   },
   {
+    id: "populated-places",
+    sourceUrls: [`${naturalEarthRepository}/ne_10m_populated_places.geojson`],
+    outputPath: path.join(outputDirectory, "populated-places.geojson"),
+    license: "Natural Earth · Public Domain",
+    retrievedAt: "2026-09-10",
+    // POP_MAX には欠測を表す -99 が入っている。人口の無い点は人口レンズでは意味を持たない。
+    processing: "POP_MAX > 0 only · 5 fields · precision 0.001°",
+    steps: ["-filter", "POP_MAX > 0", "-filter-fields", "NAME,NAME_JA,ADM0NAME,POP_MAX,SCALERANK"],
+    precision: "0.001",
+    build: buildNaturalEarthLayer,
+  },
+  {
     id: "rivers",
     sourceUrls: [`${naturalEarthRepository}/ne_10m_rivers_lake_centerlines.geojson`],
     outputPath: path.join(outputDirectory, "rivers.geojson"),

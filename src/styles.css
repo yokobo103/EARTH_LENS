@@ -131,6 +131,8 @@ body { overscroll-behavior: none; }
 .legend-point { width: 7px; height: 7px; border-radius: 50%; box-shadow: 0 0 6px var(--legend-color); }
 .legend-line { width: 13px; height: 2px; box-shadow: 0 0 5px var(--legend-color); }
 .legend-area { width: 10px; height: 7px; opacity: .75; }
+/* 4つ目の描き方。丸ではなく、ぼわっとした光。輪郭を持たないことが意味そのもの。 */
+.legend-glow { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle, var(--legend-color) 0%, color-mix(in srgb, var(--legend-color) 45%, transparent) 42%, transparent 72%); }
 .lens-disclosures { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 12px 10px 42px; }
 .lens-disclosures span { padding: 3px 5px; border: 1px solid rgb(200 185 139 / 22%); color: #a99f7d; background: rgb(41 36 21 / 32%); font: 700 6px/1 ui-monospace, monospace; letter-spacing: .08em; }
 .panel-footnote { margin: 16px 2px 0; color: #597270; font: 500 9px/1.55 ui-monospace, monospace; }
@@ -579,15 +581,15 @@ body { overscroll-behavior: none; }
 .paleo-status strong { color: #ffd690; font: 700 10px ui-monospace, monospace; letter-spacing: .08em; }
 .paleo-status small { color: #887c68; font: 600 7px/1.35 ui-monospace, monospace; }
 
-.lens-rail { position: absolute; z-index: 7; top: 92px; bottom: 18px; left: 14px; display: flex; flex-direction: column; width: 292px; padding: 9px; overflow: visible; border: 1px solid rgb(129 210 198 / 18%); background: rgb(4 15 19 / 78%); box-shadow: 0 16px 42px rgb(0 0 0 / 26%); backdrop-filter: blur(14px); }
+.lens-rail { position: absolute; z-index: 7; top: 86px; bottom: 12px; left: 14px; display: flex; flex-direction: column; width: 292px; padding: 7px; overflow: visible; border: 1px solid rgb(129 210 198 / 18%); background: rgb(4 15 19 / 78%); box-shadow: 0 16px 42px rgb(0 0 0 / 26%); backdrop-filter: blur(14px); }
 .lens-rail::after { position: absolute; right: 0; bottom: 0; left: 0; height: 20px; pointer-events: none; background: linear-gradient(180deg, transparent, rgb(3 12 15 / 88%)); content: ""; }
-.lens-rail-heading { display: flex; align-items: center; justify-content: space-between; padding: 3px 4px 9px; border-bottom: 1px solid rgb(129 210 198 / 13%); }
+.lens-rail-heading { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 7px; border-bottom: 1px solid rgb(129 210 198 / 13%); }
 .lens-rail-heading span { color: #c5dedb; font: 750 12px ui-monospace, monospace; letter-spacing: .1em; }
 .lens-rail-heading small { color: #536d6b; font: 650 9px ui-monospace, monospace; letter-spacing: .04em; }
 .lens-rail .layer-list { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .lens-rail .layer-category { gap: 3px; }
-.lens-rail .layer-category + .layer-category { margin-top: 7px; }
-.lens-rail .layer-category-heading { padding: 5px 3px 3px; font-size: 11px; letter-spacing: .1em; }
+.lens-rail .layer-category + .layer-category { margin-top: 5px; }
+.lens-rail .layer-category-heading { padding: 3px 3px 2px; font-size: 11px; letter-spacing: .1em; }
 .lens-rail .layer-category-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
 .lens-rail .layer-item { height: 44px; border: 1px solid color-mix(in srgb, var(--lens-color) 27%, transparent); background: rgb(2 12 15 / 48%); }
 .lens-rail .layer-item.is-active { border-color: var(--lens-color); background: color-mix(in srgb, var(--lens-color) 44%, #061318 56%); box-shadow: inset 4px 0 0 var(--lens-color); }
@@ -599,7 +601,9 @@ body { overscroll-behavior: none; }
 .lens-rail-swatch { display: block; width: 11px; height: 8px; opacity: .55; border: 1px solid var(--lens-color); background: transparent; }
 .lens-rail-swatch.legend-point { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 5px var(--lens-color); }
 .lens-rail-swatch.legend-line { width: 13px; height: 2px; border: 0; background: var(--lens-color); box-shadow: 0 0 5px var(--lens-color); }
+.lens-rail-swatch.legend-glow { width: 13px; height: 13px; border: 0; border-radius: 50%; background: radial-gradient(circle, var(--lens-color) 0%, color-mix(in srgb, var(--lens-color) 40%, transparent) 40%, transparent 70%); }
 .lens-rail .is-active .lens-rail-swatch { opacity: 1; background: var(--lens-color); }
+.lens-rail .is-active .lens-rail-swatch.legend-glow { background: radial-gradient(circle, var(--lens-color) 0%, color-mix(in srgb, var(--lens-color) 55%, transparent) 42%, transparent 72%); }
 .lens-rail.is-suspended .layer-item { opacity: .4; }
 .lens-rail-status { margin: 7px 0 0; color: #967f61; font: 600 6px/1.35 ui-monospace, monospace; }
 
