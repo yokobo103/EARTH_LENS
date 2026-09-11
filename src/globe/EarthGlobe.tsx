@@ -109,7 +109,17 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => { onLocationSelectRef.current = onLocationSelect; }, [onLocationSelect]);
   useEffect(() => { selectedFeatureRef.current = selectedFeature; }, [selectedFeature]);
   useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; }, [anchorPoint]);
-  useEffect(() => { anchorExpandedRef.current = anchorExpanded; frozenCardPositionRef.current = null; }, [anchorExpanded]);
+  useEffect(() => {
+    anchorExpandedRef.current = anchorExpanded;
+    frozenCardPositionRef.current = null;
+    // シートに切り替わった瞬間に、吹き出し時代の inline 座標を落とす。
+    // postRender を待つと、次の描画まで中途半端な位置のまま出る。
+    const card = anchorCardRef.current;
+    if (card && anchorExpanded && (containerRef.current?.clientWidth ?? window.innerWidth) <= 820) {
+      card.style.left = "";
+      card.style.top = "";
+    }
+  }, [anchorExpanded]);
   useEffect(() => { onCameraChangeRef.current = onCameraChange; }, [onCameraChange]);
   const terrainReliefEnabledRef = useRef(terrainReliefEnabled);
   useEffect(() => { terrainReliefEnabledRef.current = terrainReliefEnabled; }, [terrainReliefEnabled]);
@@ -168,19 +178,44 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       const worldPosition = Cartesian3.fromDegrees(point.longitude, point.latitude, 350);
       occluder.cameraPosition = viewer.camera.positionWC;
       const projected = SceneTransforms.worldToWindowCoordinates(viewer.scene, worldPosition, windowPosition);
+      const stageWidth = containerRef.current?.clientWidth ?? window.innerWidth;
+      const stageHeight = containerRef.current?.clientHeight ?? window.innerHeight;
+
+      // スマホで開いた状態は、座標に追従する吹き出しではなく下からのシート。
+      // 位置は CSS が決めるので、こちらが付けた inline の座標を消して手を引く。
+      // 地球を回して地点が裏へ回ってもシートは閉じない（読んでいる途中で消えない）。
+      const isSheet = stageWidth <= 820 && anchorExpandedRef.current;
+      if (isSheet) {
+        root.style.visibility = "visible";
+        root.dataset.visible = "true";
+        root.dataset.sheet = "true";
+        card.style.left = "";
+        card.style.top = "";
+        frozenCardPositionRef.current = null;
+        pin.style.visibility = projected ? "visible" : "hidden";
+        line.style.visibility = "hidden";
+        if (projected) {
+          pin.style.left = `${projected.x}px`;
+          pin.style.top = `${projected.y}px`;
+        }
+        root.dataset.expanded = "true";
+        return;
+      }
+      root.dataset.sheet = "false";
+      pin.style.visibility = "visible";
+      line.style.visibility = "visible";
+
       const visible = Boolean(projected && occluder.isPointVisible(worldPosition));
       root.style.visibility = visible ? "visible" : "hidden";
       root.dataset.visible = String(visible);
       if (!visible || !projected) return;
 
-      const stageWidth = containerRef.current?.clientWidth ?? window.innerWidth;
-      const stageHeight = containerRef.current?.clientHeight ?? window.innerHeight;
       const cardRect = card.getBoundingClientRect();
       const cardWidth = cardRect.width;
       const cardHeight = cardRect.height;
       const edge = stageWidth <= 820 ? 8 : 14;
       const safeTop = stageWidth <= 820 ? 66 : 88;
-      const safeBottom = stageWidth <= 820 ? 72 : 18;
+      const safeBottom = stageWidth <= 820 ? mobileBottomChrome() : 18;
       const canPlaceRight = projected.x + 22 + cardWidth <= stageWidth - edge;
       const canPlaceLeft = projected.x - 22 - cardWidth >= edge;
       let left: number;
@@ -408,6 +443,20 @@ function removeLensEntities(viewer: Viewer, lensId: string): void {
     const dataSource = viewer.dataSources.get(index);
     if (dataSource.name === lensId) viewer.dataSources.remove(dataSource, true);
   }
+}
+
+/**
+ * スマホで下端に居座るものの高さ。
+ *
+ * 以前は CSS のレンズ帯が88px、こちらの計算が72pxで食い違っていて、
+ * カードが帯の下に潜り込んでいた。数字は CSS 側の
+ * --mobile-bottom-chrome を正本にして、こちらは読むだけにする。
+ */
+function mobileBottomChrome(): number {
+  if (typeof window === "undefined") return 88;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--mobile-bottom-chrome");
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 88;
 }
 
 function geographicPointFromCartesian(position: Cartesian3): GeographicPoint {

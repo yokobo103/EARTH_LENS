@@ -460,6 +460,34 @@ body { overscroll-behavior: none; }
 .active-lens-legend ul { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; }
 .active-lens-legend li { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; color: #dcece9; font: 700 12px/1.1 ui-monospace, monospace; letter-spacing: .03em; white-space: nowrap; }
 
+/* ミッション結果。見出しは1本、主役はステッカー、CTAは下端に貼る。 */
+.mission-result-heading { display: flex; align-items: baseline; gap: 10px; padding-right: 52px; }
+.mission-result-number { color: #9c8869; font: 750 9px ui-monospace, monospace; letter-spacing: .14em; }
+.mission-result-clear { color: #ffd39a; font: 800 13px ui-monospace, monospace; letter-spacing: .1em; }
+.mission-result-sticker { display: grid; place-items: center; margin: 10px 0 8px; }
+.mission-result-target { margin: 0; color: #eaf7f4; font: 750 15px/1.3 ui-monospace, monospace; letter-spacing: .06em; text-align: center; }
+.mission-result-metrics { display: flex; justify-content: center; gap: 18px; margin: 8px 0 0; color: #7e9a96; font: 650 10px ui-monospace, monospace; letter-spacing: .08em; }
+.mission-result-metrics b { color: #dcefeb; font-weight: 800; }
+.mission-result-more { margin-top: 12px; border-top: 1px solid rgb(129 210 198 / 16%); }
+.mission-result-more > summary { padding: 12px 2px; color: #9fbcb7; cursor: pointer; font: 700 11px ui-monospace, monospace; letter-spacing: .1em; list-style: none; }
+.mission-result-more > summary::-webkit-details-marker { display: none; }
+.mission-result-more > summary::after { content: " ›"; color: rgb(129 210 198 / 55%); }
+.mission-result-more[open] > summary::after { content: " ⌄"; }
+.mission-result-cta { margin-top: 12px; }
+
+@media (max-width: 820px) {
+  /* スマホでは1画面に収める。ステッカーを大きく、数字は1行、CTAは常に見える。 */
+  .mission-result-embedded.is-compact { display: flex; flex-direction: column; min-height: 0; }
+  .mission-result-embedded.is-compact .mission-result-sticker { margin: 6px 0 6px; }
+  .mission-result-embedded.is-compact .mission-result-target { font-size: 14px; }
+  .mission-result-embedded.is-compact .mission-result-cta {
+    position: sticky; bottom: 0; margin-top: auto; padding: 10px 0 2px;
+    background: linear-gradient(180deg, rgb(4 15 19 / 0%), rgb(4 15 19 / 96%) 32%);
+  }
+  .mission-result-embedded.is-compact .collect-sticker-button { width: 100%; min-height: 48px; }
+  .mission-result-embedded.is-compact .mission-result-more > summary { min-height: 44px; display: flex; align-items: center; }
+}
+
 @media (max-width: 820px) {
   .about-splash-backdrop { align-items: end; padding: 10px; }
   .about-splash { grid-template-columns: 1fr; width: min(520px, 100%); height: calc(100vh - 20px); height: calc(100dvh - 20px); max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); overflow: hidden; }
@@ -680,7 +708,8 @@ body { overscroll-behavior: none; }
   .timeline-options button { min-width: 44px; min-height: 44px; padding: 5px; font-size: 9px; }
   .paleo-status { right: -91px; width: min(270px, calc(100vw - 16px)); }
 
-  .lens-rail { --lens-rail-h: 88px; position: fixed; top: auto; right: 0; bottom: 0; left: 0; display: block; width: auto; height: calc(var(--lens-rail-h) + env(safe-area-inset-bottom)); padding: 4px max(7px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left)); border: 0; border-top: 1px solid rgb(129 210 198 / 24%); background: rgb(3 12 15 / 96%); }
+  :root { --mobile-bottom-chrome: 88px; }
+  .lens-rail { --lens-rail-h: var(--mobile-bottom-chrome); position: fixed; top: auto; right: 0; bottom: 0; left: 0; display: block; width: auto; height: calc(var(--lens-rail-h) + env(safe-area-inset-bottom)); padding: 4px max(7px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left)); border: 0; border-top: 1px solid rgb(129 210 198 / 24%); background: rgb(3 12 15 / 96%); }
   .lens-rail-heading, .lens-rail-status { display: none; }
   .lens-rail .layer-category-heading { display: flex; align-items: center; padding: 0 2px; font-size: 11px; letter-spacing: .06em; writing-mode: vertical-rl; text-orientation: mixed; }
   .lens-rail .layer-list { display: flex; gap: 4px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
@@ -688,7 +717,7 @@ body { overscroll-behavior: none; }
   .lens-rail .layer-category { display: flex; flex: 0 0 auto; align-items: stretch; gap: 3px; margin: 0; }
   .lens-rail .layer-category-items { display: grid; grid-template-columns: none; grid-template-rows: repeat(2, 1fr); grid-auto-flow: column; grid-auto-columns: 72px; gap: 4px; }
   .lens-rail .layer-category + .layer-category { margin-top: 0; }
-  .lens-rail .layer-item { flex: 0 0 auto; height: auto; min-height: 0; }
+  .lens-rail .layer-item { flex: 0 0 auto; height: auto; min-height: 44px; }
   .lens-rail { padding-right: 22px; }
   .lens-rail::after { top: 0; right: 0; bottom: 0; left: auto; width: 24px; height: auto; background: linear-gradient(90deg, transparent, rgb(3 12 15 / 96%)); }
   .lens-rail .layer-toggle { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; justify-items: center; align-content: center; min-width: 0; min-height: 0; padding: 3px; gap: 2px; }
@@ -706,7 +735,34 @@ body { overscroll-behavior: none; }
   .lens-info-card { top: auto !important; right: 8px; bottom: calc(72px + env(safe-area-inset-bottom)); left: 8px !important; width: auto; max-height: min(58vh, 440px); }
 
   .anchor-card { width: min(230px, calc(100vw - 24px)); }
-  .globe-anchor.is-expanded .anchor-card { width: calc(100vw - 16px); max-height: calc(100vh - 146px - env(safe-area-inset-bottom)); max-height: calc(100dvh - 146px - env(safe-area-inset-bottom)); }
+  /*
+   * 展開したら、地球の座標に追従する吹き出しをやめて下からのシートにする。
+   * 指で地球を回しながら読む形にはもうなっていないので、追従は邪魔にしかならない。
+   * 高さは dvh。iOS Safari のアドレスバーが伸び縮みしても下端が欠けない。
+   */
+  .globe-anchor.is-expanded .anchor-card {
+    position: fixed; inset: auto 0 0 0; z-index: 12;
+    width: auto; max-width: none;
+    max-height: min(92dvh, calc(100dvh - 40px));
+    display: flex; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgb(4 15 19 / 98%);
+    border-top: 1px solid rgb(129 210 198 / 34%);
+    box-shadow: 0 -20px 60px rgb(0 0 0 / 60%);
+  }
+  .globe-anchor.is-expanded .anchor-card-content { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; border: 0; box-shadow: none; background: transparent; }
+  /* 閉じるは見出しと同じ行に。別の帯にすると二重ヘッダーに見える。 */
+  .globe-anchor.is-expanded .anchor-close { position: absolute; top: 8px; right: 10px; width: 44px; height: 44px; min-height: 44px; margin: 0; }
+  .globe-anchor.is-expanded .anchor-card-content > :first-child { padding-top: 14px; }
+  /* ステッカーは主役だが、小さい画面でCTAを押し出さない高さに抑える。 */
+  .mission-result-embedded.is-compact .mission-result-sticker > * { max-width: min(58vw, 46dvh); margin: 0 auto; }
+  .globe-anchor.is-expanded .anchor-leader { display: none; }
+  /* シートが開いている間は、地球の常設UIを畳む。指の下で競合させない。 */
+  .anchor-sheet-open .lens-rail,
+  .anchor-sheet-open .active-lens-legend,
+  .anchor-sheet-open .paleo-time-band { display: none; }
+  /* スマホの凡例は、すぐ下のレンズ帯と同じことを言っている。帯が地球の隣にある以上、二重に置かない。 */
+  .active-lens-legend { display: none; }
   .anchor-card-content { padding: 50px 13px 13px; }
   .anchor-actions button { min-height: 44px; font-size: 10px; }
   .anchor-close { width: 44px; height: 44px; }
@@ -721,7 +777,7 @@ body { overscroll-behavior: none; }
   .mission-briefing-dock > summary b { padding: 6px 7px; font-size: 9px; }
   .mission-briefing-dock[open] { max-height: calc(100vh - 146px - env(safe-area-inset-bottom)); }
   .mission-briefing-dock .mission-panel { max-height: none; padding: 16px; }
-  .mission-anchor-card.is-expanded { width: calc(100vw - 16px); max-height: calc(100vh - 146px - env(safe-area-inset-bottom)); max-height: calc(100dvh - 146px - env(safe-area-inset-bottom)); }
+  .mission-anchor-card.is-expanded { width: auto; max-height: none; }
 }
 
 @media (max-width: 540px) {
