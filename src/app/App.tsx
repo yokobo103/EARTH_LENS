@@ -198,7 +198,7 @@ export function App() {
   const activeLensLegend = <ActiveLensLegend lenses={displayLenses} activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} locale={locale} />;
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
   const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
-  const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} onSubmit={submitMissionAnswer} onAnalyze={() => { setAnchorExpanded(true); void runWhyHere(); }} onCollectSticker={collectSticker} onExpand={() => setAnchorExpanded(true)} compact={isCompact} /> : null;
+  const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} onSubmit={submitMissionAnswer} onCollectSticker={collectSticker} onExpand={() => setAnchorExpanded(true)} compact={isCompact} /> : null;
 
   return (
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${showGlobe && appMode === "explore" && paleoToolEnabled ? " paleo-band-open" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}${sheetOpen ? " anchor-sheet-open" : ""}${missionCleared ? " mission-cleared" : ""}`}>

@@ -46,7 +46,14 @@ export interface MissionTranslation {
   sticker: Pick<MissionSticker, "title" | "region" | "description">;
   hints: Record<string, { title: string; text: string; effectLabel?: string }>;
   answer: string;
+  references?: MissionReference[];
   evidence: Record<string, { title: string; text: string }>;
+}
+
+/** 解いたあと、興味がある人だけが進む先。原則1件、多くても2件。 */
+export interface MissionReference {
+  label: string;
+  url: string;
 }
 
 export interface EarthMission {
@@ -68,6 +75,7 @@ export interface EarthMission {
     answer: string;
     evidenceChain: MissionCompletionEvidence[];
   };
+  references?: MissionReference[];
   translations?: { ja: MissionTranslation };
 }
 
