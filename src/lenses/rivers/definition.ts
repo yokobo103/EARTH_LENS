@@ -174,5 +174,14 @@ export async function loadRivers(): Promise<LensDataset> {
       },
     });
   }
+  // ビルド時に tools/verify-rivers-importance.mjs が止めているので、ここまで来たら
+  // 派生値はあるはず。それでも念のため、静かに scalerank へ戻っていたら気づけるようにする。
+  const fallbacks = features.filter((feature) => feature.attributes.displayReason === "scalerank").length;
+  if (fallbacks > features.length * 0.05) {
+    console.error(
+      `Rivers lens fell back to scalerank for ${fallbacks} of ${features.length} lines. ` +
+      "The discharge values from HydroRIVERS are missing: run tools/build-river-importance.py.",
+    );
+  }
   return { lensId: riversDefinition.id, features };
 }

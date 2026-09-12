@@ -88,6 +88,7 @@ const layers = [
     steps: ["-filter-fields", "name,featurecla,scalerank", "-simplify", "8%", "keep-shapes"],
     precision: "0.001",
     build: buildNaturalEarthLayer,
+    after: bakeRiverImportance,
   },
   {
     id: "deserts",
@@ -430,6 +431,45 @@ async function buildSeaIceExtent(layer) {
   return { featureCount: 2, notes: [...sourceSummary, `aggregate inspection: ${inspection.holes} holes / ${inspection.poleVertices} pole vertices / ${inspection.antimeridianSegments} antimeridian segments`] };
 }
 
+/**
+ * 河川レンズの表示は scalerank ではなく HydroRIVERS から移した平均流量で決めている。
+ * このレイヤを作り直すと Natural Earth から素の状態に戻るので、派生値をすぐ焼き直す。
+ *
+ * HydroRIVERS 本体（544 MB）はリポジトリに入れないので、ここにある保証はない。
+ * 無ければ黙って進めず、止める。黙って進むと scalerank の見え方へ静かに退行する。
+ */
+async function bakeRiverImportance() {
+  const shapefile = process.env.HYDRORIVERS_SHP
+    ?? path.join(cacheDirectory, "HydroRIVERS_v10_shp", "HydroRIVERS_v10");
+  const present = await stat(`${shapefile}.shp`).catch(() => null);
+  if (!present) {
+    throw new Error([
+      "",
+      "rivers.geojson は作り直したが、表示を決める平均流量がまだ入っていない。",
+      `HydroRIVERS が見つからない: ${shapefile}.shp`,
+      "",
+      "  curl -LO https://data.hydrosheds.org/file/HydroRIVERS/HydroRIVERS_v10_shp.zip",
+      "  unzip HydroRIVERS_v10_shp.zip -d .cache/geo/",
+      "  python tools/build-river-importance.py .cache/geo/HydroRIVERS_v10_shp/HydroRIVERS_v10",
+      "",
+      "置き場所を変えているなら HYDRORIVERS_SHP に拡張子なしのパスを入れる。",
+      "",
+    ].join("\n"));
+  }
+
+  const script = path.join(projectRoot, "tools", "build-river-importance.py");
+  for (const interpreter of ["python3", "python"]) {
+    const ran = await new Promise((resolve) => {
+      const child = spawn(interpreter, [script, shapefile], { stdio: "inherit" });
+      child.on("error", () => resolve(null));
+      child.on("close", (code) => resolve(code));
+    });
+    if (ran === 0) return ["river importance re-baked from HydroRIVERS"];
+    if (ran !== null) throw new Error(`build-river-importance.py failed with code ${ran}`);
+  }
+  throw new Error("python が見つからない。tools/build-river-importance.py を手で流してください。");
+}
+
 async function writeGeoReadme() {
   const rows = [];
   for (const layer of layers) {
@@ -461,6 +501,11 @@ for (const layer of selectedLayers) {
   console.log(`Features: ${result.featureCount}`);
   for (const note of result.notes) console.log(note);
   console.log(`Output: ${path.relative(projectRoot, layer.outputPath)} (${(outputStats.size / 1024).toFixed(1)} KiB / ${outputStats.size} bytes)`);
+  if (layer.after) {
+    for (const note of await layer.after(layer)) console.log(note);
+    const bakedStats = await stat(layer.outputPath);
+    console.log(`After derivation: ${(bakedStats.size / 1024).toFixed(1)} KiB / ${bakedStats.size} bytes`);
+  }
 }
 
 await writeGeoReadme();

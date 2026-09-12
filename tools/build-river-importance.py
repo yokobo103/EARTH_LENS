@@ -10,7 +10,10 @@
     unzip HydroRIVERS_v10_shp.zip
     python tools/build-river-importance.py HydroRIVERS_v10_shp/HydroRIVERS_v10
 
-npm run data:geo -- rivers を回すとこの派生値は消える。そのあと必ずこれを流し直す。
+npm run data:geo -- rivers は、このスクリプトを自動で呼び直す（build-geo.mjs の after フック）。
+HydroRIVERS が .cache/geo/ に無ければ、そこで止まる。
+それを素通りしても npm run build が tools/verify-rivers-importance.mjs で落ちる。
+黙って scalerank の見え方へ戻ることはない。
 
 なぜ必要か（2026-09-13 の実測）:
   Natural Earth の scalerank は「どの縮尺の地図に出すか」という製図の判断で、川の規模ではない。

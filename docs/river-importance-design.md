@@ -220,8 +220,12 @@ scalerank に落ちる。黙って消さない。
 残っていること:
 
 - 地点カードの第一声に流量を出すかどうか（いまは属性に入っているだけ）
-- `npm run data:geo -- rivers` を回すと派生値が消える。ツールの docstring に書いたが、
-  仕組みでは止めていない
+- ~~`npm run data:geo -- rivers` を回すと派生値が消える~~ → 三重に止めた。
+  (1) `build-geo.mjs` の after フックが焼き直しを自動で呼ぶ。HydroRIVERS が
+  `.cache/geo/` に無ければそこで例外を投げて止まる。
+  (2) `npm run build` の頭で `tools/verify-rivers-importance.mjs` が走る。
+  派生値が 98% を割ったら exit 1。CI は build しか回さないので、これが本番への門になる。
+  (3) 実行時、5% を超える線が scalerank の逃げ道に落ちていたら console.error
 - Natural Earth に無い川（信濃川など）は上の3択のまま
 
 `scalerank` は属性として残してある。消す理由がない。
