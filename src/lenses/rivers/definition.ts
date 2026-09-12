@@ -74,7 +74,7 @@ export async function loadRivers(): Promise<LensDataset> {
       id: `river-ne-${index}`,
       lensId: riversDefinition.id,
       name,
-      description: `${name} is a generalized centerline from the Natural Earth 1:10m Rivers + lake centerlines dataset.`,
+      description: "A line carrying water and people from inland out to the sea.",
       geometry: { type: "polyline", paths, bbox: bboxForPoints(points) },
       provenance,
       attributes: {

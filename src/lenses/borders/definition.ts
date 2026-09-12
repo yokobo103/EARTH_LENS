@@ -138,7 +138,7 @@ export async function loadBorders(): Promise<LensDataset> {
       id: countryFeatureId(sourceFeature.properties.ISO_A3, index),
       lensId: bordersDefinition.id,
       name,
-      description: "A simplified country outline from the Natural Earth 1:50m Admin 0 dataset.",
+      description: "Nothing marks it on the ground, yet past here is another country.",
       geometry: { type: "area", centroid, polygons, bbox: mergeBboxes(polygons.map((polygon) => polygon.bbox)) },
       provenance,
       attributes: {

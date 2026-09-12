@@ -69,7 +69,7 @@ export async function loadPorts(): Promise<LensDataset> {
       id: portFeatureId(name, sourceFeature.properties.ne_id, index),
       lensId: portsDefinition.id,
       name,
-      description: `${name} is a named port point in the Natural Earth 1:10m dataset.`,
+      description: "Cargo coming off the sea changes over to land routes here.",
       geometry: { type: "point", coordinates: { latitude, longitude } },
       provenance,
       attributes: {

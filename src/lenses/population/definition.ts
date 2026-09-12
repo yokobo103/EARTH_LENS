@@ -64,7 +64,7 @@ export async function loadPopulatedPlaces(): Promise<LensDataset> {
     id: `place-${place.longitude.toFixed(3)}-${place.latitude.toFixed(3)}`,
     lensId: populationDefinition.id,
     name: place.name,
-    description: `${place.name} holds about ${place.population.toLocaleString("en-US")} people in its urban area.`,
+    description: `About ${place.population.toLocaleString("en-US")} people live gathered in this one place.`,
     geometry: { type: "point", coordinates: { longitude: place.longitude, latitude: place.latitude } },
     provenance,
     attributes: {

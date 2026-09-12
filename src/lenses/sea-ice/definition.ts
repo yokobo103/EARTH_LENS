@@ -95,8 +95,8 @@ async function loadEdges(): Promise<LensFeature[]> {
       id: sourceFeature.id, lensId: seaIceDefinition.id,
       name: winter ? "WINTER MEDIAN ICE EDGE" : "SUMMER MEDIAN ICE EDGE",
       description: winter
-        ? "The 1981–2010 median maximum seasonal edge: March in the north and September in the south."
-        : "The 1981–2010 median minimum seasonal edge: September in the north and March in the south.",
+        ? "In an average year the ice spreads out to about this line."
+        : "In an average year the ice pulls back to about this line.",
       geometry: { type: "polyline", paths, bbox: bboxForPoints(paths.flat()) }, provenance: edgeProvenance,
       attributes: {
         type: "Median sea-ice extent edge", edgeSeason: sourceFeature.properties.edge,
@@ -119,8 +119,8 @@ async function loadExtentAreas(): Promise<LensFeature[]> {
       id: sourceFeature.id, lensId: seaIceDefinition.id,
       name: winter ? "2025 WINTER OBSERVED ICE EXTENT" : "2025 SUMMER OBSERVED ICE EXTENT",
       description: winter
-        ? "Where monthly mean sea-ice concentration reached at least 15% in the 2025 winter snapshot: March north, September south."
-        : "Where monthly mean sea-ice concentration reached at least 15% in the 2025 summer snapshot: September north, March south.",
+        ? "In winter the sea freezes out to about here."
+        : "Sea ice that stays through the summer.",
       geometry: {
         type: "area", centroid: { longitude: 0, latitude: winter ? 86 : 88 }, polygons,
         bbox: mergeBboxes(polygons.map((polygon) => polygon.bbox)),

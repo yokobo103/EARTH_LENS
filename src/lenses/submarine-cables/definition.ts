@@ -64,7 +64,7 @@ export async function loadSubmarineCableConnections(): Promise<LensDataset> {
     id: connection.id,
     lensId: submarineCablesDefinition.id,
     name: connection.name,
-    description: "A demo communication relationship between abstract regions. The line is generated from endpoints and is not an actual cable path.",
+    description: "Information crossing the sea to link one region with another.",
     geometry: { type: "connection", endpoints: connection.endpoints },
     provenance: { ...rawData.metadata, confidence: connection.confidence, classifications: ["demo", "schematic"] },
     attributes: {

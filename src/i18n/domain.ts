@@ -37,10 +37,10 @@ const featureJa: Record<string, { name: string; description?: string }> = {
   sahara: { name: "サハラ砂漠", description: "居住・インフラ・陸上移動を制約する広大な乾燥地域。" },
   gobi: { name: "ゴビ砂漠", description: "モンゴルから中国北部に広がる大規模な乾燥地域。" },
   "physical-bosporus": { name: "ボスポラス海峡", description: "黒海とマルマラ海を結ぶ狭い自然水路。" },
-  "winter-median-edge": { name: "冬の海氷中央値の縁", description: "典型的な季節最大域の縁。北半球は3月、南半球は9月の1981〜2010年中央値です。" },
-  "summer-median-edge": { name: "夏の海氷中央値の縁", description: "典型的な季節最小域の縁。北半球は9月、南半球は3月の1981〜2010年中央値です。" },
-  "winter-observed-extent-2025": { name: "2025年 冬季実測海氷域", description: "2025年の月平均海氷濃度が15%以上だった冬季スナップショット。北半球は3月、南半球は9月です。" },
-  "summer-observed-extent-2025": { name: "2025年 夏季実測海氷域", description: "2025年の月平均海氷濃度が15%以上だった夏季スナップショット。北半球は9月、南半球は3月です。" },
+  "winter-median-edge": { name: "冬の海氷中央値の縁", description: "平年なら、海氷はこのあたりまで広がる。" },
+  "summer-median-edge": { name: "夏の海氷中央値の縁", description: "平年なら、海氷はこのあたりまで縮む。" },
+  "winter-observed-extent-2025": { name: "2025年 冬季実測海氷域", description: "冬にはここまで海が凍る。" },
+  "summer-observed-extent-2025": { name: "2025年 夏季実測海氷域", description: "夏になっても残る海氷。" },
   "port-singapore": { name: "シンガポール港" },
   "port-shanghai": { name: "上海港" },
   "port-rotterdam": { name: "ロッテルダム港" },
@@ -70,11 +70,40 @@ const featureJa: Record<string, { name: string; description?: string }> = {
   "atlantic-demo": { name: "大西洋デモ接続" },
   "americas-demo": { name: "南北アメリカ デモ接続" },
   "australia-asia-demo": { name: "オーストラリア–東南アジア デモ接続" },
-  "china-rare-earths-demo": { name: "中国 · レアアース", description: "レアアースLensの表示検証用となる国単位の模式マーカー。" },
-  "australia-lithium-demo": { name: "オーストラリア · リチウム", description: "リチウムLensの表示検証用となる国単位の模式マーカー。" },
-  "chile-copper-demo": { name: "チリ · 銅", description: "銅Lensの表示検証用となる国単位の模式マーカー。" },
-  "drc-cobalt-demo": { name: "コンゴ民主共和国 · コバルト", description: "コバルトLensの表示検証用となる国単位の模式マーカー。" },
-  "indonesia-nickel-demo": { name: "インドネシア · ニッケル", description: "ニッケルLensの表示検証用となる国単位の模式マーカー。" },
+  "china-rare-earths-demo": { name: "中国 · レアアース", description: "この資源は、世界のどこにでもあるわけではない。" },
+  "australia-lithium-demo": { name: "オーストラリア · リチウム", description: "この資源は、世界のどこにでもあるわけではない。" },
+  "chile-copper-demo": { name: "チリ · 銅", description: "この資源は、世界のどこにでもあるわけではない。" },
+  "drc-cobalt-demo": { name: "コンゴ民主共和国 · コバルト", description: "この資源は、世界のどこにでもあるわけではない。" },
+  "indonesia-nickel-demo": { name: "インドネシア · ニッケル", description: "この資源は、世界のどこにでもあるわけではない。" },
+};
+
+/**
+ * レンズ単位の「第一声」。地点カードを開いて最初に読む一文。
+ *
+ * ここで言うのは、そのレンズ1枚だけで成立することに限る。
+ * 「海氷 → 船の道が閉じる」のような、別のレンズを重ねて初めて成立する帰結は書かない。
+ * それを先に言ってしまうと、重ねて気づく楽しみをこちらが奪うことになる。
+ *
+ * 個別の地点文（featureJa）があるときは、そちらが勝つ。
+ */
+const lensFeatureJa: Record<string, string | ((feature: LensFeature) => string)> = {
+  "sea-ice-edges": "冬にはここまで海が凍る。",
+  "physical-features": "人や物の移動を、長く迂回させてきた地形。",
+  deserts: "水の少なさが、暮らし方を強く縛る土地。",
+  rivers: "水と人を、内陸から海へつなぐ線。",
+  "critical-minerals": "この資源は、世界のどこにでもあるわけではない。",
+  "populated-places": (feature) => {
+    const population = feature.attributes.population;
+    if (typeof population !== "number") return "人がここまで集まって暮らしている場所。";
+    const man = Math.round(population / 10_000).toLocaleString("ja-JP");
+    return `約${man}万人が、この場所に集まって暮らしている。`;
+  },
+  "major-ports": "船の荷が、ここで陸の道に乗り換える。",
+  "strategic-chokepoints": "ここを通らないなら、大きく回るしかない。",
+  "shipping-flows": "物が、海を越えてどこからどこへ動くのか。",
+  "submarine-cable-connections": "情報が、海を越えて地域と地域をつないでいる。",
+  eez: "陸から引いた線が、海の資源を使える範囲を分ける。",
+  "admin0-borders": "地面には無いのに、ここから先は別の国になる。",
 };
 
 const valueJa: Record<string, string> = {
@@ -166,7 +195,9 @@ export function localizeFeatureDescription(feature: LensFeature, locale: Locale)
   if (locale === "en") return feature.description;
   const localizedDescription = featureJa[feature.id]?.description;
   if (localizedDescription) return localizedDescription;
-  if (feature.geometry.type === "connection") return "抽象化した地域間の通信接続です。線はendpointから生成した模式表現で、実際のケーブル経路ではありません。";
+  const lensLine = lensFeatureJa[feature.lensId];
+  if (typeof lensLine === "function") return lensLine(feature);
+  if (lensLine) return lensLine;
   return feature.description;
 }
 

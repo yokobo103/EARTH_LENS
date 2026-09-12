@@ -31,7 +31,7 @@ export async function loadShippingFlows(): Promise<LensDataset> {
     id: connection.id,
     lensId: shippingDefinition.id,
     name: connection.name,
-    description: "A broad conceptual maritime flow generated from region endpoints. It is not an actual shipping route or traffic measurement.",
+    description: "Which way goods move when they cross the sea.",
     geometry: { type: "connection", endpoints: connection.endpoints },
     provenance: rawData.metadata,
     attributes: {

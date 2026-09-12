@@ -103,7 +103,7 @@ export async function loadEez(): Promise<LensDataset> {
       id: `eez-mrgid-${sourceFeature.properties?.mrgid ?? index}`,
       lensId: eezDefinition.id,
       name,
-      description: `${name} is a 200 nautical mile maritime zone in the Marine Regions dataset.`,
+      description: "A line drawn from land divides who may use the sea's resources.",
       geometry: {
         type: "area",
         centroid: { longitude: (bbox.west + bbox.east) / 2, latitude: (bbox.south + bbox.north) / 2 },

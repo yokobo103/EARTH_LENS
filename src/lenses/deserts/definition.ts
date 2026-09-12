@@ -80,7 +80,7 @@ export async function loadDeserts(): Promise<LensDataset> {
       id: `desert-ne-${index}`,
       lensId: desertsDefinition.id,
       name,
-      description: `${name} is an approximate desert region from Natural Earth's geography regions dataset.`,
+      description: "Land where the shortage of water shapes how people can live.",
       geometry: {
         type: "area",
         centroid: { longitude: (bbox.west + bbox.east) / 2, latitude: (bbox.south + bbox.north) / 2 },

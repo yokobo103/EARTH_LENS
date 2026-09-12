@@ -102,7 +102,7 @@ export async function loadPhysicalFeatures(): Promise<LensDataset> {
       id: used === 0 ? baseId : `${baseId}-${used + 1}`,
       lensId: physicalFeaturesDefinition.id,
       name,
-      description: `${name} is a Natural Earth ${featureClass === "Plateau" ? "plateau" : "mountain-range"} region used to observe physical constraints.`,
+      description: "Terrain that has long sent people and goods the long way round.",
       geometry: {
         type: "area",
         centroid: { longitude: (bbox.west + bbox.east) / 2, latitude: (bbox.south + bbox.north) / 2 },
