@@ -17,7 +17,14 @@ const provenance: DataProvenance = {
   confidence: "high",
   dataKind: "real",
   classifications: ["real", "derived"],
-  note: "Simplified web-delivery centerlines from Natural Earth. This is a generalized cartographic network, not a measurement of river flow, width, seasonality, or navigability.",
+  note: "Simplified web-delivery centerlines from Natural Earth. Which rivers appear at which distance is decided by discharge transferred from HydroRIVERS, not by Natural Earth's scalerank.",
+  derivedFrom: [{
+    source: "HydroRIVERS v1.0 (HydroSHEDS)",
+    sourceUrl: "https://www.hydrosheds.org/products/hydrorivers",
+    license: "Free for non-commercial and commercial use, attribution required",
+    citation: "Lehner, B., Grill G. (2013) Hydrological Processes 27",
+    note: "Long-term average discharge matched to each Natural Earth line by position, offline. 1,448 of 1,455 lines matched. No HydroRIVERS geometry is shipped.",
+  }],
 };
 
 export const riversDefinition: EarthLensDefinition = {
@@ -31,7 +38,7 @@ export const riversDefinition: EarthLensDefinition = {
   provenance,
   visibleByDefault: false,
   legend: [{ label: "River", color: "#63c8d9", symbol: "line" }],
-  disclosures: ["GENERALIZED RIVER NETWORK", "NOT HYDROLOGICAL FLOW DATA", "NATURAL EARTH · PUBLIC DOMAIN"],
+  disclosures: ["GENERALIZED RIVER NETWORK", "SHOWN BY DISCHARGE · HYDRORIVERS", "NATURAL EARTH · PUBLIC DOMAIN"],
 };
 
 type Position = [number, number];
@@ -41,7 +48,16 @@ interface RiversGeoJson {
   features: Array<{
     type: "Feature";
     geometry: { type: "LineString"; coordinates: Position[] } | { type: "MultiLineString"; coordinates: Position[][] } | null;
-    properties?: { name?: string; featurecla?: string; scalerank?: number };
+    properties?: {
+      name?: string;
+      featurecla?: string;
+      scalerank?: number;
+      /** tools/build-river-importance.py が焼いた派生値。元は HydroRIVERS。 */
+      dis?: number;
+      sys?: number;
+      clas?: number;
+      chain?: number;
+    };
   }>;
 }
 
@@ -54,78 +70,57 @@ function bboxForPoints(points: GeographicPoint[]): GeographicBoundingBox {
   }), { west: 180, south: 90, east: -180, north: -90 });
 }
 
-interface PreparedRiver {
-  index: number;
-  name: string;
-  sourceName: string;
-  scaleRank: number;
-  featureClass: string;
-  paths: GeographicPoint[][];
-}
+/**
+ * 表示の段。1 = 世界、2 = 大陸、3 = 国。4 はこのレンズでは描かない。
+ *
+ * 近景でも全 1,455 本には戻さない。いちばん細かい段でも 1,129 本で、
+ * 残りは平均流量の中央値が 34 m3/s 前後の細流。出しても水系の骨格が読めなくなるだけ。
+ */
+export type RiverTier = 1 | 2 | 3 | 4;
 
-const ENDPOINT_PRECISION = 3;
+/** なぜこの段に入ったか。DATA 側で答えられるように残す。 */
+export type RiverTierReason = "discharge" | "mainstem" | "scalerank";
 
-function endpointKey(name: string, point: GeographicPoint): string {
-  return `${name}|${point.longitude.toFixed(ENDPOINT_PRECISION)},${point.latitude.toFixed(ENDPOINT_PRECISION)}`;
+/**
+ * 段のしきい値。すべて平均流量 m3/s で、そのままユーザーに見せられる数にしてある。
+ *
+ * 流量だけで切ると大河が途中で終わる。上流ほど流量は減るので当然で、1,000 m3/s で
+ * 切るとミシシッピは 3 区間中 1 区間しか残らなかった。そこで比べるのは区間ごとの
+ * 流量ではなく、同名で端点が接する区間をつないだ鎖の最大流量（chain）にしてある。
+ *
+ * 鎖でも救えないのが、途中で名前が変わる大河。長江はトゥオトゥオ川・金沙江・
+ * 揚子江と名前が変わり、源流部の流量は 35 m3/s しかない。これは HydroRIVERS の
+ * 「水系の河口流量（sys）」と「本流かどうか（clas）」で拾う。
+ */
+const WORLD_DISCHARGE = 800;
+const WORLD_SYSTEM_OUTLET = 20_000;
+const CONTINENT_DISCHARGE = 300;
+const COUNTRY_DISCHARGE = 100;
+const COUNTRY_MAINSTEM_DISCHARGE = 50;
+
+interface RiverImportance {
+  tier: RiverTier;
+  reason: RiverTierReason;
 }
 
 /**
- * Natural Earth ranks each segment on its own, so one river can change rank
- * partway along: the Mississippi is rank 1 below St. Louis and rank 5 above it.
- * Drawing by raw rank would end the river in the middle of a continent.
- *
- * Segments that carry the same name and actually touch end to end are one
- * river, so they are given the strongest rank in the chain. Sharing a name is
- * not enough on its own -- there are unrelated Rio Negros and Rio Grandes on
- * different continents -- which is why the endpoints have to meet.
- *
- * This lifts 16 of 1,454 segments across 9 rivers. No list of river names is
- * involved, so new Natural Earth data is handled the same way.
+ * HydroRIVERS と照合できなかった線の逃げ道。
+ * 7 本あり、スエズ運河（人工水路で自然流量が無い）、ドナウ・デルタの分流、
+ * 干上がるカルカン川、ロワール川の 1 区間。黙って消さずに scalerank で置く。
  */
-function assignDisplayRanks(rivers: PreparedRiver[]): Map<number, number> {
-  const parent = new Map<number, number>();
-  const find = (node: number): number => {
-    let current = node;
-    while (parent.get(current) !== current) {
-      const next = parent.get(current) ?? current;
-      parent.set(current, parent.get(next) ?? next);
-      current = parent.get(current) ?? current;
-    }
-    return current;
-  };
-  const union = (a: number, b: number) => {
-    const rootA = find(a);
-    const rootB = find(b);
-    if (rootA !== rootB) parent.set(rootA, rootB);
-  };
+function importanceFromScaleRank(scaleRank: number): RiverImportance {
+  const tier: RiverTier = scaleRank <= 2 ? 1 : scaleRank <= 5 ? 2 : scaleRank <= 7 ? 3 : 4;
+  return { tier, reason: "scalerank" };
+}
 
-  for (const river of rivers) parent.set(river.index, river.index);
-
-  const byEndpoint = new Map<string, number>();
-  for (const river of rivers) {
-    if (!river.sourceName) continue;
-    for (const path of river.paths) {
-      const first = path[0];
-      const last = path[path.length - 1];
-      if (!first || !last) continue;
-      for (const point of [first, last]) {
-        const key = endpointKey(river.sourceName, point);
-        const seen = byEndpoint.get(key);
-        if (seen === undefined) byEndpoint.set(key, river.index);
-        else union(seen, river.index);
-      }
-    }
-  }
-
-  const strongest = new Map<number, number>();
-  for (const river of rivers) {
-    const root = find(river.index);
-    strongest.set(root, Math.min(strongest.get(root) ?? river.scaleRank, river.scaleRank));
-  }
-
-  const displayRanks = new Map<number, number>();
-  for (const river of rivers) displayRanks.set(river.index, strongest.get(find(river.index)) ?? river.scaleRank);
-  return displayRanks;
+function importanceOf(chain: number, systemOutlet: number, mainstemOrder: number, matched: boolean, scaleRank: number): RiverImportance {
+  if (!matched) return importanceFromScaleRank(scaleRank);
+  if (chain >= WORLD_DISCHARGE) return { tier: 1, reason: "discharge" };
+  if (mainstemOrder <= 2 && systemOutlet >= WORLD_SYSTEM_OUTLET) return { tier: 1, reason: "mainstem" };
+  if (chain >= CONTINENT_DISCHARGE) return { tier: 2, reason: "discharge" };
+  if (chain >= COUNTRY_DISCHARGE) return { tier: 3, reason: "discharge" };
+  if (mainstemOrder === 1 && chain >= COUNTRY_MAINSTEM_DISCHARGE) return { tier: 3, reason: "mainstem" };
+  return { tier: 4, reason: "discharge" };
 }
 
 export async function loadRivers(): Promise<LensDataset> {
@@ -133,7 +128,7 @@ export async function loadRivers(): Promise<LensDataset> {
   if (!response.ok) throw new Error(`Natural Earth rivers failed to load: ${response.status} ${response.statusText}`);
   const geojson = await response.json() as RiversGeoJson;
 
-  const prepared: PreparedRiver[] = [];
+  const features: LensFeature[] = [];
   for (const [index, sourceFeature] of geojson.features.entries()) {
     if (!sourceFeature.geometry) continue;
     const rawPaths = sourceFeature.geometry.type === "LineString"
@@ -143,32 +138,41 @@ export async function loadRivers(): Promise<LensDataset> {
       .filter((path) => path.length >= 2)
       .map((path) => path.map(([longitude, latitude]) => ({ longitude, latitude })));
     if (paths.length === 0) continue;
-    const sourceName = sourceFeature.properties?.name?.trim() ?? "";
-    prepared.push({
-      index,
-      sourceName,
-      name: sourceName || `River network ${index + 1}`,
-      scaleRank: sourceFeature.properties?.scalerank ?? 10,
-      featureClass: sourceFeature.properties?.featurecla ?? "River",
-      paths,
+
+    const properties = sourceFeature.properties;
+    const scaleRank = properties?.scalerank ?? 10;
+    const matched = typeof properties?.dis === "number";
+    const discharge = properties?.dis ?? 0;
+    const chain = properties?.chain ?? discharge;
+    const systemOutlet = properties?.sys ?? 0;
+    const mainstemOrder = properties?.clas ?? 9;
+    const { tier, reason } = importanceOf(chain, systemOutlet, mainstemOrder, matched, scaleRank);
+    // 描かない段のものは作らない。エンティティを持たなければ描画も当たり判定も要らない。
+    if (tier === 4) continue;
+
+    const name = properties?.name?.trim() || `River network ${index + 1}`;
+    features.push({
+      id: `river-ne-${index}`,
+      lensId: riversDefinition.id,
+      name,
+      description: "A line carrying water and people from inland out to the sea.",
+      geometry: { type: "polyline", paths, bbox: bboxForPoints(paths.flat()) },
+      provenance,
+      attributes: {
+        featureClass: properties?.featurecla ?? "River",
+        // 見えている理由は、この3つと段で説明できる。
+        displayTier: tier,
+        displayReason: reason,
+        ...(matched ? {
+          averageDischargeCms: discharge,
+          riverSystemDischargeCms: chain,
+          riverSystemOutletCms: systemOutlet,
+          mainstemOrder,
+        } : {}),
+        scaleRank,
+        approximateGeometry: true,
+      },
     });
   }
-
-  const displayRanks = assignDisplayRanks(prepared);
-
-  const features: LensFeature[] = prepared.map((river) => ({
-    id: `river-ne-${river.index}`,
-    lensId: riversDefinition.id,
-    name: river.name,
-    description: "A line carrying water and people from inland out to the sea.",
-    geometry: { type: "polyline", paths: river.paths, bbox: bboxForPoints(river.paths.flat()) },
-    provenance,
-    attributes: {
-      featureClass: river.featureClass,
-      scaleRank: river.scaleRank,
-      displayRank: displayRanks.get(river.index) ?? river.scaleRank,
-      approximateGeometry: true,
-    },
-  }));
   return { lensId: riversDefinition.id, features };
 }

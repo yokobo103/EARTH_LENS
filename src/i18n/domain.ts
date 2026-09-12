@@ -22,7 +22,7 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
   "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", description: "通り道が細くなる場所。ここが閉じると、すべてが回り道になる。", legends: ["戦略的通過地点"] },
   "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", description: "資源は地球の上に均等には無い。どこに偏っているか。", legends: ["国ごとの柱", "高さ＝相対的な大きさ"], disclosures: ["国単位の仮データ", "鉱床の位置ではありません", "サンプルデータ"] },
   "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", description: "地面には無い線。地形にどれだけ沿い、どれだけ沿わないか。", legends: ["国境線"], disclosures: ["簡略化した形状 · 1:50m", "Natural Earth · Public Domain"] },
-  rivers: { name: "河川", shortName: "河川", category: "地球", description: "内陸と海をつなぐ水の線。人も境界も、この線に沿いやすい。", legends: ["川"], disclosures: ["一般化した河川網", "河川流量データではありません", "Natural Earth · Public Domain"] },
+  rivers: { name: "河川", shortName: "河川", category: "地球", description: "内陸と海をつなぐ水の線。人も境界も、この線に沿いやすい。", legends: ["川"], disclosures: ["一般化した河川網", "表示は平均流量で決めています · HydroRIVERS", "Natural Earth · Public Domain"] },
   deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", description: "乾いた土地がどこまで届き、そこに何が来て、何が来ないか。", legends: ["乾いた地域"], disclosures: ["概略地域", "気候指数ではありません", "Natural Earth · Public Domain"] },
   eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", description: "小さな島が、これほど広い海の使用権を生むことがある。", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
 };

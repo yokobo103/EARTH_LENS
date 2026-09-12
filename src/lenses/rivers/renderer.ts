@@ -10,26 +10,32 @@ import {
 import type { LensDataset, LensFeature, LensRenderHandle } from "../types";
 
 /**
- * Natural Earth carries 1,454 river and lake centerlines. Drawing all of them
- * at once buried the Nile among its own tributaries, and a screen full of
- * sub-pixel glowing lines shimmered whenever the globe moved.
+ * Natural Earth carries 1,454 river and lake centerlines, and drawing all of
+ * them at once buried the Nile among its own tributaries.
  *
- * The lens now shows a skeleton first and fills it in as the camera comes
- * down. Rank 4 is the far step because that is where Natural Earth puts the
- * Tigris -- one step tighter and the Tigris, Euphrates, Indus, Ganges and
- * Huang He all disappear from a world view, which is the opposite of the
- * point.
+ * Which rivers belong at which distance is decided offline by discharge
+ * transferred from HydroRIVERS -- see tools/build-river-importance.py. Natural
+ * Earth's own scalerank is not used for it: the only rank-0 river on Earth is
+ * the Tongariro in New Zealand, which carries 32 m3/s.
+ *
+ * Three steps, and the closest one is not "everything": 326 lines averaging
+ * around 34 m3/s are never drawn, because a skeleton stops being readable once
+ * every creek is on it.
  */
 interface LodStep {
-  maxRank: number;
+  maxTier: number;
   enterBelowMetres: number;
 }
 
-const FARTHEST_STEP: LodStep = { maxRank: 4, enterBelowMetres: Number.POSITIVE_INFINITY };
+/**
+ * 高さは画面に何が映るかで決めてある。実測で、日本列島が全部入るのが 2,600 km、
+ * 大陸ひとつが 4,000-6,000 km 付近。段の名前と、見えている範囲を一致させる。
+ */
+const FARTHEST_STEP: LodStep = { maxTier: 1, enterBelowMetres: Number.POSITIVE_INFINITY };
 const LOD_STEPS: readonly LodStep[] = [
   FARTHEST_STEP,
-  { maxRank: 6, enterBelowMetres: 3_500_000 },
-  { maxRank: 10, enterBelowMetres: 900_000 },
+  { maxTier: 2, enterBelowMetres: 6_000_000 },
+  { maxTier: 3, enterBelowMetres: 2_800_000 },
 ];
 
 function stepAt(level: number): LodStep {
@@ -48,22 +54,43 @@ const FADE_MILLISECONDS = 380;
 const RIVER_COLOR = "#63c8d9";
 const LINE_ALTITUDE_METRES = 11_000;
 
-function displayRank(feature: LensFeature): number {
-  const value = feature.attributes.displayRank ?? feature.attributes.scaleRank;
-  return typeof value === "number" ? value : 10;
+function tierOf(feature: LensFeature): number {
+  const value = feature.attributes.displayTier;
+  return typeof value === "number" ? value : 3;
+}
+
+/** 比べているのと同じ流量で太さも決める。太い線は本当に水が多い線になる。 */
+function dischargeOf(feature: LensFeature): number {
+  const value = feature.attributes.riverSystemDischargeCms;
+  return typeof value === "number" ? value : 0;
 }
 
 /**
- * Width and opacity both carry the ranking, so a major river reads as major
- * even where it runs beside its tributaries. Nothing goes below one pixel:
- * a thinner line than that is what was shimmering in the first place.
+ * Width and opacity both carry the discharge, so a main stem stands out from
+ * the tributary beside it. Nothing goes below one pixel: a thinner line than
+ * that is what was shimmering before.
  */
-function widthFor(rank: number): number {
-  return rank <= 1 ? 2.2 : rank <= 2 ? 1.9 : rank <= 4 ? 1.5 : rank <= 6 ? 1.15 : 1;
+function widthFor(discharge: number): number {
+  return discharge >= 10_000 ? 2.4
+    : discharge >= 3_000 ? 2.1
+    : discharge >= 800 ? 1.7
+    : discharge >= 300 ? 1.35
+    : discharge >= 100 ? 1.1
+    : 1;
 }
 
-function alphaFor(rank: number): number {
-  return rank <= 1 ? 0.8 : rank <= 2 ? 0.72 : rank <= 4 ? 0.58 : rank <= 6 ? 0.44 : 0.34;
+/**
+ * 下の3段は世界表示には出てこない（遠景に出るのは 800 m3/s 以上だけ）ので、
+ * 引いたときの静かさを壊さずに、寄ったときの読みやすさだけを上げられる。
+ * 大小の差は太さが持つ。
+ */
+function alphaFor(discharge: number): number {
+  return discharge >= 10_000 ? 0.8
+    : discharge >= 3_000 ? 0.72
+    : discharge >= 800 ? 0.6
+    : discharge >= 300 ? 0.56
+    : discharge >= 100 ? 0.52
+    : 0.48;
 }
 
 function levelForHeight(height: number, currentLevel: number): number {
@@ -78,7 +105,7 @@ function levelForHeight(height: number, currentLevel: number): number {
 interface RenderedRiver {
   entity: Entity;
   feature: LensFeature;
-  rank: number;
+  tier: number;
   baseWidth: number;
   baseAlpha: number;
   alpha: number;
@@ -103,10 +130,11 @@ export function renderRivers(viewer: Viewer, dataset: LensDataset): LensRenderHa
 
   for (const feature of dataset.features) {
     if (feature.geometry.type !== "polyline") continue;
-    const rank = displayRank(feature);
-    const baseWidth = widthFor(rank);
-    const baseAlpha = alphaFor(rank);
-    const visible = rank <= stepAt(level).maxRank;
+    const tier = tierOf(feature);
+    const discharge = dischargeOf(feature);
+    const baseWidth = widthFor(discharge);
+    const baseAlpha = alphaFor(discharge);
+    const visible = tier <= stepAt(level).maxTier;
     for (const [pathIndex, path] of feature.geometry.paths.entries()) {
       const id = `${dataset.lensId}:${feature.id}:${pathIndex}`;
       const entity = viewer.entities.add(new Entity({
@@ -127,7 +155,7 @@ export function renderRivers(viewer: Viewer, dataset: LensDataset): LensRenderHa
       rendered.set(id, {
         entity,
         feature,
-        rank,
+        tier,
         baseWidth,
         baseAlpha,
         alpha: visible ? baseAlpha : 0,
@@ -137,9 +165,9 @@ export function renderRivers(viewer: Viewer, dataset: LensDataset): LensRenderHa
   }
 
   const retarget = () => {
-    const maxRank = stepAt(level).maxRank;
+    const maxTier = stepAt(level).maxTier;
     for (const river of rendered.values()) {
-      const target = river.rank <= maxRank ? river.baseAlpha : 0;
+      const target = river.tier <= maxTier ? river.baseAlpha : 0;
       if (target === river.targetAlpha) continue;
       river.targetAlpha = target;
       if (target > 0) river.entity.show = lensVisible;

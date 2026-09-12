@@ -158,6 +158,8 @@ body { overscroll-behavior: none; }
 .detail-grid { display: grid; grid-template-columns: 82px 1fr; gap: 8px 10px; margin: 16px 0; font: 500 9px/1.45 ui-monospace, monospace; }
 .detail-grid dt { color: #5d7876; }
 .detail-grid dd { margin: 0; color: #b6ccca; overflow-wrap: anywhere; }
+.detail-grid dd a { color: #9fe6dc; text-decoration: none; border-bottom: 1px solid rgb(159 230 220 / 34%); }
+.detail-grid dd small { display: block; margin-top: 2px; color: #7e9a96; font-size: 8px; }
 .confidence { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding: 10px; border: 1px solid var(--line); }
 .confidence span { color: #647e7c; font: 650 8px ui-monospace, monospace; letter-spacing: .08em; }
 .confidence strong { font: 750 10px ui-monospace, monospace; }

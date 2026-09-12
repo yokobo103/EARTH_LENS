@@ -23,6 +23,20 @@ export interface DataProvenance {
   dataKind: "demo" | "real";
   classifications?: DataClassification[];
   note?: string;
+  /**
+   * この層の数値が別のデータから作られている場合の、その元。
+   * ジオメトリの出典（source）とは別に、DATA 側から辿れるようにしておく。
+   */
+  derivedFrom?: readonly DerivedSource[];
+}
+
+/** provenance.source のジオメトリに、あとから属性を移してきた元データ。 */
+export interface DerivedSource {
+  source: string;
+  sourceUrl: string;
+  license: string;
+  citation?: string;
+  note: string;
 }
 
 export interface LensLegendItem {

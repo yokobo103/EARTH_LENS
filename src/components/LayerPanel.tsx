@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { EarthLensDefinition } from "../lenses/types";
 import { groupLensesForDisplay, sampleDataLensIds, type LensGroupId } from "../lenses/registry";
 import { t } from "../i18n/copy";
@@ -126,7 +126,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
         <p>{info.lens.description}</p>
         <div className="legend" aria-label={`${info.lens.name} legend`}>{info.lens.legend.map((item) => <span key={item.label}><i className={`legend-${item.symbol}`} style={{ "--legend-color": item.color } as CSSProperties} />{item.label}</span>)}</div>
         {info.lens.disclosures && <div className="lens-disclosures">{info.lens.disclosures.map((item) => <span key={item}>{item}</span>)}</div>}
-        <dl className="detail-grid"><dt>{t(locale, "source")}</dt><dd>{info.lens.provenance.source}</dd><dt>{t(locale, "license")}</dt><dd>{info.lens.provenance.license}</dd><dt>{t(locale, "updated")}</dt><dd>{info.lens.provenance.updatedAt}</dd><dt>{t(locale, "dataConfidence")}</dt><dd>{localizeConfidence(info.lens.provenance.confidence, locale)}</dd></dl>
+        <dl className="detail-grid"><dt>{t(locale, "source")}</dt><dd>{info.lens.provenance.source}</dd><dt>{t(locale, "license")}</dt><dd>{info.lens.provenance.license}</dd><dt>{t(locale, "updated")}</dt><dd>{info.lens.provenance.updatedAt}</dd><dt>{t(locale, "dataConfidence")}</dt><dd>{localizeConfidence(info.lens.provenance.confidence, locale)}</dd>{info.lens.provenance.derivedFrom?.map((derived) => <Fragment key={derived.source}><dt>{t(locale, "derivedFrom")}</dt><dd><a href={derived.sourceUrl} target="_blank" rel="noreferrer">{derived.source} ↗</a>{derived.citation && <small>{derived.citation}</small>}<small>{derived.license}</small></dd></Fragment>)}</dl>
         {info.lens.provenance.sourceUrl && <a className="source-link" href={info.lens.provenance.sourceUrl} target="_blank" rel="noreferrer">{t(locale, "viewReference")}</a>}
         {info.lens.furtherReading && info.lens.furtherReading.length > 0 && <section className="further-reading"><div className="further-reading-heading"><strong>{t(locale, "furtherReading")}</strong><small>{t(locale, "externalGuide")}</small></div>{info.lens.furtherReading.map((reading) => <article key={reading.url}><a href={reading.url} target="_blank" rel="noreferrer">{reading.title} ↗</a><p>{reading.note}</p><small>{reading.language === "en" ? t(locale, "englishOnly") : reading.language.toUpperCase()} · {t(locale, "checked")} {reading.checkedAt}</small></article>)}</section>}
       </aside>}
