@@ -6,7 +6,7 @@ export const terrainDefinition: EarthLensDefinition = {
   name: "TERRAIN / RELIEF",
   shortName: "Terrain",
   category: "earth",
-  description: "A visual relief treatment for reading major landforms and physical constraints.",
+  description: "Shades the land so its rises and falls can be read.",
   temporal: { mode: "present" },
   provenance: {
     source: "Natural Earth II",

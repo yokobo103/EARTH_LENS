@@ -26,11 +26,11 @@ export const riversDefinition: EarthLensDefinition = {
   name: "RIVERS",
   shortName: "Rivers",
   category: "earth",
-  description: "Generalized river and lake centerlines for observing how water corridors relate to borders, ports, and settlements.",
+  description: "Lines of water joining inland to sea. People and boundaries both tend to follow them.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,
-  legend: [{ label: "Generalized river centerline", color: "#63c8d9", symbol: "line" }],
+  legend: [{ label: "River", color: "#63c8d9", symbol: "line" }],
   disclosures: ["GENERALIZED RIVER NETWORK", "NOT HYDROLOGICAL FLOW DATA", "NATURAL EARTH · PUBLIC DOMAIN"],
 };
 

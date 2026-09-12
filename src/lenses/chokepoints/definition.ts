@@ -26,7 +26,7 @@ export const chokepointsDefinition: EarthLensDefinition = {
   name: "STRATEGIC CHOKEPOINTS",
   shortName: "Chokepoints",
   category: "power",
-  description: "Narrow passages where maritime movement is geographically concentrated.",
+  description: "Where the passage narrows. Close one and everything has to go around.",
   temporal: { mode: "present" },
   provenance: { ...rawData.metadata, classifications: ["demo", "derived"] },
   visibleByDefault: true,

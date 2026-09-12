@@ -20,11 +20,11 @@ export const portsDefinition: EarthLensDefinition = {
   name: "PORTS",
   shortName: "Ports",
   category: "human",
-  description: "Global named port points for observing how maritime infrastructure relates to physical constraints.",
+  description: "The points where sea routes hand over to land routes — and the coasts with none.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,
-  legend: [{ label: "Named port", color: "#f1cf70", symbol: "point" }],
+  legend: [{ label: "Port", color: "#f1cf70", symbol: "point" }],
   disclosures: ["REAL DATA · NATURAL EARTH 1:10m", "POINT LOCATIONS · NOT PORT BOUNDARIES"],
 };
 

@@ -27,7 +27,7 @@ export const bordersDefinition: EarthLensDefinition = {
   name: "COUNTRY BORDERS",
   shortName: "Borders",
   category: "power",
-  description: "Country outlines from a simplified Natural Earth 1:50m delivery snapshot.",
+  description: "Lines that are not on the ground. How much they follow the terrain, and how much they ignore it.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,

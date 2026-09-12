@@ -28,7 +28,7 @@ const extentProvenance: DataProvenance = {
 
 export const seaIceDefinition: EarthLensDefinition = {
   id: "sea-ice-edges", urlCode: "si", name: "SEA ICE", shortName: "Sea Ice", category: "earth",
-  description: "Observed 2025 sea-ice areas reveal seasonal ocean constraints; unchanged 1981–2010 median edges provide a separate climatological comparison.",
+  description: "How far the sea freezes, and how much that moves between seasons.",
   temporal: { mode: "present" }, provenance: extentProvenance, visibleByDefault: false,
   legend: [
     { label: "2025 year-round ice · N Sep / S Mar observed", color: "#dffaff", symbol: "area" },

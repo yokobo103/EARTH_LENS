@@ -27,7 +27,7 @@ export const physicalFeaturesDefinition: EarthLensDefinition = {
   name: "MOUNTAIN RANGES & PLATEAUS",
   shortName: "Mountains",
   category: "earth",
-  description: "Natural Earth mountain-range and plateau regions that make physical barriers and corridors visible.",
+  description: "Where the height of the ground has pushed the routes people take.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,

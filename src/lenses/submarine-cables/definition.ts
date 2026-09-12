@@ -48,14 +48,15 @@ export const submarineCablesDefinition: EarthLensDefinition = {
   name: "SUBMARINE CABLE CONNECTIONS",
   shortName: "Cables",
   category: "human",
-  description: "Regional communication relationships drawn as conceptual geodesic links.",
+  description: "How much information ties one region to another across the sea.",
   temporal: { mode: "present" },
   provenance: { ...rawData.metadata, classifications: ["demo", "schematic"] },
   visibleByDefault: true,
   legend: [
-    { label: "Schematic route", color: "#7cf6c9", symbol: "line" },
-    { label: "Regional endpoint", color: "#c9fce9", symbol: "point" },
+    { label: "Link between regions", color: "#7cf6c9", symbol: "line" },
+    { label: "Regional end point", color: "#c9fce9", symbol: "point" },
   ],
+  disclosures: ["SCHEMATIC ROUTE", "NOT ACTUAL CABLE PATH", "DEMO DATA"],
   furtherReading: CABLE_READING,
 };
 

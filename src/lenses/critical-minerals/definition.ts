@@ -24,14 +24,15 @@ export const criticalMineralsDefinition: EarthLensDefinition = {
   name: "CRITICAL MINERALS",
   shortName: "Minerals",
   category: "resources",
-  description: "Country-level demo columns proving color and height encoding for mineral data.",
+  description: "Resources are not spread evenly over the Earth. This is where they pile up.",
   temporal: { mode: "present" },
   provenance: { ...rawData.metadata, classifications: ["demo", "derived"] },
   visibleByDefault: false,
   legend: [
-    { label: "Country demo index", color: "#d99cff", symbol: "area" },
-    { label: "Height = normalized index", color: "#f3ddff", symbol: "line" },
+    { label: "Country column", color: "#d99cff", symbol: "area" },
+    { label: "Height = relative scale", color: "#f3ddff", symbol: "line" },
   ],
+  disclosures: ["COUNTRY-LEVEL PLACEHOLDER", "NOT DEPOSIT LOCATIONS", "DEMO DATA"],
 };
 
 export async function loadCriticalMinerals(): Promise<LensDataset> {

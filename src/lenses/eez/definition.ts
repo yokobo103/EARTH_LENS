@@ -27,7 +27,7 @@ export const eezDefinition: EarthLensDefinition = {
   name: "EXCLUSIVE ECONOMIC ZONES",
   shortName: "EEZ",
   category: "power",
-  description: "Selected maritime zones reveal how small islands can anchor very large areas at sea.",
+  description: "A small island can hold rights over a very large piece of sea.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,

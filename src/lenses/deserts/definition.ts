@@ -27,11 +27,11 @@ export const desertsDefinition: EarthLensDefinition = {
   name: "ARID REGIONS",
   shortName: "Arid",
   category: "earth",
-  description: "Approximate desert regions for observing how dry land relates to rivers, cities, and routes.",
+  description: "How far dry land reaches, and what does and does not come with it.",
   temporal: { mode: "present" },
   provenance,
   visibleByDefault: false,
-  legend: [{ label: "Approximate desert region", color: "#d9ad62", symbol: "area" }],
+  legend: [{ label: "Dry region", color: "#d9ad62", symbol: "area" }],
   disclosures: ["APPROXIMATE REGION", "NOT A CLIMATE INDEX", "NATURAL EARTH · PUBLIC DOMAIN"],
 };
 

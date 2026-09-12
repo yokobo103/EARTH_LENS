@@ -18,11 +18,11 @@ export const shippingDefinition: EarthLensDefinition = {
   name: "SHIPPING",
   shortName: "Shipping",
   category: "human",
-  description: "Broad schematic flows between major maritime regions.",
+  description: "The broad directions goods take across the sea.",
   temporal: { mode: "present" },
   provenance: rawData.metadata,
   visibleByDefault: false,
-  legend: [{ label: "Schematic flow", color: "#ffb3de", symbol: "line" }],
+  legend: [{ label: "Flow between regions", color: "#ffb3de", symbol: "line" }],
   disclosures: ["SCHEMATIC FLOW", "NOT ACTUAL SHIPPING ROUTE", "DEMO DATA"],
 };
 

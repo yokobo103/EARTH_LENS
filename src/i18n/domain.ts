@@ -3,28 +3,28 @@ import type { EarthMission } from "../missions/types";
 import type { WhyHereNearbyFeature } from "../why-here/types";
 import type { Locale } from "./types";
 
-const lensJa: Record<string, { name: string; shortName: string; category: string; legends: string[]; disclosures?: string[] }> = {
-  "terrain-relief": { name: "地形・起伏", shortName: "地形", category: "地球", legends: ["陰影起伏表現"] },
-  "physical-features": { name: "山脈・高原", shortName: "山脈・高原", category: "地球", legends: ["山脈地域（枠線）", "高原地域（面）"], disclosures: ["概略地域", "標高ジオメトリではありません", "Natural Earth · Public Domain"] },
+const lensJa: Record<string, { name: string; shortName: string; category: string; description: string; legends: string[]; disclosures?: string[] }> = {
+  "terrain-relief": { name: "地形・起伏", shortName: "地形", category: "地球", description: "地形の起伏を、影で読めるようにする。", legends: ["陰影起伏表現"] },
+  "physical-features": { name: "山脈・高原", shortName: "山脈・高原", category: "地球", description: "地面の高さが、人の通り道をどこへ押しやってきたか。", legends: ["山脈地域（枠線）", "高原地域（面）"], disclosures: ["概略地域", "標高ジオメトリではありません", "Natural Earth · Public Domain"] },
   "sea-ice-edges": {
-    name: "凍る海", shortName: "海氷", category: "地球",
+    name: "凍る海", shortName: "海氷", category: "地球", description: "海がどこまで凍り、季節でどれだけ動くか。",
     legends: ["2025年 通年凍結域 · 北9月／南3月の実測", "2025年 冬季のみ凍結域 · 北3月／南9月の実測", "2025年 冬季海氷域の外 · 塗りなし", "1981–2010年 冬季平年の縁 · 破線", "1981–2010年 夏季平年の縁 · 実線"],
     disclosures: ["面 · 2025年実測域 · 北3月/9月＋南9月/3月", "線 · 1981–2010年 平年の縁", "現在状況ではありません · 航行用途不可"],
   },
-  "major-ports": { name: "主要港湾", shortName: "港", category: "人間活動", legends: ["港湾シグナル"] },
+  "major-ports": { name: "主要港湾", shortName: "港", category: "人間活動", description: "海の道が陸の道に渡す地点。そして、どこにも無い海岸。", legends: ["港"], disclosures: ["実データ · Natural Earth 1:10m", "点の位置 · 港の範囲ではありません"] },
   "populated-places": {
-    name: "人のいる場所", shortName: "人口", category: "人間活動",
+    name: "人のいる場所", shortName: "人口", category: "人間活動", description: "人が集まった場所を、地球の上の光として見る。主題は暗いほう——集まれなかった範囲。",
     legends: ["人口。多いほど明るい"],
     disclosures: ["都市域の推計", "調査年はまちまち", "Natural Earth · Public Domain"],
   },
-  "shipping-flows": { name: "海上物流フロー", shortName: "物流", category: "人間活動", legends: ["模式フロー"] },
-  "submarine-cable-connections": { name: "海底通信接続", shortName: "ケーブル", category: "人間活動", legends: ["模式ルート", "地域エンドポイント"] },
-  "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", legends: ["戦略的通過地点"] },
-  "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", legends: ["国別デモ指数", "高さ = 正規化指数"] },
-  "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", legends: ["国境線"] },
-  rivers: { name: "河川", shortName: "河川", category: "地球", legends: ["一般化した河川中心線"], disclosures: ["一般化した河川網", "河川流量データではありません", "Natural Earth · Public Domain"] },
-  deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", legends: ["概略砂漠地域"], disclosures: ["概略地域", "気候指数ではありません", "Natural Earth · Public Domain"] },
-  eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
+  "shipping-flows": { name: "海上物流フロー", shortName: "物流", category: "人間活動", description: "物が海を越えて動く、大まかな向き。", legends: ["地域間の流れ"], disclosures: ["模式的な流れ", "実際の航路ではありません", "サンプルデータ"] },
+  "submarine-cable-connections": { name: "海底通信接続", shortName: "ケーブル", category: "人間活動", description: "地域と地域が、海を越えてどれだけ情報でつながっているか。", legends: ["地域間のつながり", "地域の端点"], disclosures: ["模式的な経路", "実際のケーブル経路ではありません", "サンプルデータ"] },
+  "strategic-chokepoints": { name: "戦略的チョークポイント", shortName: "狭窄部", category: "戦略・権力", description: "通り道が細くなる場所。ここが閉じると、すべてが回り道になる。", legends: ["戦略的通過地点"] },
+  "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", description: "資源は地球の上に均等には無い。どこに偏っているか。", legends: ["国ごとの柱", "高さ＝相対的な大きさ"], disclosures: ["国単位の仮データ", "鉱床の位置ではありません", "サンプルデータ"] },
+  "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", description: "地面には無い線。地形にどれだけ沿い、どれだけ沿わないか。", legends: ["国境線"], disclosures: ["簡略化した形状 · 1:50m", "Natural Earth · Public Domain"] },
+  rivers: { name: "河川", shortName: "河川", category: "地球", description: "内陸と海をつなぐ水の線。人も境界も、この線に沿いやすい。", legends: ["川"], disclosures: ["一般化した河川網", "河川流量データではありません", "Natural Earth · Public Domain"] },
+  deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", description: "乾いた土地がどこまで届き、そこに何が来て、何が来ないか。", legends: ["乾いた地域"], disclosures: ["概略地域", "気候指数ではありません", "Natural Earth · Public Domain"] },
+  eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", description: "小さな島が、これほど広い海の使用権を生むことがある。", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
 };
 
 const featureJa: Record<string, { name: string; description?: string }> = {
@@ -169,6 +169,7 @@ export function localizeLensDefinition(lens: EarthLensDefinition, locale: Locale
     ...lens,
     name: localized.name,
     shortName: localized.shortName,
+    description: localized.description,
     legend: lens.legend.map((item, index) => ({ ...item, label: localized.legends[index] ?? item.label })),
     disclosures: localized.disclosures ?? lens.disclosures,
   };
