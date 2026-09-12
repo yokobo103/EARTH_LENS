@@ -45,6 +45,7 @@ export interface MissionTranslation {
   targetName: string;
   sticker: Pick<MissionSticker, "title" | "region" | "description">;
   hints: Record<string, { title: string; text: string; effectLabel?: string }>;
+  answer: string;
   evidence: Record<string, { title: string; text: string }>;
 }
 
@@ -59,7 +60,14 @@ export interface EarthMission {
   target: GeographicPoint & { name: string; successRadiusKm: number };
   hints: MissionHint[];
   sticker: MissionSticker;
-  completion: { evidenceChain: MissionCompletionEvidence[] };
+  completion: {
+    /**
+     * なぜここが答えだったのか、を人の言葉で1〜3文。
+     * クリア後に読ませたい本文はこれで、evidenceChain はその裏付け。
+     */
+    answer: string;
+    evidenceChain: MissionCompletionEvidence[];
+  };
   translations?: { ja: MissionTranslation };
 }
 

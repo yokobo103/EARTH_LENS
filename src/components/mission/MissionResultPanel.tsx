@@ -21,10 +21,12 @@ interface MissionResultPanelProps {
 /**
  * ミッションを解いた直後の画面。
  *
- * スマホでは原則1画面に収める。主役はステッカーで、順位と試行回数は1行。
- * SCAN（なぜここ？）はクリアの主内容ではないので畳んでおき、
- * 見たい人だけが開く。「パスポートに貼る」は下端に貼り付けて、
- * スクロール位置にかかわらず常に見えるようにする。
+ * ここは答え合わせであって、データ検証の画面ではない。読ませたいのは
+ * 「なぜここが答えだったのか」の一段落で、証拠はその裏付けとして短く添える。
+ * 500km走査（SCAN）は解いた直後に要るものではないので、一段下げて畳んでおく。
+ *
+ * スマホでは「パスポートに貼る」を下端に貼り付けたまま、この全部が
+ * 1画面に収まる高さに保つ。
  */
 export function MissionResultPanel({
   mission, state, locale, onCollectSticker,
@@ -32,22 +34,9 @@ export function MissionResultPanel({
   embedded = false, compact = false,
 }: MissionResultPanelProps) {
   const missionNumber = `MISSION ${String(mission.number).padStart(2, "0")}`;
-  const evidence = (
-    <section className="evidence-chain" aria-label="Observation evidence chain">
-      {mission.completion.evidenceChain.map((item) => (
-        <article key={`${item.lensId}:${item.featureId}`}>
-          <div><strong>{item.title}</strong><p>{item.text}</p></div>
-        </article>
-      ))}
-    </section>
-  );
-  const whyHere = (
-    <MissionWhyHerePanel mission={mission} result={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={onAnalyze} />
-  );
 
   return (
     <aside className={`${embedded ? "mission-result-embedded" : "glass-panel mission-result-panel"}${compact ? " is-compact" : ""}`} aria-label="Mission result">
-      {/* 見出しは1本。任務ドックは畳んであるので、番号とCLEARはここが唯一の持ち主。 */}
       <header className="mission-result-heading">
         <span className="mission-result-number">{missionNumber}</span>
         <strong className="mission-result-clear">{t(locale, "targetIdentified")}</strong>
@@ -64,13 +53,24 @@ export function MissionResultPanel({
         <span>{t(locale, "attempts")} <b>{state.attempts.length}</b></span>
       </p>
 
-      {compact
-        ? <details className="mission-result-more">
-            <summary>{t(locale, "whyHere")}</summary>
-            {evidence}
-            {whyHere}
-          </details>
-        : <>{evidence}{whyHere}</>}
+      {/* 答え合わせの本文。この画面で一番読んでほしいのはここ。 */}
+      <section className="mission-answer" aria-label={t(locale, "whyHere")}>
+        <h3>{t(locale, "whyThisPlace")}</h3>
+        <p>{mission.completion.answer}</p>
+        <ul className="mission-answer-grounds">
+          {mission.completion.evidenceChain.map((item) => (
+            <li key={`${item.lensId}:${item.featureId}`}>
+              <b>{item.title}</b>{item.text}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 生データの走査は、読み終わった人が自分で確かめたいときのためのもの。 */}
+      <details className="mission-result-more">
+        <summary>{t(locale, "seeFullEvidence")}</summary>
+        <MissionWhyHerePanel mission={mission} result={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={onAnalyze} />
+      </details>
 
       <div className="mission-result-cta">
         <button type="button" className="collect-sticker-button" onClick={onCollectSticker}>{t(locale, "placeInPassport")}</button>
