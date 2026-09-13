@@ -113,6 +113,7 @@ const layers = [
     steps: ["-filter", "FEATURECLA == 'Range/mtn' || FEATURECLA == 'Plateau'", "-filter-fields", "NAME,NAME_JA,FEATURECLA,REGION,SUBREGION,SCALERANK,NE_ID,WIKIDATAID", "-simplify", "8%", "keep-shapes"],
     precision: "0.001",
     build: buildNaturalEarthLayer,
+    after: bakeTerrainImportance,
   },
   {
     id: "paleo-coastlines",
@@ -501,6 +502,37 @@ async function bakePortImportance() {
     if (ran !== null) throw new Error(`build-port-importance.py failed with code ${ran}`);
   }
   throw new Error("python が見つからない。tools/build-port-importance.py を手で流してください。");
+}
+
+/**
+ * 山脈・高原レンズの表示は SCALERANK ではなく、ETOPO から測った高地面積と比高で決めている。
+ * このレイヤを作り直すと段も理由も消えるので、すぐ焼き直す。
+ */
+async function bakeTerrainImportance() {
+  const dem = path.join(projectRoot, ".cache", "terrain", "etopo60.tif");
+  const present = await stat(dem).catch(() => null);
+  if (!present) {
+    throw new Error([
+      "",
+      "physical-features.geojson は作り直したが、表示を決める標高の派生値がまだ入っていない。",
+      `ETOPO が見つからない: ${dem}`,
+      "",
+      "  mkdir -p .cache/terrain",
+      '  curl -L -o .cache/terrain/etopo60.tif "https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2022/data/60s/60s_surface_elev_gtif/ETOPO_2022_v1_60s_N90W180_surface.tif"',
+      "",
+    ].join(String.fromCharCode(10)));
+  }
+  const script = path.join(projectRoot, "tools", "build-terrain-importance.py");
+  for (const interpreter of ["python3", "python"]) {
+    const ran = await new Promise((resolve) => {
+      const child = spawn(interpreter, [script], { stdio: "inherit" });
+      child.on("error", () => resolve(null));
+      child.on("close", (code) => resolve(code));
+    });
+    if (ran === 0) return ["terrain importance re-baked from ETOPO"];
+    if (ran !== null) throw new Error(`build-terrain-importance.py failed with code ${ran}`);
+  }
+  throw new Error("python が見つからない。tools/build-terrain-importance.py を手で流してください。");
 }
 
 async function writeGeoReadme() {

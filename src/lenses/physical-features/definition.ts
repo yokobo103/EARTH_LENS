@@ -56,6 +56,15 @@ interface PhysicalFeaturesGeoJson {
       SCALERANK?: number;
       NE_ID?: number;
       WIKIDATAID?: string;
+      /** tools/build-terrain-importance.py が焼いた派生値。元は ETOPO 2022。 */
+      tier?: number;
+      why?: string;
+      a1?: number;
+      a15?: number;
+      a2?: number;
+      rlf?: number;
+      med?: number;
+      flr?: number;
     };
   }>;
 }
@@ -87,6 +96,9 @@ export async function loadPhysicalFeatures(): Promise<LensDataset> {
   const features: LensFeature[] = geojson.features.flatMap((sourceFeature, index) => {
     const properties = sourceFeature.properties ?? {};
     if (!sourceFeature.geometry || !properties.NE_ID) return [];
+    // 段に入らないものは作らない。南極もここで落ちる。
+    const tier = properties.tier ?? 4;
+    if (tier > 3) return [];
     const polygonCoordinates = sourceFeature.geometry.type === "Polygon"
       ? [sourceFeature.geometry.coordinates]
       : sourceFeature.geometry.coordinates;
@@ -109,10 +121,26 @@ export async function loadPhysicalFeatures(): Promise<LensDataset> {
         polygons,
         bbox,
       },
+      // 採用の根拠。総合スコアにはしない。当てはまった側をそのまま残す。
+      axes: [{
+        axis: properties.why === "relief_barrier" ? "relief_barrier" : "high_elevation_extent",
+        value: properties.why === "relief_barrier" ? properties.rlf : properties.a2 || properties.a15 || properties.a1,
+        unit: properties.why === "relief_barrier" ? "m" : "km2",
+        year: 2022,
+        source: "etopo-2022",
+      }],
       provenance,
       attributes: {
         ...(properties.NAME_JA?.trim() ? { nameJa: properties.NAME_JA.trim() } : {}),
         featureClass,
+        displayTier: tier,
+        displayReason: properties.why ?? "none",
+        ...(properties.a1 !== undefined ? { areaAbove1000mKm2: properties.a1 } : {}),
+        ...(properties.a15 !== undefined ? { areaAbove1500mKm2: properties.a15 } : {}),
+        ...(properties.a2 !== undefined ? { areaAbove2000mKm2: properties.a2 } : {}),
+        ...(properties.rlf !== undefined ? { reliefAboveSurroundingsM: properties.rlf } : {}),
+        ...(properties.med !== undefined ? { medianElevationM: properties.med } : {}),
+        ...(properties.flr !== undefined ? { surroundingFloorM: properties.flr } : {}),
         region: properties.REGION ?? "—",
         subregion: properties.SUBREGION ?? "—",
         scaleRank: properties.SCALERANK ?? 10,

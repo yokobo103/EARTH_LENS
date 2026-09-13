@@ -12,22 +12,52 @@ import {
   VerticalOrigin,
   type Viewer,
 } from "cesium";
+import { LABEL_WEIGHT_ATTRIBUTE } from "../../globe/cesium/declutterLabels";
 import { areaSpanDegrees, labelDistanceForExtent, labelMaximumDistance } from "../../globe/cesium/labelVisibility";
 import type { GeographicAreaPolygon, LensDataset, LensFeature, LensRenderHandle } from "../types";
 
-// 乾燥帯（砂色の面）と重なっても読めるよう、山脈は寒色の「枠線」で描く。
-// 高原だけは面としての広がりが意味を持つので、薄く塗る。
+// 乾燥帯（砂色の面）と重なっても読めるよう、寒色で描く。
 const featureColor = Color.fromCssColorString("#93a9c9");
-const rangeFillAlpha = 0.05;
-const plateauFillAlpha = 0.16;
 
-function isPlateau(feature: LensFeature): boolean {
-  return feature.attributes.featureClass === "Plateau";
+/**
+ * 段の高さ。河川・港と同じで、画面に何が映るかで決めてある。
+ * 世界 6,000 km 超 / 大陸 2,800-6,000 km / 国 2,800 km 未満。
+ * 国より寄っても地物は増やさない。
+ */
+const CONTINENT_BELOW_METRES = 6_000_000;
+const COUNTRY_BELOW_METRES = 2_800_000;
+
+function tierOf(feature: LensFeature): number {
+  const value = feature.attributes.displayTier;
+  return typeof value === "number" ? value : 3;
 }
 
+function maximumDistanceForTier(tier: number): number {
+  if (tier <= 1) return Number.POSITIVE_INFINITY;
+  if (tier === 2) return CONTINENT_BELOW_METRES;
+  return COUNTRY_BELOW_METRES;
+}
+
+/**
+ * 高い地面ほど濃く塗る。
+ *
+ * これまでは山脈が細い枠線、高原が薄い面で、太さも濃さも面積とも標高とも
+ * 連動していなかった。ヒマラヤとナガ丘陵が同じ線で出て、閉じた輪郭に名札という
+ * 描き方が国境と同じ語彙になり、地形ではなく区画割りに見えていた。
+ *
+ * 濃さの根拠は、その地物が段に入ったのと同じ数字。1,000 m 以上の面積で
+ * 段に入ったものは、その面積で濃さも決まる。
+ */
 function fillAlpha(feature: LensFeature, selected: boolean): number {
-  const base = isPlateau(feature) ? plateauFillAlpha : rangeFillAlpha;
+  const tier = tierOf(feature);
+  const base = tier <= 1 ? 0.34 : tier === 2 ? 0.26 : 0.16;
   return selected ? base + 0.16 : base;
+}
+
+/** 枠は輪郭を示すだけ。国境に見えないよう、面より弱くする。 */
+function outlineAlpha(feature: LensFeature): number {
+  const tier = tierOf(feature);
+  return tier <= 1 ? 0.5 : tier === 2 ? 0.36 : 0.24;
 }
 
 function hierarchy(polygon: GeographicAreaPolygon): PolygonHierarchy {
@@ -45,18 +75,26 @@ export function renderPhysicalFeatures(viewer: Viewer, dataset: LensDataset): Le
   for (const feature of dataset.features) {
     if (feature.geometry.type !== "area") continue;
     const color = featureColor;
-    const labelDistance = labelDistanceForExtent(areaSpanDegrees(feature.geometry.bbox));
+    const tier = tierOf(feature);
+    const labelDistance = Math.min(
+      labelDistanceForExtent(areaSpanDegrees(feature.geometry.bbox)),
+      maximumDistanceForTier(tier),
+    );
     for (const [polygonIndex, polygon] of feature.geometry.polygons.entries()) {
       const entity = viewer.entities.add(new Entity({
         id: `${dataset.lensId}:${feature.id}:${polygonIndex}`,
         name: feature.name,
+        // 名札が重なったとき、地形は背景なので港より弱く、ただし国段の港よりは強い。
+        // これが無いと、欧州の大陸表示でアルプスの名札が港に全部負ける。
+        properties: { [LABEL_WEIGHT_ATTRIBUTE]: tier <= 1 ? 65 : tier === 2 ? 45 : 28 },
         polygon: {
           hierarchy: hierarchy(polygon),
           material: new ColorMaterialProperty(color.withAlpha(fillAlpha(feature, false))),
           outline: true,
-          outlineColor: color.withAlpha(isPlateau(feature) ? 0.62 : 0.88),
+          outlineColor: color.withAlpha(outlineAlpha(feature)),
           height: 2_800,
           arcType: ArcType.GEODESIC,
+          distanceDisplayCondition: new DistanceDisplayCondition(0, maximumDistanceForTier(tier)),
         },
         position: Cartesian3.fromDegrees(feature.geometry.centroid.longitude, feature.geometry.centroid.latitude, 3_000),
         label: {
