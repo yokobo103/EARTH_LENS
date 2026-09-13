@@ -279,6 +279,12 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       clickHandler.destroy();
       for (const handle of renderHandles.values()) handle.destroy();
       renderHandles.clear();
+      // React StrictMode replays effects in development. The first Viewer is
+      // destroyed before its async lens loads settle; invalidate those loads
+      // so the replacement Viewer does not inherit stale pending entries.
+      renderGenerationRef.current += 1;
+      pendingLensLoadsRef.current.clear();
+      renderedLocaleRef.current = null;
       viewerRef.current = null;
       viewer.destroy();
     };
