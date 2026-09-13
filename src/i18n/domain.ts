@@ -23,7 +23,7 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
   "critical-minerals": { name: "重要鉱物", shortName: "鉱物", category: "資源", description: "資源は地球の上に均等には無い。どこに偏っているか。", legends: ["国ごとの柱", "高さ＝相対的な大きさ"], disclosures: ["国単位の仮データ", "鉱床の位置ではありません", "サンプルデータ"] },
   "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", description: "地面には無い線。地形にどれだけ沿い、どれだけ沿わないか。", legends: ["国境線"], disclosures: ["簡略化した形状 · 1:50m", "Natural Earth · Public Domain"] },
   rivers: { name: "河川", shortName: "河川", category: "地球", description: "内陸と海をつなぐ水の線。人も境界も、この線に沿いやすい。", legends: ["川"], disclosures: ["一般化した河川網", "表示は平均流量で決めています · HydroRIVERS", "Natural Earth · Public Domain"] },
-  deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", description: "乾いた土地がどこまで届き、そこに何が来て、何が来ないか。", legends: ["乾いた地域"], disclosures: ["概略地域", "気候指数ではありません", "Natural Earth · Public Domain"] },
+  deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", description: "いまの天気ではなく、長いあいだ乾いている土地の範囲。", legends: ["乾燥（砂漠）", "半乾燥（ステップ）"], disclosures: ["ケッペン区分 1991–2020", "30年平均・干ばつではない", "Beck et al. 2023 · CC BY 4.0"] },
   eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", description: "小さな島が、これほど広い海の使用権を生むことがある。", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
 };
 
@@ -89,7 +89,7 @@ const featureJa: Record<string, { name: string; description?: string }> = {
 const lensFeatureJa: Record<string, string | ((feature: LensFeature) => string)> = {
   "sea-ice-edges": "冬にはここまで海が凍る。",
   "physical-features": "人や物の移動を、長く迂回させてきた地形。",
-  deserts: "水の少なさが、暮らし方を強く縛る土地。",
+  deserts: "降る量が、出ていく量に長いあいだ届かない土地。",
   rivers: "水と人を、内陸から海へつなぐ線。",
   "critical-minerals": "この資源は、世界のどこにでもあるわけではない。",
   "populated-places": (feature) => {
@@ -112,6 +112,10 @@ const valueJa: Record<string, string> = {
   chokepoint: "狭窄部",
   plateau: "高原",
   desert: "砂漠",
+  "Arid (desert)": "乾燥（砂漠）",
+  "Semi-arid (steppe)": "半乾燥（ステップ）",
+  "1991–2020 normals": "1991–2020年の平年値",
+  "0.1° grid (about 11 km)": "0.1度格子（約11 km）",
   "Mountain barrier": "山岳障壁",
   "High plateau": "高原",
   "Desert region": "砂漠地域",

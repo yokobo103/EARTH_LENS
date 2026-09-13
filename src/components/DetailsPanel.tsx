@@ -71,6 +71,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
             {feature.attributes.observationYear !== undefined && <><dt>{t(locale, "observationYear")}</dt><dd>{localizeValue(feature.attributes.observationYear, locale)}</dd></>}
             {feature.attributes.northernHemisphereMonth !== undefined && <><dt>{t(locale, "northernHemisphereMonth")}</dt><dd>{localizeValue(feature.attributes.northernHemisphereMonth, locale)}</dd></>}
             {feature.attributes.southernHemisphereMonth !== undefined && <><dt>{t(locale, "southernHemisphereMonth")}</dt><dd>{localizeValue(feature.attributes.southernHemisphereMonth, locale)}</dd></>}
+            {feature.attributes.areaKm2 !== undefined && <><dt>{t(locale, "areaKm2")}</dt><dd>{Number(feature.attributes.areaKm2).toLocaleString(locale === "ja" ? "ja-JP" : "en-US")} km²</dd></>}
             {feature.attributes.climatology !== undefined && <><dt>{t(locale, "climatology")}</dt><dd>{localizeValue(feature.attributes.climatology, locale)}</dd></>}
             {feature.attributes.sourceResolution !== undefined && <><dt>{t(locale, "sourceResolution")}</dt><dd>{localizeValue(feature.attributes.sourceResolution, locale)}</dd></>}
             <dt>{t(locale, "source")}</dt><dd>{feature.provenance.source}</dd>

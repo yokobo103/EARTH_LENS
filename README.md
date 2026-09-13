@@ -65,7 +65,7 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - NSIDC Sea Ice Index v4の1981–2010年中央値から、南北両極の冬／夏の海氷縁を比較する「凍る海」Lens
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
 - Natural Earth 1:10mの一般化した河川・湖心線を重ねるRivers Lens
-- Natural Earthの地理地域から抽出した概略乾燥帯を重ねるArid Regions Lens
+- Köppen-Geiger（1991–2020）のB（乾燥帯）から焼いた54件の面を、砂漠と半乾燥に分けて重ねるArid Regions Lens
 - Marine Regionsの太平洋周辺を中心としたEEZ（排他的経済水域）Lens
 - Natural Earthの山脈・高原294件（Range/mtn / Plateau）を実形状で表示するPhysical Features
 - 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
@@ -153,7 +153,7 @@ Terrainはレンズではなく、ツール内の「地球の見た目」設定�
 | Shipping | 地域endpointから生成する6模式flow | `demo + derived + schematic` | Project-authored demo / no external route geometry |
 | Country Borders | 242か国の簡略化outline | `real + derived` | Natural Earth 1:50m Admin 0 / Public Domain |
 | Rivers | 1,455件の一般化した河川・湖心線 | `real + derived` | Natural Earth 1:10m Rivers + lake centerlines / Public Domain |
-| Arid Regions | 58件の概略砂漠地域ポリゴン | `real + derived` | Natural Earth 1:10m Geography Regions / Public Domain |
+| Arid Regions | Köppen B から焼いた54件の乾燥帯ポリゴン（砂漠19 / 半乾燥35） | `real + derived` | Köppen-Geiger 1991–2020, Beck et al. 2023 / CC BY 4.0 |
 | EEZ | 太平洋周辺を中心に選定した36件の200海里海域 | `real + derived` | Marine Regions World EEZ v12 / CC BY 4.0 |
 
 ## Geographic data import
@@ -167,7 +167,7 @@ npm run data:geo
 npm run data:geo -- admin0-countries
 npm run data:geo -- major-ports
 npm run data:geo -- rivers
-npm run data:geo -- deserts
+npm run data:geo -- deserts   # Arid Regions Lensの面には使いません（名称の候補として保持）
 npm run data:geo -- physical-features
 npm run data:geo -- eez
 npm run data:geo -- sea-ice-edges
@@ -181,7 +181,9 @@ Sea Ice LensはNSIDC Sea Ice Index v4（G02135）の1981–2010年月別中央�
 
 Rivers LensはNatural Earth 1:10m Rivers + lake centerlinesを8%へ簡略化した一般化中心線です。河川の流量、幅、季節性、航行可否を示すものではなく、国境・港湾・都市などとの位置関係を観察するための参照線です。
 
-Arid Regions LensはNatural EarthのGeography Regionsから`FEATURECLA = Desert`を抽出した概略ポリゴンです。気候指数や土地被覆の連続値ではなく、河川・港湾・都市との重なりを観察するための視覚的な地域参照です。
+Arid Regions LensはKöppen-Geiger気候区分（1991–2020年平年値、Beck et al. 2023、CC BY 4.0）のB区分を0.1度格子から起こした面です。BW（砂漠）を`arid_climate`、BS（ステップ）を`semi_arid_climate`として別の表示理由で持ち、総合スコアにはしません。段は塊の面積（50万 / 10万 km2）で世界・大陸・国の3つ。
+
+30年平均であって、いまの干ばつではありません。名札は付けていません（測った面には地名が無く、サハラとアラビアは1つの塊になります）。焼き直しは`python tools/build-arid-regions.py`で、元の気候データはオフラインでしか読みません。以前使っていたNatural Earthの`FEATURECLA = Desert`（58件）は、名前が付いた場所しか描けず本物の砂漠の44%が画面に無かったため、面の出典としては使っていません。
 
 EEZ LensはMarine Regions World EEZ v12から太平洋周辺を中心に選定した200海里海域の派生サブセットです。EEZは主権領域そのものではなく、境界紛争の判断や法的な海図用途を意図しません。出典・ライセンス・バージョンを表示し、最新版はMarine Regionsの公式配布ページを参照してください。
 
