@@ -15,7 +15,8 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const portsPath = path.join(projectRoot, "public", "geo", "major-ports.geojson");
-const snapshotPath = path.join(projectRoot, "tools", "data", "wsc-top50-container-ports-2024.json");
+const containerPath = path.join(projectRoot, "tools", "data", "wsc-top50-container-ports-2024.json");
+const tonnagePath = path.join(projectRoot, "tools", "data", "cargo-tonnage-ports.json");
 
 const raw = await readFile(portsPath, "utf8").catch(() => null);
 if (!raw) {
@@ -23,7 +24,8 @@ if (!raw) {
   process.exit(1);
 }
 const features = JSON.parse(raw).features ?? [];
-const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
+const container = JSON.parse(await readFile(containerPath, "utf8"));
+const tonnage = JSON.parse(await readFile(tonnagePath, "utf8"));
 
 const fail = (lines) => {
   console.error(["", ...lines, ""].join("\n"));
@@ -51,19 +53,23 @@ if (tiered.length === 0) {
   ]);
 }
 
-// 世界段は World Shipping Council の Top 50 と一対一で対応しているはず。
-// 一部が落ちていたら、補完か照合のどこかが壊れている。
-const worldRanks = new Set();
+// 世界段は container 軸と総貨物量軸の和集合。どちらの名簿からも1港も落ちてはいけない。
+// 落ちていたら、補完か照合のどこかが壊れている。
+const containerRanks = new Set();
+const tonnageValues = new Set();
 for (const feature of features) {
   for (const axis of feature.properties?.ax ?? []) {
-    if (axis.s === "wsc-top50-2024" && typeof axis.r === "number") worldRanks.add(axis.r);
+    if (axis.s === "wsc-top50-2024" && typeof axis.r === "number") containerRanks.add(axis.r);
+    if (axis.a === "tonnage" && typeof axis.v === "number") tonnageValues.add(axis.v);
   }
 }
-const missing = snapshot.ports.filter((port) => !worldRanks.has(port.rank));
-if (missing.length > 0) {
+const missingContainer = container.ports.filter((port) => !containerRanks.has(port.rank));
+const missingTonnage = tonnage.ports.filter((port) => !tonnageValues.has(port.kilotons));
+if (missingContainer.length > 0 || missingTonnage.length > 0) {
   fail([
-    `World Shipping Council の Top 50 のうち ${missing.length} 港が地図に乗っていません。`,
-    ...missing.slice(0, 10).map((port) => `  ${port.rank}. ${port.name} (${port.country})`),
+    "世界段の名簿から落ちている港があります。",
+    ...missingContainer.map((port) => `  container ${port.rank}. ${port.name} (${port.country})`),
+    ...missingTonnage.map((port) => `  tonnage   ${port.name} (${port.country})`),
     "",
     "焼き直してください: python tools/build-port-importance.py",
   ]);
@@ -74,5 +80,5 @@ for (const feature of tiered) counts[feature.properties.tier] += 1;
 const added = features.filter((feature) => feature.properties?.added).length;
 console.log(
   `ports importance ok: 世界 ${counts[1]} / 大陸 ${counts[2]} / 国 ${counts[3]} 点` +
-  `（補完 ${added} 点・container 軸のみ / Phase 1）`,
+  `（補完 ${added} 点・container + tonnage / Phase 2）`,
 );

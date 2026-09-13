@@ -1,0 +1,333 @@
+{
+ "source": "Wikipedia, List of busiest ports by cargo tonnage",
+ "sourceUrl": "https://en.wikipedia.org/wiki/List_of_busiest_ports_by_cargo_tonnage",
+ "note": "総貨物量は国ごとに集計条件も年次も違い、単位も MT / HT / FT / RT が混ざる。異種の港を順位付けする用途には使えない。ここでは「世界スケールで出すべき大規模貨物港かどうか」の採用基準としてだけ使う。年次・単位・一次出典は港ごとに残す。",
+ "comparable": false,
+ "retrievedAt": "2026-09-13",
+ "ports": [
+  {
+   "name": "Ningbo-Zhoushan",
+   "country": "CHN",
+   "kilotons": 1261340,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Tangshan",
+   "country": "CHN",
+   "kilotons": 768870,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Shanghai",
+   "country": "CHN",
+   "kilotons": 727770,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Qingdao",
+   "country": "CHN",
+   "kilotons": 657540,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Guangzhou",
+   "country": "CHN",
+   "kilotons": 655920,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Singapore",
+   "country": "SGP",
+   "kilotons": 578190,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Suzhou",
+   "country": "CHN",
+   "kilotons": 572760,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Rizhao",
+   "country": "CHN",
+   "kilotons": 570570,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Port Hedland",
+   "country": "AUS",
+   "kilotons": 566210,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Tianjin",
+   "country": "CHN",
+   "kilotons": 549020,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Rotterdam",
+   "country": "NLD",
+   "kilotons": 467390,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Yantai",
+   "country": "CHN",
+   "kilotons": 462570,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Busan",
+   "country": "KOR",
+   "kilotons": 424920,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Beibu Gulf",
+   "country": "CHN",
+   "kilotons": 371340,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Taizhou",
+   "country": "CHN",
+   "kilotons": 364440,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Yingkou",
+   "country": "CHN",
+   "kilotons": 362390,
+   "year": 2017,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Jiangyin",
+   "country": "CHN",
+   "kilotons": 350620,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Nantong",
+   "country": "CHN",
+   "kilotons": 336200,
+   "year": 2019,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2019)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2021/10/291409176464.pdf"
+  },
+  {
+   "name": "Zhanjiang",
+   "country": "CHN",
+   "kilotons": 329160,
+   "year": 2019,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2019)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2021/10/291409176464.pdf"
+  },
+  {
+   "name": "Huanghua",
+   "country": "CHN",
+   "kilotons": 315100,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "South Louisiana",
+   "country": "USA",
+   "kilotons": 307860,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Dalian",
+   "country": "CHN",
+   "kilotons": 306130,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Fuzhou",
+   "country": "CHN",
+   "kilotons": 301640,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Lianyungang",
+   "country": "CHN",
+   "kilotons": 301110,
+   "year": 2022,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2022)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2023/07/070257265441.pdf"
+  },
+  {
+   "name": "Gwangyang",
+   "country": "KOR",
+   "kilotons": 276040,
+   "year": 2019,
+   "measure": "RT",
+   "source": "SISI Global Port Development Annual Report (2019)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2021/10/291409176464.pdf"
+  },
+  {
+   "name": "Hong Kong",
+   "country": null,
+   "kilotons": 263320,
+   "year": 2019,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2019)",
+   "sourceUrl": "http://sisi.gstta.org/uploads/2021/10/291409176464.pdf"
+  },
+  {
+   "name": "Xiamen",
+   "country": "CHN",
+   "kilotons": 243197,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Port Klang",
+   "country": "MYS",
+   "kilotons": 235457,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Houston",
+   "country": "USA",
+   "kilotons": 224969,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Antwerp",
+   "country": "BEL",
+   "kilotons": 214170,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Nagoya",
+   "country": "JPN",
+   "kilotons": 193257,
+   "year": 2017,
+   "measure": "FT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Shenzhen",
+   "country": "CHN",
+   "kilotons": 189509,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Itaqui",
+   "country": "BRA",
+   "kilotons": 179914,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Qinhuangdao",
+   "country": "CHN",
+   "kilotons": 179660,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Ulsan",
+   "country": "KOR",
+   "kilotons": 175364,
+   "year": 2017,
+   "measure": null,
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  },
+  {
+   "name": "Dampier",
+   "country": "AUS",
+   "kilotons": 167689,
+   "year": 2017,
+   "measure": "MT",
+   "source": "SISI Global Port Development Annual Report (2017)",
+   "sourceUrl": "http://en.sisi-smu.org/index.php?c=article&id=16280"
+  }
+ ]
+}

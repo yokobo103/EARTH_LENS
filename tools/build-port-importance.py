@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""港の表示重要度を焼く。Phase 1 は container 軸のみ。
+"""港の表示重要度を焼く。Phase 2 は container 軸と総貨物量軸。
 
 オフライン専用。CI では回さない。外部データはリポジトリに入れず、
 ここで作った小さな派生値だけが public/geo/major-ports.geojson に残る。
@@ -27,13 +27,21 @@ npm run data:geo -- major-ports を回すとこの派生値は消える。build-
   重要度を1つの数に畳まない。container / bulk / energy / connectivity を別々に持ち、
   どれも見た目（色・形）には出さない。軸が決めるのは「どの段に入るか」と
   「地点カードで何と説明するか」だけ。見た目に効くのは tier だけ。
-  Phase 1 は container 軸のみ。bulk と energy が入るまで世界段は完成ではない。
+  Phase 2 は container と tonnage（総貨物量）。世界段はこの2つの**和集合**で、
+  軸をまたいだ総合スコアは作らない。4,110万TEU と 12.6億トンは同じ物差しに載らない。
+
+  総貨物量は順位付けには使わない。国ごとに集計条件が違い、年次も 2017/2019/2022 が
+  混ざり、単位も MT / RT / FT が混ざる。「世界スケールで出すべき大規模貨物港か」
+  という採用の可否にだけ使い、値と年次と単位と出典は港ごとにそのまま残す。
+
+  energy と bulk の意味付け（GEM 由来）はまだ入っていない。
 
 補完について:
   外部の明示的な基準を満たすのに Natural Earth に無い港は、出典付きで足す。
   基準を満たすものは全部足す。選ばない。
     (1) World Shipping Council の Top 50 に入っている
-    (2) World Bank / S&P の CPPI 2024 の403港に入っている
+    (2) 総貨物量の主要港リストに入っている
+    (3) World Bank / S&P の CPPI 2024 の403港に入っている
   座標は World Port Index（パブリックドメイン）か Wikidata（CC0）から引き、
   どちらから引いたかを点ごとに残す。
 
@@ -108,6 +116,10 @@ def load_container_axis():
     return snapshot, aliases
 
 
+def load_tonnage_axis():
+    return json.load(io.open(os.path.join(DATA, "cargo-tonnage-ports.json"), encoding="utf-8"))
+
+
 def load_cppi():
     import openpyxl
     workbook = openpyxl.load_workbook(os.path.join(CACHE, "cppi-2024.xlsx"), read_only=True, data_only=True)
@@ -141,6 +153,7 @@ def main():
 
     wpi_by_name, wpi_by_locode = load_world_port_index()
     snapshot, aliases = load_container_axis()
+    tonnage = load_tonnage_axis()
     cppi = load_cppi()
 
     def same_port(lon, lat, name):
@@ -183,6 +196,37 @@ def main():
                     "ne_id": None, "website": None,
                     "tier": 1, "ax": [axis],
                     "added": "wsc-top50-2024", "addedFrom": location_source, "addedAs": matched,
+                },
+            })
+            added.append((port["name"], "world", location_source))
+
+    # --- 総貨物量 軸: 世界段（container との和集合） -----------------------
+    # 順位は付けない。ここに載っているかどうかだけを見る。
+    for port in tonnage["ports"]:
+        located = resolve_location(port["name"], aliases, wpi_by_name)
+        if not located:
+            unresolved.append("%s (tonnage)" % port["name"])
+            continue
+        lon, lat, location_source, matched = located
+        axis = {
+            "a": "tonnage", "v": port["kilotons"], "u": "kt", "y": port["year"],
+            "s": port["source"], "cmp": False,
+        }
+        if port.get("measure"):
+            axis["m"] = port["measure"]
+        near = same_port(lon, lat, port["name"])
+        if near:
+            near[1]["properties"].setdefault("ax", []).append(axis)
+            near[1]["properties"]["tier"] = 1
+        else:
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [round(lon, 4), round(lat, 4)]},
+                "properties": {
+                    "name": port["name"], "featurecla": "Port", "scalerank": 3, "natlscale": 75,
+                    "ne_id": None, "website": None,
+                    "tier": 1, "ax": [axis],
+                    "added": "cargo-tonnage", "addedFrom": location_source, "addedAs": matched,
                 },
             })
             added.append((port["name"], "world", location_source))
