@@ -1,3 +1,4 @@
+import { LABEL_WEIGHT, LABEL_WEIGHT_ATTRIBUTE } from "../../globe/cesium/declutterLabels";
 import {
   Cartesian2,
   Cartesian3,
@@ -23,6 +24,8 @@ export function renderChokepoints(viewer: Viewer, dataset: LensDataset): LensRen
       new Entity({
         id: `${dataset.lensId}:${feature.id}`,
         name: feature.name,
+        // 世界に6つ。名札が港に押し負けると、地図の意味が変わってしまう。
+        properties: { [LABEL_WEIGHT_ATTRIBUTE]: LABEL_WEIGHT.chokepoint },
         position: Cartesian3.fromDegrees(longitude, latitude, 1_500),
         point: {
           pixelSize: 9,

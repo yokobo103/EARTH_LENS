@@ -10,6 +10,7 @@ import {
   VerticalOrigin,
   type Viewer,
 } from "cesium";
+import { LABEL_WEIGHT, LABEL_WEIGHT_ATTRIBUTE } from "../../globe/cesium/declutterLabels";
 import { labelMaximumDistance } from "../../globe/cesium/labelVisibility";
 import type { LensDataset, LensFeature, LensRenderHandle } from "../types";
 
@@ -62,9 +63,16 @@ export function renderPorts(viewer: Viewer, dataset: LensDataset): LensRenderHan
     const { longitude, latitude } = feature.geometry.coordinates;
     const tier = typeof feature.attributes.displayTier === "number" ? feature.attributes.displayTier : 3;
     const signalSize = pixelSizeForTier(tier);
+    // 名札が重なったときにどちらを残すか。段が上のものを優先し、
+    // 同じ段なら扱い量の大きいほうを残す。ロサンゼルス港とロングビーチ港は
+    // 5km しか離れていないので、どちらかは必ず消える。
+    const busiest = Math.max(0, ...(feature.axes ?? []).map((axis) => axis.value ?? 0));
+    const labelWeight = (tier === 1 ? LABEL_WEIGHT.portWorld : tier === 2 ? LABEL_WEIGHT.portContinent : LABEL_WEIGHT.portCountry)
+      + Math.min(0.999, busiest / 60);
     const entity = viewer.entities.add(new Entity({
       id: `${dataset.lensId}:${feature.id}`,
       name: feature.name,
+      properties: { [LABEL_WEIGHT_ATTRIBUTE]: labelWeight },
       position: Cartesian3.fromDegrees(longitude, latitude, 9_000),
       point: {
         pixelSize: signalSize,

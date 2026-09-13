@@ -30,6 +30,7 @@ import { TimeController } from "../temporal/TimeController";
 import type { TemporalSelection } from "../temporal/types";
 import type { SharedCameraState, SharedFeatureState } from "../share/urlState";
 import { createEarthViewer } from "./cesium/createViewer";
+import { attachLabelDeclutter } from "./cesium/declutterLabels";
 
 interface EarthGlobeProps {
   activeLensIds: Set<string>;
@@ -265,9 +266,12 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       root.dataset.expanded = String(anchorExpandedRef.current);
     };
     viewer.scene.postRender.addEventListener(updateAnchor);
+    // 名札同士の重なりは Cesium が面倒を見ないので、レンズをまたいでここで間引く。
+    const detachDeclutter = attachLabelDeclutter(viewer);
 
     return () => {
       removeImageryListener();
+      detachDeclutter();
       viewer.scene.postRender.removeEventListener(updateAnchor);
       viewer.camera.moveEnd.removeEventListener(scheduleCamera);
       viewer.camera.changed.removeEventListener(scheduleCamera);

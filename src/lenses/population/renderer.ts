@@ -1,3 +1,4 @@
+import { LABEL_WEIGHT, LABEL_WEIGHT_ATTRIBUTE } from "../../globe/cesium/declutterLabels";
 import * as CesiumRuntime from "cesium";
 import {
   Cartesian2,
@@ -84,6 +85,8 @@ export function renderPopulatedPlaces(viewer: Viewer, dataset: LensDataset): Len
     const entity = viewer.entities.add(new Entity({
       id: `${dataset.lensId}:${feature.id}`,
       name: feature.name,
+      // 同じ場所に重なったら人の多いほうを残す。
+      properties: { [LABEL_WEIGHT_ATTRIBUTE]: LABEL_WEIGHT.populatedPlace + Math.min(0.999, population / 40_000_000) },
       position: Cartesian3.fromDegrees(longitude, latitude, GLOW_ALTITUDE_METRES),
       billboard: {
         image: glowImage,
