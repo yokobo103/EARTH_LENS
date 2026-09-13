@@ -4,13 +4,24 @@ import {
   Color,
   DistanceDisplayCondition,
   Entity,
+  ColorMaterialProperty,
   HeightReference,
   NearFarScalar,
-  PolylineGlowMaterialProperty,
   type Viewer,
 } from "cesium";
 import type { LensDataset, LensFeature, LensRenderHandle } from "../types";
 
+/**
+ * ケーブルは「どことどこがつながっているか」。向きは無い。
+ *
+ * なので線は**左右対称**にする。太さは端から端まで一定、両端に同じ大きさの点。
+ * どちらから読んでも同じ形なので、向きを読み取りようがない。
+ * 物流レンズは破線が流れるので、動いているか止まっているかで一目で分かれる。
+ *
+ * 以前は glow の taperPower が 0.7 で、線が片側へ細くなっていた。
+ * 向きが無いはずのケーブルに向きが見え、向きが要る物流にはそれが無い、
+ * という逆の状態だった。
+ */
 function createSchematicPositions(feature: LensFeature): Cartesian3[] {
   if (feature.geometry.type !== "connection") return [];
   return feature.geometry.endpoints.map((endpoint) =>
@@ -29,13 +40,10 @@ export function renderSubmarineCableConnections(viewer: Viewer, dataset: LensDat
       name: feature.name,
       polyline: {
         positions: createSchematicPositions(feature),
-        width: 2,
+        width: 1.8,
         arcType: ArcType.GEODESIC,
-        material: new PolylineGlowMaterialProperty({
-          glowPower: 0.28,
-          taperPower: 0.7,
-          color: Color.fromCssColorString("#7cf6c9").withAlpha(0.82),
-        }),
+        // 端から端まで同じ太さ。細らせない。
+        material: new ColorMaterialProperty(Color.fromCssColorString("#7cf6c9").withAlpha(0.66)),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 42_000_000),
       },
     }));
@@ -47,6 +55,7 @@ export function renderSubmarineCableConnections(viewer: Viewer, dataset: LensDat
         name: `${feature.name} · ${endpoint.name}`,
         position: Cartesian3.fromDegrees(endpoint.longitude, endpoint.latitude, 14_000),
         point: {
+          // 両端とも同じ大きさ。差をつけると向きに見える。
           pixelSize: 5,
           color: Color.fromCssColorString("#d8faff"),
           outlineColor: Color.fromCssColorString("#178dad"),
