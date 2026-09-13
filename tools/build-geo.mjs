@@ -65,6 +65,7 @@ const layers = [
     steps: ["-filter-fields", "scalerank,featurecla,name,website,natlscale,ne_id"],
     precision: "0.0001",
     build: buildNaturalEarthLayer,
+    after: bakePortImportance,
   },
   {
     id: "populated-places",
@@ -468,6 +469,38 @@ async function bakeRiverImportance() {
     if (ran !== null) throw new Error(`build-river-importance.py failed with code ${ran}`);
   }
   throw new Error("python が見つからない。tools/build-river-importance.py を手で流してください。");
+}
+
+/**
+ * 港レンズの表示は scalerank ではなく取扱量の軸で決めている。
+ * このレイヤを作り直すと段も軸も、補完した83点も消えるので、すぐ焼き直す。
+ */
+async function bakePortImportance() {
+  const script = path.join(projectRoot, "tools", "build-port-importance.py");
+  for (const needed of ["wpi.csv", "cppi-2024.xlsx"]) {
+    const present = await stat(path.join(projectRoot, ".cache", "ports", needed)).catch(() => null);
+    if (present) continue;
+    throw new Error([
+      "",
+      "major-ports.geojson は作り直したが、表示を決める軸がまだ入っていない。",
+      `.cache/ports/${needed} が無い。`,
+      "",
+      "  mkdir -p .cache/ports",
+      '  curl -L -o .cache/ports/wpi.csv "https://msi.nga.mil/api/publications/download?type=view&key=16920959/SFH00000/UpdatedPub150.csv"',
+      '  curl -L -o .cache/ports/cppi-2024.xlsx "https://openknowledge.worldbank.org/bitstreams/6d1086f0-13ed-4d69-92ad-11d93f3e7df6/download"',
+      "",
+    ].join(String.fromCharCode(10)));
+  }
+  for (const interpreter of ["python3", "python"]) {
+    const ran = await new Promise((resolve) => {
+      const child = spawn(interpreter, [script], { stdio: "inherit" });
+      child.on("error", () => resolve(null));
+      child.on("close", (code) => resolve(code));
+    });
+    if (ran === 0) return ["port importance re-baked"];
+    if (ran !== null) throw new Error(`build-port-importance.py failed with code ${ran}`);
+  }
+  throw new Error("python が見つからない。tools/build-port-importance.py を手で流してください。");
 }
 
 async function writeGeoReadme() {

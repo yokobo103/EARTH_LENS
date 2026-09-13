@@ -1,0 +1,308 @@
+{
+ "source": "World Shipping Council, The Top 50 Container Ports",
+ "sourceUrl": "https://www.worldshipping.org/top-50-container-ports",
+ "note": "Volumes are 2024, in million TEU, as published by the World Shipping Council.",
+ "retrievedAt": "2026-09-13",
+ "ports": [
+  {
+   "rank": 1,
+   "name": "Shanghai",
+   "country": "China",
+   "teuMillion2024": 51.51
+  },
+  {
+   "rank": 2,
+   "name": "Singapore",
+   "country": "Singapore",
+   "teuMillion2024": 41.12
+  },
+  {
+   "rank": 3,
+   "name": "Ningbo-Zhoushan",
+   "country": "China",
+   "teuMillion2024": 39.3
+  },
+  {
+   "rank": 4,
+   "name": "Shenzhen",
+   "country": "China",
+   "teuMillion2024": 33.4
+  },
+  {
+   "rank": 5,
+   "name": "Qingdao",
+   "country": "China",
+   "teuMillion2024": 30.87
+  },
+  {
+   "rank": 6,
+   "name": "Guangzhou Harbor",
+   "country": "China",
+   "teuMillion2024": 26.07
+  },
+  {
+   "rank": 7,
+   "name": "Busan",
+   "country": "South Korea",
+   "teuMillion2024": 24.4
+  },
+  {
+   "rank": 8,
+   "name": "Tianjin",
+   "country": "China",
+   "teuMillion2024": 23.29
+  },
+  {
+   "rank": 9,
+   "name": "Jebel Ali, Dubai",
+   "country": "United Arab Emirates",
+   "teuMillion2024": 15.54
+  },
+  {
+   "rank": 10,
+   "name": "Port Klang",
+   "country": "Malaysia",
+   "teuMillion2024": 14.64
+  },
+  {
+   "rank": 11,
+   "name": "Rotterdam",
+   "country": "The Netherlands",
+   "teuMillion2024": 13.82
+  },
+  {
+   "rank": 12,
+   "name": "Hong Kong",
+   "country": "China",
+   "teuMillion2024": 13.69
+  },
+  {
+   "rank": 13,
+   "name": "Antwerp",
+   "country": "Belgium",
+   "teuMillion2024": 13.5
+  },
+  {
+   "rank": 14,
+   "name": "Xiamen",
+   "country": "China",
+   "teuMillion2024": 12.26
+  },
+  {
+   "rank": 15,
+   "name": "Tanjung Pelepas",
+   "country": "Malaysia",
+   "teuMillion2024": 12.25
+  },
+  {
+   "rank": 16,
+   "name": "Los Angeles",
+   "country": "USA",
+   "teuMillion2024": 10.3
+  },
+  {
+   "rank": 17,
+   "name": "Tanger Med",
+   "country": "Morocco",
+   "teuMillion2024": 10.24
+  },
+  {
+   "rank": 18,
+   "name": "Suzhou",
+   "country": "China",
+   "teuMillion2024": 9.67
+  },
+  {
+   "rank": 19,
+   "name": "Long Beach",
+   "country": "USA",
+   "teuMillion2024": 9.65
+  },
+  {
+   "rank": 20,
+   "name": "Laem Chabang",
+   "country": "Thailand",
+   "teuMillion2024": 9.55
+  },
+  {
+   "rank": 21,
+   "name": "Kaohsiung",
+   "country": "China",
+   "teuMillion2024": 9.23
+  },
+  {
+   "rank": 22,
+   "name": "Ho Chi Minh City",
+   "country": "Vietnam",
+   "teuMillion2024": 9.16
+  },
+  {
+   "rank": 23,
+   "name": "Guangxi Beibu",
+   "country": "China",
+   "teuMillion2024": 9.02
+  },
+  {
+   "rank": 24,
+   "name": "New York-New Jersey",
+   "country": "USA",
+   "teuMillion2024": 8.7
+  },
+  {
+   "rank": 25,
+   "name": "Mundra",
+   "country": "India",
+   "teuMillion2024": 8.5
+  },
+  {
+   "rank": 26,
+   "name": "Hamburg",
+   "country": "Germany",
+   "teuMillion2024": 7.8
+  },
+  {
+   "rank": 27,
+   "name": "Tanjung Priok",
+   "country": "Indonesia",
+   "teuMillion2024": 7.8
+  },
+  {
+   "rank": 28,
+   "name": "Colombo",
+   "country": "Sri Lanka",
+   "teuMillion2024": 7.79
+  },
+  {
+   "rank": 29,
+   "name": "Hai Phong",
+   "country": "Vietnam",
+   "teuMillion2024": 7.15
+  },
+  {
+   "rank": 30,
+   "name": "Cai Mep",
+   "country": "Vietnam",
+   "teuMillion2024": 7.08
+  },
+  {
+   "rank": 31,
+   "name": "Jawarharlal Nehru Port (Nhava Sheva)",
+   "country": "India",
+   "teuMillion2024": 7.05
+  },
+  {
+   "rank": 32,
+   "name": "Rizhao",
+   "country": "China",
+   "teuMillion2024": 6.71
+  },
+  {
+   "rank": 33,
+   "name": "Lianyungang",
+   "country": "China",
+   "teuMillion2024": 6.69
+  },
+  {
+   "rank": 34,
+   "name": "Yingkou",
+   "country": "China",
+   "teuMillion2024": 5.56
+  },
+  {
+   "rank": 35,
+   "name": "Savannah",
+   "country": "USA",
+   "teuMillion2024": 5.55
+  },
+  {
+   "rank": 36,
+   "name": "Manila",
+   "country": "Philippines",
+   "teuMillion2024": 5.5
+  },
+  {
+   "rank": 37,
+   "name": "Santos",
+   "country": "Brazil",
+   "teuMillion2024": 5.48
+  },
+  {
+   "rank": 38,
+   "name": "Valencia",
+   "country": "Spain",
+   "teuMillion2024": 5.48
+  },
+  {
+   "rank": 39,
+   "name": "Abu Dhabi",
+   "country": "United Arab Emirates",
+   "teuMillion2024": 5.42
+  },
+  {
+   "rank": 40,
+   "name": "Dalian",
+   "country": "China",
+   "teuMillion2024": 5.4
+  },
+  {
+   "rank": 41,
+   "name": "Colon",
+   "country": "Panama",
+   "teuMillion2024": 5.4
+  },
+  {
+   "rank": 42,
+   "name": "Yantai",
+   "country": "China",
+   "teuMillion2024": 5.09
+  },
+  {
+   "rank": 43,
+   "name": "Algeciras",
+   "country": "Spain",
+   "teuMillion2024": 4.71
+  },
+  {
+   "rank": 44,
+   "name": "Piraeus",
+   "country": "Greece",
+   "teuMillion2024": 4.7
+  },
+  {
+   "rank": 45,
+   "name": "Tokyo",
+   "country": "Japan",
+   "teuMillion2024": 4.7
+  },
+  {
+   "rank": 46,
+   "name": "Bremen/Bremerhaven",
+   "country": "Germany",
+   "teuMillion2024": 4.45
+  },
+  {
+   "rank": 47,
+   "name": "Tanjung Perak",
+   "country": "Indonesia",
+   "teuMillion2024": 4.3
+  },
+  {
+   "rank": 48,
+   "name": "Houston",
+   "country": "USA",
+   "teuMillion2024": 4.14
+  },
+  {
+   "rank": 49,
+   "name": "Dongguan",
+   "country": "China",
+   "teuMillion2024": 4.02
+  },
+  {
+   "rank": 50,
+   "name": "Balboa",
+   "country": "Panama",
+   "teuMillion2024": 4.01
+  }
+ ]
+}

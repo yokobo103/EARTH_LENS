@@ -41,7 +41,13 @@ interface PortsGeoJson {
       name?: string;
       website?: string | null;
       natlscale?: number;
-      ne_id?: number;
+      ne_id?: number | null;
+      /** tools/build-port-importance.py が焼いた派生値。 */
+      tier?: number;
+      ax?: Array<{ a: string; v?: number; u: string; y: number; r?: number; s: string; locode?: string }>;
+      added?: string;
+      addedFrom?: string;
+      addedAs?: string;
     };
   }>;
 }
@@ -53,9 +59,19 @@ const stableFeatureIds = new Map<number, string>([
   [1730088457, "port-mumbai"], [1730089059, "port-santos"], [1730089663, "port-new-york"],
 ]);
 
-function portFeatureId(name: string, neId: number | undefined, index: number): string {
-  return stableFeatureIds.get(neId ?? -1) ?? `port-ne-${neId ?? index}`;
+function portFeatureId(name: string, neId: number | undefined | null, index: number): string {
+  if (neId === undefined || neId === null) return `port-added-${index}`;
+  return stableFeatureIds.get(neId) ?? `port-ne-${neId}`;
 }
+
+/**
+ * 表示の段。1 = 世界、2 = 大陸、3 = 国。**見た目に効くのはこれだけ。**
+ *
+ * どの段に入るかは軸が決めるが、軸そのものは色にも形にもしない。
+ * 軸ごとに描き分けると、レンズ1枚の中に語彙が4つ生まれて、
+ * 他のレンズと重ねたときに何を見ているのか分からなくなる。
+ */
+export type PortTier = 1 | 2 | 3;
 
 export async function loadPorts(): Promise<LensDataset> {
   const response = await fetch(`${import.meta.env.BASE_URL}geo/major-ports.geojson`);
@@ -71,13 +87,24 @@ export async function loadPorts(): Promise<LensDataset> {
       name,
       description: "Cargo coming off the sea changes over to land routes here.",
       geometry: { type: "point", coordinates: { latitude, longitude } },
+      // 軸は全部残す。順位を比べて代表を選ぶことはここではしない。
+      axes: (sourceFeature.properties.ax ?? []).map((entry) => ({
+        axis: entry.a, value: entry.v, unit: entry.u, year: entry.y,
+        rank: entry.r, source: entry.s, locode: entry.locode,
+      })),
       provenance,
       attributes: {
         type: sourceFeature.properties.featurecla ?? "Port",
+        displayTier: (sourceFeature.properties.tier ?? 3) as PortTier,
+        ...(sourceFeature.properties.added ? {
+          addedBy: sourceFeature.properties.added,
+          addedFrom: sourceFeature.properties.addedFrom,
+          addedAs: sourceFeature.properties.addedAs,
+        } : {}),
         scaleRank: sourceFeature.properties.scalerank ?? 0,
         nationalScale: sourceFeature.properties.natlscale ?? 0,
         naturalEarthId: sourceFeature.properties.ne_id ?? index,
-        ...(sourceFeature.properties.ne_id !== undefined && portNamesJa[sourceFeature.properties.ne_id]
+        ...(sourceFeature.properties.ne_id != null && portNamesJa[sourceFeature.properties.ne_id]
           ? { nameJa: portNamesJa[sourceFeature.properties.ne_id] }
           : {}),
         ...(sourceFeature.properties.website ? { website: sourceFeature.properties.website } : {}),

@@ -89,11 +89,32 @@ export interface GeographicAreaPolygon {
   bbox: GeographicBoundingBox;
 }
 
+/**
+ * その地点がなぜ描かれているか。軸ごとに、値と出典をそのまま持つ。
+ *
+ * 重要度を1つの数に畳まない。畳むと、4,110万TEU と 12.6億トンと 77 MTPA を
+ * 同じ物差しに載せることになり、そこから先は誰にも説明できなくなる。
+ * どれを代表に選ぶかは見せる側の判断で、ここでは決めない。
+ */
+export interface FeatureAxis {
+  /** container / bulk / energy / connectivity */
+  axis: string;
+  value?: number;
+  unit: string;
+  year: number;
+  rank?: number;
+  /** 出典の識別子。値がどの資料から来たか。 */
+  source: string;
+  locode?: string;
+}
+
 export interface LensFeature {
   id: string;
   lensId: string;
   name: string;
   description: string;
+  /** 採用の根拠。空でもよい。 */
+  axes?: readonly FeatureAxis[];
   geometry:
     | { type: "point"; coordinates: GeographicPoint }
     | { type: "connection"; endpoints: Array<GeographicPoint & { name: string }> }

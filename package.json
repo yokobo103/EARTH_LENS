@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/verify-rivers-importance.mjs && tsc -b && vite build",
+    "build": "node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs && tsc -b && vite build",
     "data:geo": "node tools/build-geo.mjs",
-    "validate:geo": "node tools/verify-borders.mjs && node tools/verify-rivers-importance.mjs",
+    "validate:geo": "node tools/verify-borders.mjs && node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs",
     "check:links": "node tools/check-external-links.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
     "preview": "vite preview",
-    "data:rivers-importance": "python tools/build-river-importance.py"
+    "data:rivers-importance": "python tools/build-river-importance.py",
+    "data:ports-importance": "python tools/build-port-importance.py"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^6.1.0",

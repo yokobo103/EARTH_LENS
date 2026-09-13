@@ -1,0 +1,34 @@
+{
+  "note": "港の名前が資料ごとに違うので、座標を引くための別名表。座標そのものは持たない。wpi は NGA World Port Index の Main Port Name、wikidata は Wikidata の英語ラベル。どちらも出典として残る。",
+  "sources": {
+    "wpi": "NGA World Port Index (Pub 150), public domain",
+    "wikidata": "Wikidata, CC0"
+  },
+  "aliases": {
+    "Singapore": { "via": "wpi", "key": "Keppel - (East Singapore)" },
+    "Ningbo-Zhoushan": { "via": "wpi", "key": "Ningbo" },
+    "Tianjin": { "via": "wpi", "key": "Tianjin Xin Gang" },
+    "Jebel Ali, Dubai": { "via": "wpi", "key": "Mina Jabal Ali" },
+    "Antwerp": { "via": "wpi", "key": "Antwerpen" },
+    "Tanger Med": { "via": "wpi", "key": "Tanger" },
+    "Ho Chi Minh City": { "via": "wpi", "key": "Thanh Ho Chi Minh" },
+    "New York-New Jersey": { "via": "wpi", "key": "New York City" },
+    "Jawarharlal Nehru Port (Nhava Sheva)": { "via": "wpi", "key": "Jawaharlal Nehru Port (Nhava Shiva)" },
+    "Abu Dhabi": { "via": "wpi", "key": "Abu Zaby" },
+    "Piraeus": { "via": "wpi", "key": "Piraievs" },
+    "Tokyo": { "via": "wpi", "key": "Tokyo Ko" },
+    "Cai Mep": { "via": "wpi", "key": "Phu My", "why": "Cai Mep-Thi Vai の埠頭群。World Port Index は隣接する Phu My として収録している" },
+    "Shenzhen": { "via": "wikidata", "key": "Port of Shenzhen" },
+    "Suzhou": { "via": "wikidata", "key": "Port of Suzhou" },
+    "Guangxi Beibu": { "via": "wikidata", "key": "Port of Beibu Gulf" },
+    "Tanjung Priok": { "via": "wikidata", "key": "Tanjung Priok" },
+    "Dongguan": { "via": "wikidata", "key": "Port of Humen", "why": "虎門港が東莞市の港湾。Wikidata は Port of Humen として収録している" }
+  },
+  "wikidataCoordinates": {
+    "Port of Shenzhen": [113.88333333, 22.5],
+    "Port of Suzhou": [120.859222, 31.799391],
+    "Port of Beibu Gulf": [108.613055555, 21.701666666],
+    "Tanjung Priok": [106.876388888, -6.129444444],
+    "Port of Humen": [113.408, 22.8642]
+  }
+}

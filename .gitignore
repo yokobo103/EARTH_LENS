@@ -4,3 +4,6 @@ dist/
 *.local
 *.log
 .cache/
+
+# Python の作業ファイル
+tools/__pycache__/
