@@ -1,7 +1,5 @@
 import { chokepointsDefinition, loadChokepoints } from "./chokepoints/definition";
 import { renderChokepoints } from "./chokepoints/renderer";
-import { criticalMineralsDefinition, loadCriticalMinerals } from "./critical-minerals/definition";
-import { renderCriticalMinerals } from "./critical-minerals/renderer";
 import { submarineCablesDefinition, loadSubmarineCableConnections } from "./submarine-cables/definition";
 import { renderSubmarineCableConnections } from "./submarine-cables/renderer";
 import { physicalFeaturesDefinition, loadPhysicalFeatures } from "./physical-features/definition";
@@ -36,7 +34,6 @@ export const lensRegistry: readonly LensModule[] = [
     render: renderSubmarineCableConnections,
   },
   { definition: chokepointsDefinition, load: loadChokepoints, render: renderChokepoints },
-  { definition: criticalMineralsDefinition, load: loadCriticalMinerals, render: renderCriticalMinerals },
   { definition: bordersDefinition, load: loadBorders, render: renderBorders },
   { definition: riversDefinition, load: loadRivers, render: renderRivers },
   { definition: desertsDefinition, load: loadDeserts, render: renderDeserts },
@@ -55,7 +52,7 @@ export type LensGroupId = "human-lines" | "earth-conditions";
 
 const groupedLensIds: Readonly<Record<LensGroupId, readonly string[]>> = {
   "human-lines": ["major-ports", "populated-places", "strategic-chokepoints", "shipping-flows", "submarine-cable-connections", "eez", "admin0-borders"],
-  "earth-conditions": ["sea-ice-edges", "physical-features", "deserts", "rivers", "critical-minerals"],
+  "earth-conditions": ["sea-ice-edges", "physical-features", "deserts", "rivers"],
 };
 
 export const lensGroupOrder: readonly LensGroupId[] = ["human-lines", "earth-conditions"];
@@ -64,7 +61,6 @@ export const lensGroupOrder: readonly LensGroupId[] = ["human-lines", "earth-con
 export const sampleDataLensIds: ReadonlySet<string> = new Set([
   "shipping-flows",
   "submarine-cable-connections",
-  "critical-minerals",
 ]);
 
 /**

@@ -29,7 +29,7 @@ EXPLOREはこの因果の層を自由に重ねる観測モードです。MISSION
 すべてのLensは次の4カテゴリのいずれかを保持します。
 
 - `earth` — Terrain、Physical Features、河川、海峡、プレートなど物理的制約
-- `resources` — Critical Minerals、エネルギー、水、農地など偏在する資源
+- `resources` — エネルギー、水、農地など偏在する資源（現在このカテゴリのLensは公開していません）
 - `human` — 都市、港、Shipping、Cable、鉄道など人間が構築した流れ
 - `power` — Chokepoint、国境、軍事、戦略インフラなど集中から生まれる力
 
@@ -73,7 +73,6 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - manifest / registry / rendererで分離したLayer system
 - endpointから描画時に生成するDemo submarine cable connections
 - Strategic chokepoints 6地点
-- 5か国のDemo critical minerals観測カラム
 - Feature clickとData Provenance表示
 - 任意地点クリックと緯度・経度取得
 - 500 km圏をLens横断検索するWHY HERE?
@@ -270,7 +269,7 @@ renderer             — Cesium Entityへの変換
 
 ライセンス不明のWebデータをスクレイピング、トレース、転載しません。このアプリは「世界の真実」を断定する地図ではなく、「このデータソースでは世界がどう見えるか」を比較する装置です。
 
-Critical Mineralsの値はrenderer検証用に発明した正規化デモ指数で、実生産量、埋蔵量、国別順位ではありません。USGS Mineral Commodity Summariesは将来のデータ交換先を示す参照です。
+Critical Mineralsは現役Lensから外しました（2026-09-13）。値がrenderer検証用に発明した正規化デモ指数で、実生産量でも埋蔵量でも国別順位でもなく、他のLensが実測値へ移った今この1枚だけがデモのままだったためです。コード（`src/lenses/critical-minerals/`）とデモデータは将来の作り直しのために残していますが、registryには登録しておらず、ビルド成果物にも入りません。USGS Mineral Commodity Summariesは将来のデータ交換先を示す参照です。
 
 ## Deep Time policy
 
@@ -288,7 +287,6 @@ GEBCOは将来の`BATHYMETRY / OCEAN FLOOR` Lens候補として記録します�
 
 - Chokepointsは操作検証用の概略中心点で、航行・安全用途には使えません。
 - Cable connectionsは実在システム、所有者、容量、landing station、海底経路を表しません。
-- Mineralsは国境Polygonではなく国代表点の3Dカラムです。
 - WHY HERE?はPoint/endpointにはHaversine距離、areaにはray castingの内外判定と局所平面近似による最近傍辺距離を使います。航法・測量用途の精密GIS演算ではありません。
 - Cesiumを単一bundleで読み込むため、初期JavaScriptは大きめです。
 - 250 MaはUI予告であり、plate reconstructionではありません。
@@ -322,7 +320,7 @@ src/
     dataStore.ts
     submarine-cables/
     chokepoints/
-    critical-minerals/
+    critical-minerals/      # 現役Lensから外した（registry未登録）
     terrain/
     physical-features/
     sea-ice/
@@ -332,7 +330,7 @@ src/
   data/demo/
     cable-connections.json
     chokepoints.geojson
-    critical-minerals.geojson
+    critical-minerals.geojson   # 上と同じく休止中
     shipping-connections.json
   temporal/
     types.ts

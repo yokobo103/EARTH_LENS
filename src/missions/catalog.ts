@@ -126,7 +126,7 @@ export const missionCatalog: readonly EarthMission[] = [
   {
     id: "mission-07-lithium", number: 7, type: "resource", title: "FIND THE RESOURCE REGION",
     prompt: "Find the high-altitude salt-flat region where Chile, Bolivia, and Argentina meet.",
-    region: "south-america", recommendedLensIds: ["critical-minerals", "admin0-borders"],
+    region: "south-america", recommendedLensIds: ["physical-features", "admin0-borders"],
     target: { name: "LITHIUM TRIANGLE", latitude: -23.5, longitude: -67.5, successRadiusKm: 700 },
     hints: [
       { id: "lithium-text", number: 1, title: "LANDSCAPE CLUE", text: "Look for an arid plateau beside the Andes." },
@@ -139,7 +139,6 @@ export const missionCatalog: readonly EarthMission[] = [
       answer: "High in the Andes are basins with no river out. Salt washed in from young volcanic rock has nowhere to leave, so it concentrates and dries into flats. Dry, high, and geologically young all had to arrive in the same place.",
       evidenceChain: [
       { lensId: "physical-features", featureId: "physical-ne-1159104309", relationship: "nearby", title: "MOUNTAINS", text: "High arid plateau beside the Andes" },
-      { lensId: "critical-minerals", featureId: "chile-copper-demo", relationship: "nearby", title: "MINERALS", text: "Prototype coverage is demo-only and incomplete" },
       { lensId: "admin0-borders", featureId: "country-bol", relationship: "overlap", title: "BORDERS", text: "Three-country resource region" },
     ] },
   },

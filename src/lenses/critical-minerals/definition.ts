@@ -1,3 +1,17 @@
+/**
+ * 休止中のレンズ。2026-09-13 に現役から外した。
+ *
+ * `src/lenses/registry.ts` に登録していないので、一覧にも初期状態にも共有URLにも出ず、
+ * `?raw` の import ごとビルドから落ちる（このファイルを registry へ戻すと復活する）。
+ *
+ * 外した理由: ここの値は renderer の動作確認のために作った正規化デモ指数で、
+ * 国ごとの5本の柱以上のことは何も言っていない。他のレンズが実測値
+ * （流量・取扱量・標高）へ移ったあと、このレンズだけが「サンプル」の札を付けたまま
+ * 資源の偏りを語る形になっていた。作り直すなら USGS / BGS の生産量を
+ * 鉱床の位置で持つところからで、その土台ができるまでは出さない。
+ *
+ * 日本語訳（src/i18n/domain.ts）と調査メモは残してある。
+ */
 import criticalMineralsText from "../../data/demo/critical-minerals.geojson?raw";
 import type { DataProvenance, EarthLensDefinition, LensDataset, LensFeature } from "../types";
 
