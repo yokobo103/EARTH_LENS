@@ -96,6 +96,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const anchorPointRef = useRef(anchorPoint);
   const anchorExpandedRef = useRef(anchorExpanded);
   const frozenCardPositionRef = useRef<{ left: number; top: number } | null>(null);
+  const anchorNudgeKeyRef = useRef<string | null>(null);
   const renderedLocaleRef = useRef<Locale | null>(null);
   const renderGenerationRef = useRef(0);
   const pendingLensLoadsRef = useRef(new Map<string, number>());
@@ -109,7 +110,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   useEffect(() => { onFeatureSelectRef.current = onFeatureSelect; }, [onFeatureSelect]);
   useEffect(() => { onLocationSelectRef.current = onLocationSelect; }, [onLocationSelect]);
   useEffect(() => { selectedFeatureRef.current = selectedFeature; }, [selectedFeature]);
-  useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; }, [anchorPoint]);
+  useEffect(() => { anchorPointRef.current = anchorPoint; frozenCardPositionRef.current = null; anchorNudgeKeyRef.current = null; }, [anchorPoint]);
   useEffect(() => {
     anchorExpandedRef.current = anchorExpanded;
     frozenCardPositionRef.current = null;
@@ -185,7 +186,9 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       // スマホで開いた状態は、座標に追従する吹き出しではなく下からのシート。
       // 位置は CSS が決めるので、こちらが付けた inline の座標を消して手を引く。
       // 地球を回して地点が裏へ回ってもシートは閉じない（読んでいる途中で消えない）。
-      const isSheet = stageWidth <= 820 && anchorExpandedRef.current;
+      const isMobile = stageWidth <= 820;
+      const isSheet = isMobile && anchorExpandedRef.current;
+      const isCompactBar = isMobile && !anchorExpandedRef.current;
       if (isSheet) {
         root.style.visibility = "visible";
         root.dataset.visible = "true";
@@ -202,14 +205,44 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
         root.dataset.expanded = "true";
         return;
       }
-      root.dataset.sheet = "false";
-      pin.style.visibility = "visible";
-      line.style.visibility = "visible";
-
       const visible = Boolean(projected && occluder.isPointVisible(worldPosition));
       root.style.visibility = visible ? "visible" : "hidden";
       root.dataset.visible = String(visible);
       if (!visible || !projected) return;
+
+      // 未展開のモバイルバーは画面下部に固定されるため、選択地点だけを
+      // 最小限カメラ移動してバーとレンズ帯の間へ救出する。一度の選択で
+      // 一度だけ動かし、ユーザーの縮尺・向きを何度も奪わない。
+      if (isCompactBar) {
+        const pointKey = `${point.latitude.toFixed(4)}:${point.longitude.toFixed(4)}`;
+        const safeTop = 66;
+        const safeBottom = mobileBottomChrome() + 78;
+        const outX = projected.x < 18 ? projected.x - 18 : projected.x > stageWidth - 18 ? projected.x - (stageWidth - 18) : 0;
+        const outY = projected.y < safeTop ? projected.y - safeTop : projected.y > stageHeight - safeBottom ? projected.y - (stageHeight - safeBottom) : 0;
+        if (anchorNudgeKeyRef.current !== pointKey && (outX !== 0 || outY !== 0)) {
+          const cameraHeight = Math.max(viewer.camera.positionCartographic?.height ?? 1_000_000, 120_000);
+          const amount = Math.min(350_000, Math.max(25_000, cameraHeight * 0.045));
+          if (outY > 0) viewer.camera.moveDown(amount);
+          else if (outY < 0) viewer.camera.moveUp(amount);
+          if (outX > 0) viewer.camera.moveRight(amount * 0.7);
+          else if (outX < 0) viewer.camera.moveLeft(amount * 0.7);
+          anchorNudgeKeyRef.current = pointKey;
+        }
+        root.dataset.sheet = "false";
+        root.dataset.compact = "true";
+        pin.style.visibility = "visible";
+        line.style.visibility = "hidden";
+        card.style.left = "";
+        card.style.top = "";
+        pin.style.left = `${projected.x}px`;
+        pin.style.top = `${projected.y}px`;
+        root.dataset.expanded = "false";
+        return;
+      }
+      root.dataset.sheet = "false";
+      root.dataset.compact = "false";
+      pin.style.visibility = "visible";
+      line.style.visibility = "visible";
 
       const cardRect = card.getBoundingClientRect();
       const cardWidth = cardRect.width;
@@ -430,7 +463,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       <span ref={anchorLineRef} className="anchor-leader" aria-hidden="true" />
       <span ref={anchorPinRef} className="anchor-pin" aria-hidden="true" />
       <div ref={anchorCardRef} className="anchor-card">
-        <button type="button" className="anchor-close" onClick={onAnchorClose} aria-label={t(locale, "close")}>×</button>
+        {anchorExpanded && <button type="button" className="anchor-close" onClick={onAnchorClose} aria-label={t(locale, "close")}>×</button>}
         {anchorContent}
       </div>
     </div>}
