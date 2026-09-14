@@ -2,7 +2,7 @@ import type { GeographicPoint } from "../lenses/types";
 import type { ObservationRelationship } from "../observations/types";
 
 export type MissionType = "find" | "barrier" | "gateway" | "intersection" | "route" | "bottleneck" | "hub" | "resource" | "terrain" | "alternative" | "shortcut";
-export type MissionRegion = "asia" | "middle-east" | "europe" | "africa" | "south-america" | "oceania";
+export type MissionRegion = "asia" | "middle-east" | "europe" | "africa" | "north-america" | "south-america" | "oceania";
 export type MissionStickerShape = "oval" | "shield" | "rectangle" | "circle" | "arch" | "custom";
 export type MissionStickerIcon = "strait" | "mountain" | "tanker" | "canal" | "port" | "rock" | "salt-flat" | "rift";
 

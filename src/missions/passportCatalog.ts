@@ -22,4 +22,32 @@ export const passportCatalog: readonly MissionPassportDefinition[] = [
       },
     ],
   },
+  {
+    id: "passport-vol-2",
+    number: 2,
+    titleKey: "passportVol2Title",
+    subtitleKey: "passportVol2Subtitle",
+    sections: [
+      {
+        id: "vol-2-cradles",
+        titleKey: "passportVol2SectionCradles",
+        missionIds: [
+          "mission-v2-01-nile",
+          "mission-v2-02-mesopotamia",
+          "mission-v2-03-indus",
+          "mission-v2-04-yellow-river",
+        ],
+      },
+      {
+        id: "vol-2-megacities",
+        titleKey: "passportVol2SectionMegacities",
+        missionIds: [
+          "mission-v2-05-tokyo",
+          "mission-v2-06-new-york",
+          "mission-v2-07-mexico-city",
+          "mission-v2-08-sao-paulo",
+        ],
+      },
+    ],
+  },
 ];
