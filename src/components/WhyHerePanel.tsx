@@ -22,9 +22,7 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze,
   const [expandedLensIds, setExpandedLensIds] = useState<Set<string>>(new Set());
 
   const signalLenses = useMemo(() => summary
-    ? [...summary.evidenceLenses]
-      .sort((a, b) => b.nearbyCount - a.nearbyCount || firstDistance(a) - firstDistance(b))
-      .slice(0, 4)
+    ? summary.evidenceLenses.slice(0, 3)
     : [], [summary]);
 
   const toggleLens = (lensId: string) => setOpenLensIds((current) => {
@@ -41,8 +39,8 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze,
   return (
     <section className={`why-here-panel${result ? " has-result" : ""}`} aria-label={result ? t(locale, "scanResult") : t(locale, "scan")}>
       <div className="why-heading">
-        <div><span>{result ? t(locale, "scanResult") : t(locale, "observationReadout")}</span><h3>{result ? t(locale, "scanResult") : t(locale, "scan")}</h3></div>
-        <span className="radius-readout">R {radiusKm} KM</span>
+        <div>{!result && <span>{t(locale, "observationReadout")}</span>}<h3>{result ? t(locale, "scanResult") : t(locale, "scan")}</h3></div>
+        <span className="radius-readout">{result ? `${t(locale, "scanRange")} · ${radiusKm} KM` : `R ${radiusKm} KM`}</span>
       </div>
       {!result && (
         <button type="button" className="why-button" onClick={onAnalyze} disabled={isAnalyzing}>
@@ -95,9 +93,6 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze,
             </div>
           </details>}
 
-          <button type="button" className="why-button is-secondary" onClick={onAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing ? t(locale, "scanning") : t(locale, "scanAgain")}
-          </button>
         </div>
       )}
     </section>
@@ -115,11 +110,11 @@ function ScanSummary({ summary, result, signalLenses, locale }: ScanSummaryProps
   const nearestName = summary.nearest ? displayNearbyName(summary.nearest, locale) : t(locale, "selectedLocation");
   const headline = formatHeadline(summary, locale);
   return <section className="why-summary" aria-label={t(locale, "scanResult")}>
+    <h4 className="why-summary-headline">{headline}</h4>
     <div className="why-summary-location">
       <strong>{nearestName}</strong>
       <span>{formatCoordinates(result.location)}</span>
     </div>
-    <h4 className="why-summary-headline">{headline}</h4>
     {signalLenses.length > 0 ? <div className="why-summary-lenses" aria-label={t(locale, "scanSignals")}>
         {signalLenses.map((lens) => <span className="why-summary-lens" key={lens.lensId}>{localizeLensName(lens.lensId, lens.lensName, locale)} <b>{lens.nearbyCount}</b></span>)}
       </div> : null}
@@ -137,6 +132,10 @@ function formatHeadline(summary: WhyHereSummary, locale: Locale): string {
     "terrain-rivers": "headlineTerrainRivers",
     "rivers-ports": "headlineRiversPorts",
     "ports-shipping": "headlinePortsShipping",
+    "rivers-signal": "headlineRiversSignal",
+    "population-signal": "headlinePopulationSignal",
+    "deserts-signal": "headlineDesertsSignal",
+    "terrain-signal": "headlineTerrainSignal",
     "human-signal": "headlineHumanSignal",
     "earth-signal": "headlineEarthSignal",
     "human-sparse": "headlineHumanSparse",
@@ -167,8 +166,4 @@ function formatCoordinates(location: WhyHereResult["location"]): string {
   const latitude = `${Math.abs(location.latitude).toFixed(2)}°${location.latitude >= 0 ? "N" : "S"}`;
   const longitude = `${Math.abs(location.longitude).toFixed(2)}°${location.longitude >= 0 ? "E" : "W"}`;
   return `${latitude} / ${longitude}`;
-}
-
-function firstDistance(lens: WhyHereLensResult): number {
-  return lens.features[0]?.distanceKm ?? Number.POSITIVE_INFINITY;
 }
