@@ -50,6 +50,7 @@ interface EarthGlobeProps {
   initialCamera: SharedCameraState | null;
   initialFeature: SharedFeatureState | null;
   terrainReliefEnabled: boolean;
+  lensInfoOpen?: boolean;
   onCameraChange?: (camera: SharedCameraState) => void;
 }
 
@@ -78,7 +79,7 @@ function paleoTextureUrl(ageMa: number): string {
   return `${import.meta.env.BASE_URL}geo/paleodem-${ageMa}.webp`;
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, onCameraChange }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, lensInfoOpen = false, onCameraChange }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRootRef = useRef<HTMLDivElement>(null);
   const anchorPinRef = useRef<HTMLSpanElement>(null);
@@ -95,6 +96,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const selectedFeatureRef = useRef(selectedFeature);
   const anchorPointRef = useRef(anchorPoint);
   const anchorExpandedRef = useRef(anchorExpanded);
+  const lensInfoOpenRef = useRef(lensInfoOpen);
   const frozenCardPositionRef = useRef<{ left: number; top: number } | null>(null);
   const anchorNudgeKeyRef = useRef<string | null>(null);
   const renderedLocaleRef = useRef<Locale | null>(null);
@@ -122,6 +124,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       card.style.top = "";
     }
   }, [anchorExpanded]);
+  useEffect(() => { lensInfoOpenRef.current = lensInfoOpen; }, [lensInfoOpen]);
   useEffect(() => { onCameraChangeRef.current = onCameraChange; }, [onCameraChange]);
   const terrainReliefEnabledRef = useRef(terrainReliefEnabled);
   useEffect(() => { terrainReliefEnabledRef.current = terrainReliefEnabled; }, [terrainReliefEnabled]);
@@ -188,7 +191,8 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       // 地球を回して地点が裏へ回ってもシートは閉じない（読んでいる途中で消えない）。
       const isMobile = stageWidth <= 820;
       const isSheet = isMobile && anchorExpandedRef.current;
-      const isCompactBar = isMobile && !anchorExpandedRef.current;
+      const isLensInfoDock = isMobile && !anchorExpandedRef.current && lensInfoOpenRef.current;
+      const isCompactBar = isMobile && !anchorExpandedRef.current && !lensInfoOpenRef.current;
       if (isSheet) {
         root.style.visibility = "visible";
         root.dataset.visible = "true";
@@ -213,10 +217,13 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       // 未展開のモバイルバーは画面下部に固定されるため、選択地点だけを
       // 最小限カメラ移動してバーとレンズ帯の間へ救出する。一度の選択で
       // 一度だけ動かし、ユーザーの縮尺・向きを何度も奪わない。
-      if (isCompactBar) {
+      if (isCompactBar || isLensInfoDock) {
         const pointKey = `${point.latitude.toFixed(4)}:${point.longitude.toFixed(4)}`;
         const safeTop = 66;
-        const safeBottom = mobileBottomChrome() + 78;
+        const dockHeight = isLensInfoDock
+          ? document.querySelector<HTMLElement>(".lens-rail")?.getBoundingClientRect().height ?? mobileBottomChrome()
+          : mobileBottomChrome() + 78;
+        const safeBottom = isLensInfoDock ? dockHeight + 24 : dockHeight;
         const outX = projected.x < 18 ? projected.x - 18 : projected.x > stageWidth - 18 ? projected.x - (stageWidth - 18) : 0;
         const outY = projected.y < safeTop ? projected.y - safeTop : projected.y > stageHeight - safeBottom ? projected.y - (stageHeight - safeBottom) : 0;
         if (anchorNudgeKeyRef.current !== pointKey && (outX !== 0 || outY !== 0)) {
@@ -229,7 +236,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
           anchorNudgeKeyRef.current = pointKey;
         }
         root.dataset.sheet = "false";
-        root.dataset.compact = "true";
+        root.dataset.compact = String(isCompactBar);
         pin.style.visibility = "visible";
         line.style.visibility = "hidden";
         card.style.left = "";

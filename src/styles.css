@@ -1106,6 +1106,7 @@ body { overscroll-behavior: none; }
    selected-location action kept visually separate above it. */
 .lens-rail-heading > div { display: grid; gap: 4px; min-width: 0; }
 .lens-rail-title { color: #edfffc; font: 750 12px ui-monospace, monospace; letter-spacing: .22em; }
+.lens-rail-current { min-width: 0; overflow: hidden; color: #c0d8d4; font: 700 10px ui-monospace, monospace; letter-spacing: .04em; text-overflow: ellipsis; white-space: nowrap; }
 .lens-rail-info { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; padding: 0; color: #a9c7c2; border: 1px solid rgb(129 210 198 / 30%); border-radius: 50%; background: rgb(121 227 210 / 7%); cursor: pointer; font: 700 14px/1 ui-monospace, monospace; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .lens-rail-info:hover, .lens-rail-info:focus-visible { color: var(--cyan); border-color: var(--cyan); outline: none; box-shadow: 0 0 14px rgb(121 227 210 / 22%); }
 .anchor-action-bar { border-radius: 18px; }
@@ -1133,6 +1134,7 @@ body { overscroll-behavior: none; }
   .lens-rail-heading { display: flex !important; align-items: center; justify-content: space-between; gap: 10px; padding: 0 3px 7px; border-bottom: 1px solid rgb(129 210 198 / 17%); }
   .lens-rail-heading > div { display: flex; align-items: baseline; gap: 8px; }
   .lens-rail-title { font-size: 11px; letter-spacing: .28em; }
+  .lens-rail-current { max-width: min(44vw, 190px); color: #d8ece8; font-size: 9px; }
   .lens-rail-heading small { color: #72918c; font-size: 7px; letter-spacing: .04em; }
   .lens-rail-info { width: 28px; height: 28px; flex-basis: 28px; font-size: 13px; }
   .lens-rail .layer-list { display: flex; align-items: center; gap: 8px; height: 66px; padding: 7px 0 0; overflow-x: auto !important; overflow-y: hidden !important; scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: pan-x; }
@@ -1167,4 +1169,17 @@ body { overscroll-behavior: none; }
   .globe-anchor:not(.is-expanded) .anchor-action-close { width: 34px; min-height: 44px; height: 44px; font-size: 15px; }
   .globe-anchor:not(.is-expanded) .anchor-action-feedback { position: absolute; right: 42px; bottom: -17px; left: 45px; margin: 0; padding: 3px 6px; color: #ffb09e; border: 1px solid rgb(255 176 158 / 22%); border-radius: 999px; background: rgb(20 15 17 / 92%); font-size: 7px; text-align: center; }
   .lens-info-card { right: 10px !important; bottom: calc(var(--mobile-bottom-chrome) + 8px); left: 10px !important; width: auto; max-height: min(54vh, 400px); }
+
+  /* The dock owns the lower-stage priority while lens information is open. */
+  .lens-info-open .globe-anchor:not(.is-expanded) .anchor-card { display: none; }
+  .lens-rail.is-info-open { height: auto !important; min-height: var(--lens-rail-h); max-height: min(78vh, 620px); overflow: hidden; }
+  .lens-rail.is-info-open .lens-info-card { position: static !important; top: auto !important; right: auto !important; bottom: auto !important; left: auto !important; order: 2; width: auto; max-height: min(34vh, 300px); margin: 0 3px 8px; padding: 12px 12px 10px; overflow: auto; border-color: rgb(129 210 198 / 25%); border-radius: 12px; background: rgb(5 18 22 / 92%); box-shadow: none; }
+  .lens-rail.is-info-open .lens-rail-heading small { display: none; }
+  .lens-rail.is-info-open .lens-info-card::before { display: none; }
+  .lens-rail.is-info-open .lens-info-card h2 { margin: 4px 30px 6px 0; font-size: 15px; }
+  .lens-rail.is-info-open .lens-info-card > p { margin-bottom: 8px; font-size: 9px; line-height: 1.45; }
+  .lens-rail.is-info-open .lens-info-card .lens-peek-first { margin-top: 7px; padding: 7px 0; }
+  .lens-rail.is-info-open .lens-info-card .lens-details-toggle { min-height: 38px; padding: 7px 9px; }
+  .lens-rail.is-info-open .layer-list { order: 3; flex: 0 0 66px; }
+  .lens-rail.is-info-open .lens-rail-status { order: 4; }
 }

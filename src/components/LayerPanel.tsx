@@ -12,6 +12,7 @@ interface LayerPanelProps {
   onToggle: (lensId: string) => void;
   suspended?: boolean;
   missionRecommendedLensIds?: readonly string[];
+  onInfoOpenChange?: (open: boolean) => void;
   /** レンズではないが、レンズの棚の端に置くもの。押すと年代の線が出る。 */
   bonusLens?: { active: boolean; onToggle: () => void };
 }
@@ -59,7 +60,7 @@ function LensGlyph({ lensId }: { lensId: string }) {
   }
 }
 
-export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds, bonusLens }: LayerPanelProps) {
+export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds, onInfoOpenChange, bonusLens }: LayerPanelProps) {
   const [info, setInfo] = useState<LensInfoState | null>(null);
   const [focusedLensId, setFocusedLensId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -75,6 +76,9 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
   useEffect(() => () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
   }, []);
+  useEffect(() => {
+    onInfoOpenChange?.(Boolean(info));
+  }, [info, onInfoOpenChange]);
 
   const clearLongPress = () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
@@ -116,19 +120,24 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
   };
 
   return (
-    <aside className={`layer-panel lens-rail${suspended ? " is-suspended" : ""}`} aria-label="Lens rail">
+    <aside className={`layer-panel lens-rail${suspended ? " is-suspended" : ""}${info ? " is-info-open" : ""}`} aria-label="Lens rail">
       <div className="lens-rail-heading">
         <div>
           <span className="lens-rail-title">{t(locale, "lensDockTitle")}</span>
+          {info && <span className="lens-rail-current">{info.lens.name}</span>}
           <small>{locale === "ja" ? "タップしてON / OFF" : "TAP TO TOGGLE"}</small>
         </div>
         <button
           type="button"
           className="lens-rail-info"
-          aria-label={t(locale, "lensDockInfo")}
+          aria-label={info ? t(locale, "close") : t(locale, "lensDockInfo")}
           aria-haspopup="dialog"
-          onClick={(event) => openFocusedInfo(event.currentTarget)}
-        >ⓘ</button>
+          aria-expanded={Boolean(info)}
+          onClick={(event) => {
+            if (info) setInfo(null);
+            else openFocusedInfo(event.currentTarget);
+          }}
+        >{info ? "×" : "ⓘ"}</button>
       </div>
       <div className="layer-list">
         {lensGroups.map((group) => {
@@ -198,7 +207,6 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
       </div>
       {suspended && <p className="lens-rail-status">{t(locale, "modernSuspended")}</p>}
       {info && <aside className="lens-info-card" role="dialog" aria-label={`${info.lens.name} ${t(locale, "lensInfo")}`} style={{ top: info.top, left: info.left }}>
-        <button type="button" className="anchor-close" onClick={() => setInfo(null)} aria-label={t(locale, "close")}>×</button>
         <span className="eyebrow">{localizeLensCategory(info.lens, locale).toUpperCase()} LENS</span>
         <h2>{info.lens.name}</h2>
         <p>{info.lens.description}</p>
