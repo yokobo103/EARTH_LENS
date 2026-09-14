@@ -19,12 +19,30 @@ export interface WhyHerePrimarySignal {
   coveragePercent: number;
 }
 
+export type WhyHereHeadlineKind =
+  | "deserts-rivers"
+  | "population-ports"
+  | "terrain-rivers"
+  | "rivers-ports"
+  | "ports-shipping"
+  | "human-signal"
+  | "earth-signal"
+  | "human-sparse"
+  | "open-space"
+  | "fallback";
+
+export interface WhyHereHeadline {
+  kind: WhyHereHeadlineKind;
+  lensIds: string[];
+}
+
 export interface WhyHereSummary {
   tone: WhyHereSummaryTone;
   evidenceLenses: WhyHereLensResult[];
   silentLenses: WhyHereLensResult[];
   nearest: (WhyHereNearbyFeature & { lensName: string }) | null;
   primarySignal: WhyHerePrimarySignal | null;
+  headline: WhyHereHeadline;
   /** Lens-level guides are the honest external door behind the local scan. */
   readingLinks: FurtherReadingLink[];
   nearbyFeatureCount: number;
@@ -48,7 +66,8 @@ export function summarizeWhyHere(result: WhyHereResult): WhyHereSummary {
     category: categoryByLensId.get(lens.lensId) ?? "unknown",
     score: rarityScore(lens),
   }));
-  const primary = scored.slice().sort((a, b) => b.score - a.score || nearestDistance(a.lens) - nearestDistance(b.lens))[0];
+  const ranked = scored.slice().sort((a, b) => b.score - a.score || b.lens.nearbyCount - a.lens.nearbyCount || nearestDistance(a.lens) - nearestDistance(b.lens));
+  const primary = ranked[0];
   const categories = new Set(scored.map((item) => item.category).filter((category): category is LensCategory => category !== "unknown"));
   const earthSignals = scored.filter((item) => item.category === "earth").length;
   const candidates: Array<{ tone: WhyHereSummaryTone; score: number }> = [];
@@ -83,9 +102,47 @@ export function summarizeWhyHere(result: WhyHereResult): WhyHereSummary {
     rarityScore: Math.round(primary.score),
     coveragePercent: Math.round((primary.lens.nearbyCount / Math.max(1, primary.lens.totalFeatureCount ?? primary.lens.nearbyCount)) * 1000) / 10,
   } : null;
+  const orderedEvidenceLenses = scored
+    .slice()
+    .sort((a, b) => b.lens.nearbyCount - a.lens.nearbyCount || b.score - a.score || nearestDistance(a.lens) - nearestDistance(b.lens))
+    .map((item) => item.lens);
+  const headline = buildHeadline(orderedEvidenceLenses, scored, result, categoryByLensId);
   const readingLinks = uniqueReadingLinks(evidenceLenses);
   const nearbyFeatureCount = evidenceLenses.reduce((sum, lens) => sum + lens.nearbyCount, 0);
-  return { tone, evidenceLenses, silentLenses, nearest, primarySignal, readingLinks, nearbyFeatureCount };
+  return { tone, evidenceLenses: orderedEvidenceLenses, silentLenses, nearest, primarySignal, headline, readingLinks, nearbyFeatureCount };
+}
+
+function buildHeadline(
+  evidenceLenses: WhyHereLensResult[],
+  scored: ScoredLens[],
+  result: WhyHereResult,
+  categoryByLensId: Map<string, LensCategory | undefined>,
+): WhyHereHeadline {
+  const ids = new Set(evidenceLenses.map((lens) => lens.lensId));
+  const pair = (first: string, second: string): string[] | null => ids.has(first) && ids.has(second) ? [first, second] : null;
+  const desertsRivers = pair("deserts", "rivers");
+  if (desertsRivers) return { kind: "deserts-rivers", lensIds: desertsRivers };
+  const populationPorts = pair("populated-places", "major-ports");
+  if (populationPorts) return { kind: "population-ports", lensIds: populationPorts };
+  const terrainRivers = pair("physical-features", "rivers");
+  if (terrainRivers) return { kind: "terrain-rivers", lensIds: terrainRivers };
+  const riversPorts = pair("rivers", "major-ports");
+  if (riversPorts) return { kind: "rivers-ports", lensIds: riversPorts };
+  const portsShipping = pair("major-ports", "shipping-flows");
+  if (portsShipping) return { kind: "ports-shipping", lensIds: portsShipping };
+
+  const humanLensIds = new Set(scored.filter((item) => item.category === "human").map((item) => item.lens.lensId));
+  const knownHumanLensCount = result.lensResults.filter((lens) => categoryByLensId.get(lens.lensId) === "human").length;
+  if (evidenceLenses.length === 0 && knownHumanLensCount > 0 && humanLensIds.size === 0) return { kind: "human-sparse", lensIds: [] };
+  const primary = scored
+    .slice()
+    .sort((a, b) => b.score - a.score || nearestDistance(a.lens) - nearestDistance(b.lens))[0]?.lens;
+  if (primary) return {
+    kind: categoryByLensId.get(primary.lensId) === "human" ? "human-signal" : "earth-signal",
+    lensIds: [primary.lensId],
+  };
+  if (evidenceLenses.length === 0) return { kind: "open-space", lensIds: [] };
+  return { kind: "fallback", lensIds: evidenceLenses.slice(0, 2).map((lens) => lens.lensId) };
 }
 
 function rarityScore(lens: WhyHereLensResult): number {

@@ -40,7 +40,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
           </>}
 
           <FeatureDisclosure feature={feature} locale={locale} />
-          {analysisLocation && <WhyHerePanel key={whyHerePanelKey(whyHereResult)} result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} />}
+          {analysisLocation && <WhyHerePanel key={whyHerePanelKey(whyHereResult)} result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} showDataDetails={false} />}
           <FeatureDataDetails feature={feature} lens={lens} locale={locale} />
         </div>
       ) : location ? (
@@ -48,7 +48,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
           <p className="feature-layer">{t(locale, "selectedLocation")}</p>
           {!whyHereResult && <p className="feature-title">{formatCoordinates(location)}</p>}
           <WhyHerePanel key={whyHerePanelKey(whyHereResult)} result={whyHereResult} isAnalyzing={isAnalyzing} radiusKm={500} locale={locale} onAnalyze={onAnalyze} />
-          <details className="observation-data-details">
+          {!whyHereResult && <details className="observation-data-details">
             <summary><span>{t(locale, "dataDetails")}</span><b aria-hidden="true">+</b></summary>
             <div className="observation-data-details-body">
               <dl className="detail-grid location-grid">
@@ -56,7 +56,7 @@ export function DetailsPanel({ feature, location, analysisLocation = location, w
                 <dt>{t(locale, "longitude")}</dt><dd>{location.longitude.toFixed(5)}°</dd>
               </dl>
             </div>
-          </details>
+          </details>}
         </div>
       ) : null}
     </aside>

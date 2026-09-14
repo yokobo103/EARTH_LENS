@@ -507,18 +507,16 @@ body { overscroll-behavior: none; }
 }
 
 /* SCAN RESULT is an observation report, not a point-attached tooltip. */
-.why-here-panel.has-result { margin-top: 18px; }
-.why-summary { gap: 12px; padding: 13px; }
-.why-summary-location { gap: 4px; }
+.why-here-panel.has-result { margin-top: 14px; }
+.why-summary { gap: 9px; padding: 10px 11px; }
+.why-summary-location { gap: 3px; padding-bottom: 7px; }
 .why-summary-location strong { font-size: 12px; }
 .why-summary-location span { font-size: 8px; }
-.why-summary-tone strong { font-size: 13px; line-height: 1.45; }
+.why-summary-headline { margin: 0; color: #effffc; font: 750 13px/1.35 ui-monospace, monospace; letter-spacing: .01em; }
 .why-summary-lenses { gap: 5px; }
 .why-summary-lens { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; color: #d6eee8; border-color: rgb(121 227 210 / 28%); background: rgb(121 227 210 / 8%); font-size: 8px; }
 .why-summary-lens b { color: var(--cyan); font-weight: 800; }
-.why-summary-standout { display: grid; gap: 5px; padding-top: 9px; border-top: 1px solid rgb(129 210 198 / 12%); }
-.why-summary-standout p { margin: 0; color: #c5ddd8; font: 600 9px/1.55 ui-monospace, monospace; }
-.why-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 2px 2px; }
+.why-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 2px 2px 1px; }
 .why-section-heading strong { color: #dcefeb; font: 750 9px ui-monospace, monospace; letter-spacing: .1em; }
 .why-section-heading span { color: #6f8a86; font: 650 7px ui-monospace, monospace; }
 .why-lens-accordion { display: grid; gap: 5px; }
@@ -563,8 +561,7 @@ body { overscroll-behavior: none; }
   .scan-result-open .globe-anchor.is-expanded .anchor-card { max-height: min(60dvh, calc(100dvh - 96px)); }
   .scan-result-open .globe-anchor.is-expanded .anchor-card-content { overflow-y: auto; overscroll-behavior: contain; }
   .scan-result-open .why-heading h3 { font-size: 14px; }
-  .scan-result-open .why-summary-tone strong { font-size: 12px; }
-  .scan-result-open .why-summary-standout p { font-size: 9px; }
+  .scan-result-open .why-summary-headline { font-size: 12px; }
 }
 
 @media (max-width: 820px) {

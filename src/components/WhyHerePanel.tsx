@@ -3,7 +3,7 @@ import type { WhyHereLensResult, WhyHereNearbyFeature, WhyHereResult } from "../
 import { t } from "../i18n/copy";
 import { localizeFeatureName, localizeLensName, localizeRelation } from "../i18n/domain";
 import type { Locale } from "../i18n/types";
-import { summarizeWhyHere, type WhyHereSummary, type WhyHereSummaryTone } from "../why-here/summarizeWhyHere";
+import { summarizeWhyHere, type WhyHereSummary } from "../why-here/summarizeWhyHere";
 
 interface WhyHerePanelProps {
   result: WhyHereResult | null;
@@ -11,22 +11,16 @@ interface WhyHerePanelProps {
   radiusKm: number;
   locale: Locale;
   onAnalyze: () => void;
+  showDataDetails?: boolean;
 }
 
 const INITIAL_FEATURE_LIMIT = 3;
 
-export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze }: WhyHerePanelProps) {
+export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze, showDataDetails = true }: WhyHerePanelProps) {
   const summary = result ? summarizeWhyHere(result) : null;
   const [openLensIds, setOpenLensIds] = useState<Set<string>>(new Set());
   const [expandedLensIds, setExpandedLensIds] = useState<Set<string>>(new Set());
 
-  const toneCopy: Record<WhyHereSummaryTone, string> = {
-    "dense-cluster": t(locale, "summaryDenseCluster"),
-    "cross-category": t(locale, "summaryCrossCategory"),
-    "single-signal": t(locale, "summarySingleSignal"),
-    "open-space": t(locale, "summaryOpenSpace"),
-    "physical-signal": t(locale, "summaryPhysicalSignal"),
-  };
   const signalLenses = useMemo(() => summary
     ? [...summary.evidenceLenses]
       .sort((a, b) => b.nearbyCount - a.nearbyCount || firstDistance(a) - firstDistance(b))
@@ -57,13 +51,10 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
       )}
       {result && summary && (
         <div className="why-results" aria-live="polite">
-          <ScanSummary summary={summary} result={result} signalLenses={signalLenses} toneCopy={toneCopy} locale={locale} />
+          <ScanSummary summary={summary} result={result} signalLenses={signalLenses} locale={locale} />
 
           <section className="why-lens-explorer" aria-label={t(locale, "scanExploreNearby")}>
-            <div className="why-section-heading">
-              <strong>{t(locale, "scanExploreNearby")}</strong>
-              <span>{summary.nearbyFeatureCount} {t(locale, "summaryFeatures")}</span>
-            </div>
+            <div className="why-section-heading"><strong>{t(locale, "scanExploreNearby")}</strong></div>
             <div className="why-lens-accordion">
               {summary.evidenceLenses.map((lens) => {
                 const isOpen = openLensIds.has(lens.lensId);
@@ -85,7 +76,7 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
             </div>
           </section>
 
-          <details className="why-data-details">
+          {showDataDetails && <details className="why-data-details">
             <summary><span>{t(locale, "dataDetails")}</span><b aria-hidden="true">+</b></summary>
             <div className="why-data-details-body">
               <p className="evidence-note">{t(locale, "evidenceOnly")}</p>
@@ -102,7 +93,7 @@ export function WhyHerePanel({ result, isAnalyzing, radiusKm, locale, onAnalyze 
                 <span>{summary.silentLenses.map((lens) => localizeLensName(lens.lensId, lens.lensName, locale)).join(" · ")}</span>
               </details>}
             </div>
-          </details>
+          </details>}
 
           <button type="button" className="why-button is-secondary" onClick={onAnalyze} disabled={isAnalyzing}>
             {isAnalyzing ? t(locale, "scanning") : t(locale, "scanAgain")}
@@ -117,39 +108,46 @@ interface ScanSummaryProps {
   summary: WhyHereSummary;
   result: WhyHereResult;
   signalLenses: WhyHereLensResult[];
-  toneCopy: Record<WhyHereSummaryTone, string>;
   locale: Locale;
 }
 
-function ScanSummary({ summary, result, signalLenses, toneCopy, locale }: ScanSummaryProps) {
+function ScanSummary({ summary, result, signalLenses, locale }: ScanSummaryProps) {
   const nearestName = summary.nearest ? displayNearbyName(summary.nearest, locale) : t(locale, "selectedLocation");
-  const primaryName = summary.primarySignal
-    ? localizeLensName(summary.primarySignal.lensId, summary.primarySignal.lensName, locale)
-    : null;
-  const standout = primaryName
-    ? `${t(locale, "scanPrimarySignalPrefix")}: ${primaryName} · ${summary.primarySignal?.nearbyCount ?? 0} ${t(locale, "summaryFeatures")}`
-    : t(locale, "scanNoStrongSignal");
+  const headline = formatHeadline(summary, locale);
   return <section className="why-summary" aria-label={t(locale, "scanResult")}>
     <div className="why-summary-location">
-      <span className="why-summary-label">{t(locale, "scanLocation")}</span>
       <strong>{nearestName}</strong>
-      <span>{formatCoordinates(result.location)}{summary.nearest ? ` · ${summary.nearest.distanceKm} km` : ""}</span>
+      <span>{formatCoordinates(result.location)}</span>
     </div>
-    <div className="why-summary-tone">
-      <span className="why-summary-label">{t(locale, "observationReadout")}</span>
-      <strong>{toneCopy[summary.tone]}</strong>
-    </div>
-    <div className="why-summary-section">
-      <span className="why-summary-label">{t(locale, "scanSignals")}</span>
-      {signalLenses.length > 0 ? <div className="why-summary-lenses">
+    <h4 className="why-summary-headline">{headline}</h4>
+    {signalLenses.length > 0 ? <div className="why-summary-lenses" aria-label={t(locale, "scanSignals")}>
         {signalLenses.map((lens) => <span className="why-summary-lens" key={lens.lensId}>{localizeLensName(lens.lensId, lens.lensName, locale)} <b>{lens.nearbyCount}</b></span>)}
-      </div> : <span className="why-summary-rarity">{t(locale, "scanNoStrongSignal")}</span>}
-    </div>
-    <div className="why-summary-standout">
-      <span className="why-summary-label">{t(locale, "scanStandout")}</span>
-      <p>{standout}</p>
-    </div>
+      </div> : null}
   </section>;
+}
+
+function formatHeadline(summary: WhyHereSummary, locale: Locale): string {
+  const names = summary.headline.lensIds.map((lensId) => {
+    const lens = summary.evidenceLenses.find((candidate) => candidate.lensId === lensId);
+    return lens ? localizeLensName(lens.lensId, lens.lensName, locale) : lensId;
+  });
+  const keyByKind = {
+    "deserts-rivers": "headlineDesertsRivers",
+    "population-ports": "headlinePopulationPorts",
+    "terrain-rivers": "headlineTerrainRivers",
+    "rivers-ports": "headlineRiversPorts",
+    "ports-shipping": "headlinePortsShipping",
+    "human-signal": "headlineHumanSignal",
+    "earth-signal": "headlineEarthSignal",
+    "human-sparse": "headlineHumanSparse",
+    "open-space": "headlineOpenSpace",
+    fallback: "headlineFallback",
+  } as const;
+  const template = t(locale, keyByKind[summary.headline.kind]);
+  return template
+    .replace("{lensA}", names[0] ?? "")
+    .replace("{lensB}", names[1] ?? "")
+    .replace("{lens}", names[0] ?? "");
 }
 
 function NearbyFeatureRow({ feature, locale }: { feature: WhyHereNearbyFeature; locale: Locale }) {
