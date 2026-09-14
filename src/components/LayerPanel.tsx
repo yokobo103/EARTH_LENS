@@ -61,6 +61,7 @@ function LensGlyph({ lensId }: { lensId: string }) {
 
 export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended = false, missionRecommendedLensIds, bonusLens }: LayerPanelProps) {
   const [info, setInfo] = useState<LensInfoState | null>(null);
+  const [focusedLensId, setFocusedLensId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClickFor = useRef<string | null>(null);
   const lastPointerType = useRef<string | null>(null);
@@ -69,6 +70,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
     "earth-conditions": t(locale, "groupEarthConditions"),
   };
   const lensGroups = groupLensesForDisplay(lenses);
+  const displayLenses = lensGroups.flatMap((group) => group.lenses);
 
   useEffect(() => () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
@@ -105,13 +107,28 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
     }
     onToggle(lensId);
   };
+  const focusLens = (lensId: string) => setFocusedLensId(lensId);
+  const openFocusedInfo = (target: HTMLElement) => {
+    const lens = displayLenses.find((item) => item.id === focusedLensId)
+      ?? displayLenses.find((item) => activeLensIds.has(item.id))
+      ?? displayLenses[0];
+    if (lens) openInfo(lens, target);
+  };
 
   return (
     <aside className={`layer-panel lens-rail${suspended ? " is-suspended" : ""}`} aria-label="Lens rail">
-      <div className="lens-rail-heading"><div><span>{locale === "ja" ? "視点を選ぶ" : "CHOOSE A VIEWPOINT"}</span><small>{locale === "ja" ? "クリックして、地球に重ねてみましょう" : "Click to layer another way of seeing the Earth"}</small></div><em>{locale === "ja" ? "複数選択できます" : "MULTI-SELECT"}</em></div>
-      <div className="lens-mobile-hint" role="note">
-        <span aria-hidden="true">ⓘ</span>
-        <span>{locale === "ja" ? "長押しで説明" : "HOLD FOR INFO"}</span>
+      <div className="lens-rail-heading">
+        <div>
+          <span className="lens-rail-title">{t(locale, "lensDockTitle")}</span>
+          <small>{locale === "ja" ? "タップしてON / OFF" : "TAP TO TOGGLE"}</small>
+        </div>
+        <button
+          type="button"
+          className="lens-rail-info"
+          aria-label={t(locale, "lensDockInfo")}
+          aria-haspopup="dialog"
+          onClick={(event) => openFocusedInfo(event.currentTarget)}
+        >ⓘ</button>
       </div>
       <div className="layer-list">
         {lensGroups.map((group) => {
@@ -133,6 +150,7 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                   onClick={(event) => {
                     const pointerType = lastPointerType.current;
                     lastPointerType.current = null;
+                    focusLens(lens.id);
                     // Desktop click fixes the explanation in the reading area.
                     // Mobile tap is deliberately only ON/OFF; peek is reserved for long-press.
                     if (pointerType === "mouse" || event.detail === 0) openInfo(lens, event.currentTarget);
@@ -141,10 +159,19 @@ export function LayerPanel({ lenses, activeLensIds, locale, onToggle, suspended 
                   }}
                   onContextMenu={(event) => event.preventDefault()}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") openInfo(lens, event.currentTarget);
+                    if (event.key === "Enter" || event.key === " ") {
+                      focusLens(lens.id);
+                      openInfo(lens, event.currentTarget);
+                    }
                   }}
-                  onPointerEnter={(event) => { if (event.pointerType === "mouse") openInfo(lens, event.currentTarget); }}
-                  onPointerDown={(event) => startLongPress(event, lens)}
+                  onPointerEnter={(event) => {
+                    focusLens(lens.id);
+                    if (event.pointerType === "mouse") openInfo(lens, event.currentTarget);
+                  }}
+                  onPointerDown={(event) => {
+                    focusLens(lens.id);
+                    startLongPress(event, lens);
+                  }}
                   onPointerUp={clearLongPress}
                   onPointerCancel={clearLongPress}
                   onPointerLeave={clearLongPress}

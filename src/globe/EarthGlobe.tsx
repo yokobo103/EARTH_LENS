@@ -459,7 +459,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
 
   return <div className="earth-stage">
     <div ref={containerRef} className="earth-globe" aria-label={ariaLabel} />
-    {anchorPoint && anchorContent && <div ref={anchorRootRef} className={`globe-anchor${anchorExpanded ? " is-expanded" : ""}`}>
+    {anchorPoint && anchorContent && <div ref={anchorRootRef} className={`globe-anchor${anchorExpanded ? " is-expanded" : ""}${appMode === "mission" ? " is-mission" : ""}`}>
       <span ref={anchorLineRef} className="anchor-leader" aria-hidden="true" />
       <span ref={anchorPinRef} className="anchor-pin" aria-hidden="true" />
       <div ref={anchorCardRef} className="anchor-card">
