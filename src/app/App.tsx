@@ -19,6 +19,7 @@ import type { LensFeature } from "../lenses/types";
 import { createMissionState, getActiveMissionEffects, revealNextHint, selectMissionFeature, selectMissionLocation, submitMissionLocation } from "../missions/engine";
 import { loadMissionProgress, recordMissionCompletion, saveMissionProgress } from "../missions/progressStore";
 import { getDefaultMission, getMission, missionRegistry } from "../missions/registry";
+import { getDefaultPassport, passportRegistry } from "../missions/passportRegistry";
 import type { MissionProgress } from "../missions/types";
 import { t } from "../i18n/copy";
 import { localizeLensDefinition, localizeMission } from "../i18n/domain";
@@ -30,6 +31,7 @@ import { readSharedViewState, type SharedCameraState, type SharedViewState } fro
 
 type MissionView = "passport" | "field";
 const defaultMission = getDefaultMission();
+const defaultPassport = getDefaultPassport();
 const initialSharedView = readSharedViewState();
 const hasSharedView = new URLSearchParams(window.location.search).get("v") === "1";
 const CAMERA_STORAGE_KEY = "earth-lens-camera";
@@ -77,6 +79,7 @@ export function App() {
   const [missionView, setMissionView] = useState<MissionView>(initialSharedView.mode === "mission" ? "field" : "passport");
   const [missionState, setMissionState] = useState(() => createMissionState(defaultMission));
   const [missionProgress, setMissionProgress] = useState<Record<string, MissionProgress>>(() => loadMissionProgress());
+  const [selectedPassportId, setSelectedPassportId] = useState(defaultPassport.id);
   const [newlyCollectedId, setNewlyCollectedId] = useState<string | null>(null);
   const currentMission = getMission(missionState.currentMissionId) ?? defaultMission;
   const displayMission = useMemo(() => localizeMission(currentMission, locale), [currentMission, locale]);
@@ -207,7 +210,7 @@ export function App() {
       {showGlobe && appMode === "explore" && paleoToolEnabled && <div className="paleo-time-band">{timeline}</div>}
       {showGlobe && activeLensLegend}
       {showGlobe && layerPanel}
-      {appMode === "mission" && (missionView === "passport" ? <MissionPassport missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : (isCompact && missionCleared) ? null : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
+      {appMode === "mission" && (missionView === "passport" ? <MissionPassport passports={passportRegistry} selectedPassportId={selectedPassportId} onSelectPassport={setSelectedPassportId} missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : (isCompact && missionCleared) ? null : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
       {aboutOpen && <AboutSplash locale={locale} onLocaleChange={setLocale} onClose={() => setAboutOpen(false)} />}
     </main>
   );
