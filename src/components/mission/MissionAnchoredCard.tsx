@@ -34,7 +34,7 @@ export function MissionAnchoredCard({ mission, state, locale, expanded, onSubmit
   const latestAttempt = state.attempts.at(-1);
   const latestMatchesSelection = Boolean(latestAttempt && state.selectedLocation && latestAttempt.location.latitude === state.selectedLocation.latitude && latestAttempt.location.longitude === state.selectedLocation.longitude);
   const title = state.status === "completed" ? t(locale, "targetIdentified") : t(locale, "selectedLocation");
-  return <section ref={rootRef} className={`anchor-card-content mission-anchor-card${expanded ? " is-expanded" : " is-action-bar"}`} aria-label={title}>
+  return <section ref={rootRef} className={`anchor-card-content mission-anchor-card${expanded ? " is-expanded" : " is-action-bar"}${state.status === "completed" ? " is-result" : ""}`} aria-label={title}>
     {state.status === "completed" ? <MissionResultPanel mission={mission} state={state} locale={locale} onCollectSticker={onCollectSticker} embedded compact={compact} /> : expanded ? <MissionObservationPanel state={state} locale={locale} onSubmit={onSubmit} embedded /> : state.selectedLocation ? <AnchorActionBar point={state.selectedLocation} title={title} actionLabel={t(locale, "submitLocation")} tone="mission" onAction={onSubmit} onClose={onClose} closeLabel={t(locale, "close")} feedback={latestAttempt && latestMatchesSelection && !latestAttempt.matched ? `${t(locale, "noMatch")} · ${latestAttempt.distanceKm.toLocaleString(locale === "ja" ? "ja-JP" : "en-US")} km` : undefined} /> : null}
   </section>;
 }

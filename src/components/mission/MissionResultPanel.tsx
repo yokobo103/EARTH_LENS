@@ -50,16 +50,16 @@ export function MissionResultPanel({
       <section className="mission-answer" aria-label={t(locale, "whyThisPlace")}>
         <h3>{t(locale, "whyThisPlace")}</h3>
         <p>{mission.completion.answer}</p>
-        <ul className="mission-answer-grounds">
+        {!embedded && <ul className="mission-answer-grounds">
           {mission.completion.evidenceChain.map((item) => (
             <li key={`${item.lensId}:${item.featureId}`}>
               <b>{item.title}</b>{item.text}
             </li>
           ))}
-        </ul>
+        </ul>}
       </section>
 
-      {references.length > 0 && (
+      {!embedded && references.length > 0 && (
         <nav className="mission-references" aria-label={t(locale, "seeFullEvidence")}>
           {references.map((reference) => (
             <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">

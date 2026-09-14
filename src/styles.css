@@ -722,7 +722,16 @@ body { overscroll-behavior: none; }
 .mission-observation-embedded::before, .mission-result-embedded::before { display: none; }
 .mission-observation-embedded h2 { margin: 4px 30px 15px 0; color: #f4e5d1; }
 .mission-result-embedded h2 { margin: 5px 30px 8px 0; color: #dcfff9; font-size: 14px; }
+.mission-result-embedded { display: flex; flex-direction: column; }
+.mission-result-embedded .mission-result-sticker { margin: 8px 0 5px; }
+.mission-result-embedded .mission-result-sticker > .travel-sticker { width: min(100%, 300px); max-width: 100%; margin: 0 auto; }
+.mission-result-embedded .mission-result-target { font-size: 14px; }
+.mission-result-embedded .mission-answer { margin-top: 10px; padding-top: 10px; }
+.mission-result-embedded .mission-answer p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.mission-result-embedded .mission-result-cta { margin-top: 10px; }
 .mission-anchor-card.is-expanded { width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 116px); min-height: 0; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; scroll-padding-bottom: 24px; }
+.mission-cleared .globe-anchor.is-expanded .anchor-card { overflow: hidden; }
+.mission-cleared .mission-anchor-card.is-result { overflow: hidden; }
 .mission-anchor-feedback { margin: 9px 0 0; padding: 7px 8px; color: #ffb09e; border-left: 2px solid #ff7e67; background: rgb(76 22 13 / 18%); font: 700 8px ui-monospace, monospace; letter-spacing: .05em; }
 .lens-kit-focus, .lens-kit-standby { display: block; margin-top: 2px; font: 600 5px ui-monospace, monospace; letter-spacing: .04em; font-style: normal; }
 .lens-kit-focus { color: #ffd08a; }
@@ -895,6 +904,15 @@ body { overscroll-behavior: none; }
   .lens-rail .layer-category-items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lens-rail .layer-item { height: 52px; }
 }
+
+/* On desktop the mission briefing owns the right-side margin. The left lens
+   rail stays dedicated to lens selection, and the globe keeps the center. */
+@media (min-width: 821px) {
+  .mission-briefing-dock { top: 92px; right: 18px; left: auto; width: min(340px, calc(100vw - 400px)); max-height: min(calc(100vh - 112px), 720px); overflow: hidden; }
+  .mission-briefing-dock[open] { max-height: min(calc(100vh - 112px), 720px); }
+  .mission-briefing-dock[open] .mission-panel { max-height: calc(100vh - 174px); }
+}
+
 .lens-rail { top: 86px; bottom: auto; max-height: min(452px, calc(100vh - 112px)); padding: 12px; border-color: rgb(121 227 210 / 32%); background: linear-gradient(145deg, rgb(8 27 32 / 92%), rgb(4 15 19 / 88%)); }
 .lens-rail::after { display: none; }
 .lens-rail-heading { align-items: flex-start; gap: 10px; padding: 0 2px 11px; }
