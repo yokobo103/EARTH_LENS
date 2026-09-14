@@ -51,6 +51,7 @@ interface EarthGlobeProps {
   initialFeature: SharedFeatureState | null;
   terrainReliefEnabled: boolean;
   lensInfoOpen?: boolean;
+  scanResultOpen?: boolean;
   onCameraChange?: (camera: SharedCameraState) => void;
 }
 
@@ -79,7 +80,7 @@ function paleoTextureUrl(ageMa: number): string {
   return `${import.meta.env.BASE_URL}geo/paleodem-${ageMa}.webp`;
 }
 
-export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, lensInfoOpen = false, onCameraChange }: EarthGlobeProps) {
+export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, temporalSelection, appMode, missionEffects, missionFocus, ariaLabel, locale, selectedFeature, anchorPoint, anchorExpanded, anchorContent, onAnchorClose, initialCamera, initialFeature, terrainReliefEnabled, lensInfoOpen = false, scanResultOpen = false, onCameraChange }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRootRef = useRef<HTMLDivElement>(null);
   const anchorPinRef = useRef<HTMLSpanElement>(null);
@@ -90,6 +91,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const paleoLayerRef = useRef<ImageryLayer | null>(null);
   const missionEffectHandlesRef = useRef<MissionOverlayHandle[]>([]);
   const activeLensIdsRef = useRef(activeLensIds);
+  const appModeRef = useRef(appMode);
   const temporalSelectionRef = useRef(temporalSelection);
   const onFeatureSelectRef = useRef(onFeatureSelect);
   const onLocationSelectRef = useRef(onLocationSelect);
@@ -97,6 +99,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const anchorPointRef = useRef(anchorPoint);
   const anchorExpandedRef = useRef(anchorExpanded);
   const lensInfoOpenRef = useRef(lensInfoOpen);
+  const scanResultOpenRef = useRef(scanResultOpen);
   const frozenCardPositionRef = useRef<{ left: number; top: number } | null>(null);
   const anchorNudgeKeyRef = useRef<string | null>(null);
   const renderedLocaleRef = useRef<Locale | null>(null);
@@ -108,6 +111,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
   const initialFeatureRef = useRef(initialFeature);
 
   useEffect(() => { activeLensIdsRef.current = activeLensIds; }, [activeLensIds]);
+  useEffect(() => { appModeRef.current = appMode; }, [appMode]);
   useEffect(() => { temporalSelectionRef.current = temporalSelection; }, [temporalSelection]);
   useEffect(() => { onFeatureSelectRef.current = onFeatureSelect; }, [onFeatureSelect]);
   useEffect(() => { onLocationSelectRef.current = onLocationSelect; }, [onLocationSelect]);
@@ -125,6 +129,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     }
   }, [anchorExpanded]);
   useEffect(() => { lensInfoOpenRef.current = lensInfoOpen; }, [lensInfoOpen]);
+  useEffect(() => { scanResultOpenRef.current = scanResultOpen; }, [scanResultOpen]);
   useEffect(() => { onCameraChangeRef.current = onCameraChange; }, [onCameraChange]);
   const terrainReliefEnabledRef = useRef(terrainReliefEnabled);
   useEffect(() => { terrainReliefEnabledRef.current = terrainReliefEnabled; }, [terrainReliefEnabled]);
@@ -153,6 +158,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
     const occluder = new EllipsoidalOccluder(viewer.scene.globe.ellipsoid, viewer.camera.positionWC);
     const windowPosition = new Cartesian2();
     const renderHandles = renderHandlesRef.current;
+    const pendingLensLoads = pendingLensLoadsRef.current;
     const clickHandler = new ScreenSpaceEventHandler(viewer.scene.canvas);
     clickHandler.setInputAction((event: { position: Cartesian2 }) => {
       const surface = viewer.camera.pickEllipsoid(event.position, viewer.scene.globe.ellipsoid);
@@ -193,6 +199,25 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       const isSheet = isMobile && anchorExpandedRef.current;
       const isLensInfoDock = isMobile && !anchorExpandedRef.current && lensInfoOpenRef.current;
       const isCompactBar = isMobile && !anchorExpandedRef.current && !lensInfoOpenRef.current;
+      const isDesktopScanResult = !isMobile && appModeRef.current === "explore" && scanResultOpenRef.current;
+      if (isDesktopScanResult) {
+        root.style.visibility = "visible";
+        root.dataset.visible = "true";
+        root.dataset.sheet = "false";
+        root.dataset.compact = "false";
+        root.dataset.report = "true";
+        pin.style.visibility = projected ? "visible" : "hidden";
+        line.style.visibility = "hidden";
+        card.style.left = "";
+        card.style.top = "";
+        frozenCardPositionRef.current = null;
+        if (projected) {
+          pin.style.left = `${projected.x}px`;
+          pin.style.top = `${projected.y}px`;
+        }
+        return;
+      }
+      root.dataset.report = "false";
       if (isSheet) {
         root.style.visibility = "visible";
         root.dataset.visible = "true";
@@ -323,7 +348,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       // destroyed before its async lens loads settle; invalidate those loads
       // so the replacement Viewer does not inherit stale pending entries.
       renderGenerationRef.current += 1;
-      pendingLensLoadsRef.current.clear();
+      pendingLensLoads.clear();
       renderedLocaleRef.current = null;
       viewerRef.current = null;
       viewer.destroy();
@@ -384,7 +409,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
         console.error(`Lens "${lensId}" failed to render`, error);
       });
     }
-  }, [activeLensIds, locale, temporalSelection]);
+  }, [activeLensIds, appMode, locale, temporalSelection]);
 
   useEffect(() => {
     for (const [lensId, handle] of renderHandlesRef.current) {
