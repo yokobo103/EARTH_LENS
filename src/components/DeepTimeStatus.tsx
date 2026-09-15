@@ -26,9 +26,8 @@ interface TimeShiftNoticeProps {
 export function TimeShiftNotice({ selection, locale, animationKey }: TimeShiftNoticeProps) {
   const isDeepTime = selection.mode === "deep-time";
   const ageMa = isDeepTime ? selection.ageMa : 0;
-  return <div key={animationKey} className="time-shift-notice" role="status" aria-live="polite">
-    <span>{t(locale, isDeepTime ? "timeShift" : "returnToPresent")}</span>
-    <strong>{isDeepTime ? formatAge(ageMa, locale) : t(locale, "present")}</strong>
-    {isDeepTime && <small>{formatGeologicPeriod(ageMa, locale)}</small>}
-  </div>;
+  const label = isDeepTime
+    ? `${t(locale, "timeShift")} · ${formatAge(ageMa, locale)} · ${formatGeologicPeriod(ageMa, locale)}`
+    : `${t(locale, "returnToPresent")} · ${t(locale, "present")}`;
+  return <div key={animationKey} className="time-shift-notice" role="status" aria-live="polite">{label}</div>;
 }

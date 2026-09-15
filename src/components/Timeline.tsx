@@ -1,6 +1,6 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { TemporalSelection } from "../temporal/types";
-import { formatAge, formatAgeAria, formatAgeTechnical } from "../temporal/ageFormat";
+import { formatAge, formatAgeAria, formatAgeTechnical, formatGeologicPeriod } from "../temporal/ageFormat";
 import { t } from "../i18n/copy";
 import type { Locale } from "../i18n/types";
 
@@ -91,6 +91,7 @@ export function Timeline({ selection, locale, onChange }: TimelineProps) {
     <div className="time-scale">
       <div className="time-scale-now">
         <strong>{formatAge(shown, locale)}</strong>
+        {shown > 0 && <span className="time-scale-period">{formatGeologicPeriod(shown, locale)}</span>}
         <small>{shown === 0 ? t(locale, "paleomap") : `${t(locale, "paleomap")} · ${formatAgeTechnical(shown)}`}</small>
       </div>
 
