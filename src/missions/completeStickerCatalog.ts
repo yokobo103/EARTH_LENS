@@ -1,5 +1,5 @@
-import completeButtonPc from "../assets/complete/complete-button-pc.png";
-import completeButtonMobile from "../assets/complete/complete-button-mobile.png";
+import completeButtonCompact from "../assets/complete/complete-button-pc.png";
+import completeButtonWide from "../assets/complete/complete-button-mobile.png";
 import completeStickerVol1 from "../assets/complete/complete-sticker-vol1.png";
 import completeStickerVol2 from "../assets/complete/complete-sticker-vol2.png";
 import type { CopyKey } from "../i18n/copy";
@@ -11,7 +11,7 @@ export interface CompleteStickerDefinition {
   image: string;
 }
 
-export { completeButtonPc, completeButtonMobile };
+export { completeButtonCompact, completeButtonWide };
 
 export const completeStickerCatalog: readonly CompleteStickerDefinition[] = [
   { passportId: "passport-vol-1", number: 1, titleKey: "passportVol1Title", image: completeStickerVol1 },

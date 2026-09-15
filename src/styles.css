@@ -351,20 +351,20 @@ body { overscroll-behavior: none; }
 .mission-passport { position: absolute; z-index: 4; inset: 78px 0 0; overflow: auto; padding: 38px clamp(24px, 5vw, 78px) 34px; color: #32291f; background: radial-gradient(circle at 50% 12%, rgb(102 67 31 / 35%), transparent 42%), linear-gradient(110deg, #20150d, #0d0a08 46%, #21160e); }
 .mission-passport::before { position: fixed; z-index: -1; inset: 78px 0 0; content: ""; opacity: .38; background-image: radial-gradient(#e3ba79 0.5px, transparent 0.7px), radial-gradient(#000 0.5px, transparent 0.7px); background-position: 0 0, 5px 6px; background-size: 9px 9px, 11px 11px; }
 .passport-cover-edge { position: absolute; top: 23px; right: 3.2vw; bottom: 18px; left: 3.2vw; border: 1px solid #674827; border-radius: 24px; box-shadow: 0 24px 70px #000, inset 0 0 0 8px rgb(0 0 0 / 18%); pointer-events: none; }
-.passport-heading { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "intro complete" "intro stats"; align-items: start; column-gap: 22px; max-width: 1240px; margin: 0 auto 18px; padding: 20px 32px 17px; color: #d8b476; border: 1px solid #74522e; border-bottom: 0; border-radius: 14px 14px 0 0; background: linear-gradient(135deg, #1c201e, #101411); box-shadow: inset 0 0 25px rgb(0 0 0 / 45%); }
+.passport-heading { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "intro complete" "stats stats"; align-items: start; column-gap: 22px; max-width: 1240px; margin: 0 auto 18px; padding: 20px 32px 17px; color: #d8b476; border: 1px solid #74522e; border-bottom: 0; border-radius: 14px 14px 0 0; background: linear-gradient(135deg, #1c201e, #101411); box-shadow: inset 0 0 25px rgb(0 0 0 / 45%); }
 .passport-heading-intro { display: grid; grid-area: intro; grid-template-columns: 34px auto; align-items: center; column-gap: 12px; }
 .passport-globe-mark { grid-row: 1 / 3; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #c69b5c; border-radius: 50%; font: 800 22px serif; }
 .passport-heading p { margin: 0; font: 700 10px ui-monospace, monospace; letter-spacing: .26em; }
 .passport-heading h1 { margin: 2px 0 0; color: #f0d7a8; font: 650 clamp(18px, 2vw, 28px) Georgia, serif; letter-spacing: .14em; }
 .passport-heading-intro > small { grid-column: 2; margin-top: 4px; color: #9c8055; font: 600 8px/1.4 Georgia, serif; letter-spacing: .04em; }
-.passport-complete-button { display: block; grid-area: complete; width: 150px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.passport-complete-button { display: block; grid-area: complete; width: 190px; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .passport-complete-button picture, .passport-complete-button img { display: block; width: 100%; height: auto; }
 .passport-complete-button img { filter: drop-shadow(0 3px 5px rgb(0 0 0 / 35%)); }
 .passport-complete-button:disabled { cursor: not-allowed; opacity: .56; }
 .passport-complete-button:disabled img { filter: grayscale(1) saturate(.2) brightness(.72); }
 .passport-complete-button:not(:disabled):hover img, .passport-complete-button:not(:disabled):focus-visible img { filter: drop-shadow(0 4px 9px rgb(255 209 112 / 35%)) brightness(1.08); }
 .passport-heading dl { display: flex; gap: 12px; margin: 0; }
-.passport-heading > dl { grid-area: stats; justify-self: end; }
+.passport-heading > dl { grid-area: stats; justify-self: end; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgb(215 174 108 / 18%); }
 .passport-heading dl div { min-width: 130px; padding: 8px 11px; border: 1px solid rgb(215 174 108 / 25%); }
 .passport-heading dt { color: #876e48; font: 700 7px ui-monospace, monospace; letter-spacing: .12em; }
 .passport-heading dd { margin: 3px 0 0; color: #e2c28e; font: 750 10px ui-monospace, monospace; }
@@ -462,6 +462,22 @@ body { overscroll-behavior: none; }
 .complete-sticker-locked-art { display: grid; place-items: center; width: min(76%, 330px); aspect-ratio: 1; color: #8f7959; border: 1px dashed rgb(111 84 47 / 40%); border-radius: 20%; background: radial-gradient(circle, rgb(111 84 47 / 14%), transparent 68%); }
 .complete-sticker-locked-art span { color: #a8916d; font: 400 clamp(64px, 9vw, 120px)/1 Georgia, serif; opacity: .5; }
 .complete-sticker-locked-art strong { margin-top: -20px; font: 800 12px ui-monospace, monospace; letter-spacing: .18em; }
+.complete-sticker-acquisition-backdrop { position: fixed; z-index: 40; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(2 8 10 / 78%); backdrop-filter: blur(10px); }
+.complete-sticker-acquisition-dialog { position: relative; display: grid; justify-items: center; width: min(620px, 100%); max-height: calc(100vh - 48px); padding: 30px 42px 32px; overflow: auto; color: #3c2d1b; border: 1px solid #d2a65e; border-radius: 18px; background: radial-gradient(circle at 50% 25%, rgb(255 246 207 / 70%), transparent 42%), linear-gradient(145deg, #ead5a8, #f5e8c9 52%, #d4b477); box-shadow: 0 28px 100px rgb(0 0 0 / 65%), inset 0 0 45px rgb(132 86 25 / 15%); text-align: center; }
+.complete-sticker-acquisition-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 44px; height: 44px; color: #80633c; border: 1px solid rgb(128 99 60 / 38%); background: rgb(255 247 220 / 24%); cursor: pointer; font: 700 22px/1 ui-monospace, monospace; }
+.complete-sticker-acquisition-close:hover { color: #3f2c13; border-color: #a47b3b; background: rgb(255 247 220 / 55%); }
+.complete-sticker-acquisition-eyebrow { color: #896a3f; font: 800 9px ui-monospace, monospace; letter-spacing: .26em; }
+.complete-sticker-acquisition-dialog h2 { margin: 7px 0 0; color: #382815; font: 700 clamp(22px, 3vw, 32px) Georgia, serif; letter-spacing: .08em; }
+.complete-sticker-acquisition-volume { margin: 7px 0 0; color: #6b5130; font: 700 13px/1.4 Georgia, serif; letter-spacing: .08em; }
+.complete-sticker-acquisition-art { display: grid; place-items: center; width: 100%; min-height: 360px; margin: 12px 0 5px; }
+.complete-sticker-acquisition-art img { display: block; width: min(100%, 420px); max-height: 420px; object-fit: contain; filter: drop-shadow(2px 8px 7px rgb(54 35 13 / 30%)); }
+.complete-sticker-acquisition-description { max-width: 390px; margin: 0; color: #715c3e; font: 500 11px/1.6 Georgia, serif; }
+.complete-sticker-acquisition-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; width: 100%; margin-top: 20px; }
+.complete-sticker-acquisition-actions button { min-height: 44px; padding: 10px 16px; cursor: pointer; font: 800 8px ui-monospace, monospace; letter-spacing: .1em; }
+.complete-sticker-acquisition-primary { color: #fff3d1; border: 1px solid #6c4a1c; background: #684718; box-shadow: 0 4px 10px rgb(64 38 8 / 17%); }
+.complete-sticker-acquisition-primary:hover { background: #805b26; }
+.complete-sticker-acquisition-secondary { color: #6b5130; border: 1px solid rgb(128 99 60 / 48%); background: rgb(255 247 220 / 25%); }
+.complete-sticker-acquisition-secondary:hover { background: rgb(255 247 220 / 58%); }
 
 /* チップの中身: 名前と「サンプル」印。印が付くのは中身がまだ模式・デモの3枚だけ。 */
 .lens-chip-label { display: grid; gap: 1px; min-width: 0; }
@@ -650,8 +666,8 @@ body { overscroll-behavior: none; }
   .mission-passport::before { top: calc(60px + env(safe-area-inset-top)); }
   .passport-cover-edge { display: none; }
   .passport-heading { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "intro complete" "stats stats"; align-items: start; gap: 10px; padding: 16px; border-radius: 8px 8px 0 0; }
-  .passport-complete-button { width: 112px; }
-  .passport-heading > dl { justify-self: stretch; }
+  .passport-complete-button { width: 84px; }
+  .passport-heading > dl { justify-self: stretch; margin-top: 0; padding-top: 0; border-top: 0; }
   .passport-heading dl { display: grid; gap: 4px; }
   .passport-heading dl div { min-width: 105px; padding: 6px 8px; }
   .passport-heading h1 { font-size: 17px; }
@@ -680,7 +696,7 @@ body { overscroll-behavior: none; }
 @media (max-width: 540px) {
   .brand-mark { display: none; }
   .passport-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "intro complete" "stats stats"; }
-  .passport-complete-button { width: 104px; }
+  .passport-complete-button { width: 84px; }
   .passport-heading dl { grid-template-columns: 1fr 1fr; margin-top: 12px; }
   .passport-slot { grid-template-columns: 128px 1fr; gap: 8px; }
   .travel-sticker { border-width: 4px; }
@@ -696,6 +712,15 @@ body { overscroll-behavior: none; }
   .complete-sticker-art { min-height: 285px; }
   .complete-sticker-art img { width: min(100%, 350px); max-height: 340px; }
   .complete-sticker-locked-art { width: min(64%, 240px); }
+  .complete-sticker-acquisition-backdrop { align-items: center; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+  .complete-sticker-acquisition-dialog { width: min(100%, 520px); max-height: calc(100dvh - 24px); padding: 26px 18px 20px; border-radius: 16px; }
+  .complete-sticker-acquisition-dialog h2 { max-width: 300px; font-size: 23px; line-height: 1.25; }
+  .complete-sticker-acquisition-volume { max-width: 280px; font-size: 12px; }
+  .complete-sticker-acquisition-art { min-height: 0; margin: 9px 0 7px; }
+  .complete-sticker-acquisition-art img { width: min(100%, 330px); max-height: min(42dvh, 330px); }
+  .complete-sticker-acquisition-description { max-width: 300px; font-size: 11px; }
+  .complete-sticker-acquisition-actions { display: grid; gap: 7px; margin-top: 16px; }
+  .complete-sticker-acquisition-actions button { width: 100%; }
 }
 
 /* Anchored observation UI: header + persistent Lens rail + point-attached card. */

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { EarthMission, MissionProgress } from "../../missions/types";
 import type { MissionPassportDefinition, MissionPassportSection } from "../../missions/passportTypes";
-import { completeButtonMobile, completeButtonPc, completeStickerCatalog, type CompleteStickerDefinition } from "../../missions/completeStickerCatalog";
+import { completeButtonCompact, completeButtonWide, completeStickerCatalog, type CompleteStickerDefinition } from "../../missions/completeStickerCatalog";
+import { getPassportMissionIds, isPassportComplete } from "../../missions/passportProgress";
 import { t } from "../../i18n/copy";
 import type { Locale } from "../../i18n/types";
 import { MissionStickerBadge } from "./MissionStickerBadge";
@@ -15,6 +16,9 @@ interface MissionPassportProps {
   locale: Locale;
   newlyCollectedId: string | null;
   onStartMission: (missionId: string) => void;
+  isCompleteCollectionOpen: boolean;
+  onOpenCompleteCollection: () => void;
+  onCloseCompleteCollection: () => void;
 }
 
 interface PassportPage {
@@ -33,17 +37,7 @@ function chunkMissions(missions: readonly EarthMission[], size: number): EarthMi
   return chunks;
 }
 
-function passportMissionIds(passport: MissionPassportDefinition): string[] {
-  return passport.sections.flatMap((section) => section.missionIds);
-}
-
-function isPassportComplete(passport: MissionPassportDefinition, progress: Record<string, MissionProgress>): boolean {
-  const missionIds = passportMissionIds(passport);
-  return missionIds.length > 0 && missionIds.every((missionId) => progress[missionId]?.completed === true);
-}
-
-export function MissionPassport({ passports, selectedPassportId, onSelectPassport, missions, progress, locale, newlyCollectedId, onStartMission }: MissionPassportProps) {
-  const [isCompleteCollectionOpen, setIsCompleteCollectionOpen] = useState(false);
+export function MissionPassport({ passports, selectedPassportId, onSelectPassport, missions, progress, locale, newlyCollectedId, onStartMission, isCompleteCollectionOpen, onOpenCompleteCollection, onCloseCompleteCollection }: MissionPassportProps) {
   const selectedPassport = passports.find((passport) => passport.id === selectedPassportId) ?? passports[0];
   const missionById = useMemo(() => new Map(missions.map((mission) => [mission.id, mission])), [missions]);
 
@@ -70,7 +64,7 @@ export function MissionPassport({ passports, selectedPassportId, onSelectPasspor
   return <section className="mission-passport" aria-label={t(locale, "missionPassport")}>
     <div className="passport-cover-edge" aria-hidden="true" />
     {isCompleteCollectionOpen
-      ? <CompleteStickerCollection entries={completeStickerEntries} locale={locale} onBack={() => setIsCompleteCollectionOpen(false)} />
+      ? <CompleteStickerCollection entries={completeStickerEntries} locale={locale} onBack={onCloseCompleteCollection} />
       : <>
         <header className="passport-heading">
           <div className="passport-heading-intro">
@@ -84,11 +78,11 @@ export function MissionPassport({ passports, selectedPassportId, onSelectPasspor
             className="passport-complete-button"
             disabled={!canOpenCompleteCollection}
             aria-disabled={!canOpenCompleteCollection}
-            onClick={() => setIsCompleteCollectionOpen(true)}
+            onClick={onOpenCompleteCollection}
           >
             <picture>
-              <source media="(max-width: 820px)" srcSet={completeButtonMobile} />
-              <img src={completeButtonPc} alt={t(locale, "completeStickers")} />
+              <source media="(max-width: 820px)" srcSet={completeButtonCompact} />
+              <img src={completeButtonWide} alt={t(locale, "completeStickers")} />
             </picture>
           </button>
           <dl>
@@ -98,7 +92,7 @@ export function MissionPassport({ passports, selectedPassportId, onSelectPasspor
         </header>
         <nav className="passport-volume-selector" aria-label={t(locale, "passportVolumeSelector")}>
           {passports.map((passport) => {
-            const missionIds = passportMissionIds(passport);
+            const missionIds = getPassportMissionIds(passport);
             const volumeCompletedCount = missionIds.filter((missionId) => progress[missionId]?.completed).length;
             return <button type="button" key={passport.id} aria-pressed={passport.id === selectedPassport.id} onClick={() => onSelectPassport(passport.id)}>
               <span>{t(locale, "passportVolumeLabel")} {passport.number}</span>

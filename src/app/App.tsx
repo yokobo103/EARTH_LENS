@@ -8,6 +8,7 @@ import { ModeSelector } from "../components/ModeSelector";
 import { MissionAnchoredCard } from "../components/mission/MissionAnchoredCard";
 import { MissionPanel } from "../components/mission/MissionPanel";
 import { MissionPassport } from "../components/mission/MissionPassport";
+import { CompleteStickerAcquisitionDialog } from "../components/mission/CompleteStickerAcquisitionDialog";
 import { ShareButton } from "../components/ShareButton";
 import { AboutSplash } from "../components/AboutSplash";
 import { shouldShowAboutSplash } from "../components/aboutSplashState";
@@ -20,6 +21,9 @@ import { createMissionState, getActiveMissionEffects, revealNextHint, selectMiss
 import { loadMissionProgress, recordMissionCompletion, saveMissionProgress } from "../missions/progressStore";
 import { getDefaultMission, getMission, missionRegistry } from "../missions/registry";
 import { getDefaultPassport, passportRegistry } from "../missions/passportRegistry";
+import { completeStickerCatalog } from "../missions/completeStickerCatalog";
+import { getCompletedPassportIds } from "../missions/passportProgress";
+import { loadCompletionRewardSeen, saveCompletionRewardSeen } from "../missions/completionRewardStore";
 import type { MissionProgress } from "../missions/types";
 import { t } from "../i18n/copy";
 import { localizeLensDefinition, localizeMission } from "../i18n/domain";
@@ -81,9 +85,18 @@ export function App() {
   const [missionProgress, setMissionProgress] = useState<Record<string, MissionProgress>>(() => loadMissionProgress());
   const [selectedPassportId, setSelectedPassportId] = useState(defaultPassport.id);
   const [newlyCollectedId, setNewlyCollectedId] = useState<string | null>(null);
+  const [completionRewardSeenByPassportId, setCompletionRewardSeenByPassportId] = useState(() => loadCompletionRewardSeen());
+  const [activeCompletionRewardId, setActiveCompletionRewardId] = useState<string | null>(null);
+  const [isCompleteCollectionOpen, setIsCompleteCollectionOpen] = useState(false);
   const currentMission = getMission(missionState.currentMissionId) ?? defaultMission;
   const displayMission = useMemo(() => localizeMission(currentMission, locale), [currentMission, locale]);
   const displayMissions = useMemo(() => missionRegistry.map((mission) => localizeMission(mission, locale)), [locale]);
+  const completedPassportIds = useMemo(() => getCompletedPassportIds(passportRegistry, missionProgress), [missionProgress]);
+  const pendingCompletionRewardIds = useMemo(() => completeStickerCatalog
+    .filter((entry) => completedPassportIds.includes(entry.passportId) && !completionRewardSeenByPassportId[entry.passportId])
+    .sort((left, right) => left.number - right.number)
+    .map((entry) => entry.passportId), [completedPassportIds, completionRewardSeenByPassportId]);
+  const activeCompletionReward = completeStickerCatalog.find((entry) => entry.passportId === activeCompletionRewardId);
   const missionEffects = useMemo(() => getActiveMissionEffects(missionState.revealedHintIds, displayMission), [displayMission, missionState.revealedHintIds]);
   const cameraEffect = [...missionEffects].reverse().find((effect) => effect.type === "camera-focus");
   const displayLenses = useMemo(() => lensRegistry.map((lens) => localizeLensDefinition(lens.definition, locale)), [locale]);
@@ -131,6 +144,15 @@ export function App() {
       // localStorage may be unavailable in private browsing or embedded previews.
     }
   }, [vividEarth]);
+  useEffect(() => {
+    if (appMode !== "mission" || missionView !== "passport" || isCompleteCollectionOpen || activeCompletionRewardId || pendingCompletionRewardIds.length === 0) return;
+    const nextId = pendingCompletionRewardIds[0];
+    if (!nextId) return;
+    const timer = window.setTimeout(() => {
+      setActiveCompletionRewardId(nextId);
+    }, newlyCollectedId ? 850 : 350);
+    return () => window.clearTimeout(timer);
+  }, [activeCompletionRewardId, appMode, isCompleteCollectionOpen, missionView, newlyCollectedId, pendingCompletionRewardIds]);
 
   const shareState: SharedViewState = {
     camera: sharedCamera,
@@ -176,7 +198,10 @@ export function App() {
     const mission = getMission(missionId); if (!mission) return;
     setMissionState(createMissionState(mission)); setMissionLensIds(new Set(mission.recommendedLensIds)); clearSelection(); setMissionView("field"); setNewlyCollectedId(null);
   };
-  const collectSticker = () => { setNewlyCollectedId(currentMission.id); setMissionView("passport"); };
+  const collectSticker = () => {
+    setNewlyCollectedId(currentMission.id);
+    setMissionView("passport");
+  };
   const submitMissionAnswer = () => {
     const nextState = submitMissionLocation(missionState, currentMission);
     setMissionState(nextState);
@@ -205,6 +230,18 @@ export function App() {
   const timeline = <Timeline selection={temporalSelection} locale={locale} onChange={changeTime} />;
   const missionPanel = <MissionPanel mission={displayMission} state={missionState} locale={locale} onOpenPassport={() => { setMissionView("passport"); }} onRevealHint={() => setMissionState((state) => revealNextHint(state, currentMission))} />;
   const missionAnchorContent = anchorPoint ? <MissionAnchoredCard mission={displayMission} state={missionState} locale={locale} expanded={anchorExpanded} onSubmit={submitMissionAnswer} onCollectSticker={collectSticker} onClose={clearSelection} compact={isCompact} /> : null;
+  const closeCompletionReward = (openCollection: boolean) => {
+    if (!activeCompletionRewardId) return;
+    const passportId = activeCompletionRewardId;
+    setCompletionRewardSeenByPassportId((current) => {
+      if (current[passportId]) return current;
+      const next = { ...current, [passportId]: true };
+      saveCompletionRewardSeen(next);
+      return next;
+    });
+    setActiveCompletionRewardId(null);
+    if (openCollection) setIsCompleteCollectionOpen(true);
+  };
 
   return (
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${showGlobe && appMode === "explore" && paleoToolEnabled ? " paleo-band-open" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}${sheetOpen ? " anchor-sheet-open" : ""}${lensInfoOpen ? " lens-info-open" : ""}${scanResultOpen ? " scan-result-open" : ""}${missionCleared ? " mission-cleared" : ""}`}>
@@ -213,7 +250,8 @@ export function App() {
       {showGlobe && appMode === "explore" && paleoToolEnabled && <div className="paleo-time-band">{timeline}</div>}
       {showGlobe && activeLensLegend}
       {showGlobe && layerPanel}
-      {appMode === "mission" && (missionView === "passport" ? <MissionPassport passports={passportRegistry} selectedPassportId={selectedPassportId} onSelectPassport={setSelectedPassportId} missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} /> : (isCompact && missionCleared) ? null : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
+      {appMode === "mission" && (missionView === "passport" ? <MissionPassport passports={passportRegistry} selectedPassportId={selectedPassportId} onSelectPassport={setSelectedPassportId} missions={displayMissions} progress={missionProgress} locale={locale} newlyCollectedId={newlyCollectedId} onStartMission={startMission} isCompleteCollectionOpen={isCompleteCollectionOpen} onOpenCompleteCollection={() => setIsCompleteCollectionOpen(true)} onCloseCompleteCollection={() => setIsCompleteCollectionOpen(false)} /> : (isCompact && missionCleared) ? null : <details className="mission-briefing-dock" open={missionBriefingOpen} onToggle={(event) => setMissionBriefingOpen(event.currentTarget.open)}><summary><span>MISSION {String(displayMission.number).padStart(2, "0")} · {displayMission.title}</span><small>{t(locale, "hints")} {missionState.revealedHintIds.length} / {displayMission.hints.length}</small><b>{missionBriefingOpen ? t(locale, "closeBriefing") : t(locale, "openBriefing")}</b></summary>{missionPanel}</details>)}
+      {activeCompletionReward && <CompleteStickerAcquisitionDialog entry={activeCompletionReward} locale={locale} onViewCollection={() => closeCompletionReward(true)} onDismiss={() => closeCompletionReward(false)} />}
       {aboutOpen && <AboutSplash locale={locale} onLocaleChange={setLocale} onClose={() => setAboutOpen(false)} />}
     </main>
   );
