@@ -1,12 +1,12 @@
 import type { EarthMission } from "./types";
-import nileSticker from "../assets/stickers/vol2/mission-v2-01-nile.png";
-import mesopotamiaSticker from "../assets/stickers/vol2/mission-v2-02-mesopotamia.png";
-import indusSticker from "../assets/stickers/vol2/mission-v2-03-indus.png";
-import yellowRiverSticker from "../assets/stickers/vol2/mission-v2-04-yellow-river.png";
-import tokyoSticker from "../assets/stickers/vol2/mission-v2-05-tokyo.png";
-import newYorkSticker from "../assets/stickers/vol2/mission-v2-06-new-york.png";
-import mexicoCitySticker from "../assets/stickers/vol2/mission-v2-07-mexico-city.png";
-import saoPauloSticker from "../assets/stickers/vol2/mission-v2-08-sao-paulo.png";
+import nileSticker from "../assets/stickers/vol2/mission-v2-01-nile.webp";
+import mesopotamiaSticker from "../assets/stickers/vol2/mission-v2-02-mesopotamia.webp";
+import indusSticker from "../assets/stickers/vol2/mission-v2-03-indus.webp";
+import yellowRiverSticker from "../assets/stickers/vol2/mission-v2-04-yellow-river.webp";
+import tokyoSticker from "../assets/stickers/vol2/mission-v2-05-tokyo.webp";
+import newYorkSticker from "../assets/stickers/vol2/mission-v2-06-new-york.webp";
+import mexicoCitySticker from "../assets/stickers/vol2/mission-v2-07-mexico-city.webp";
+import saoPauloSticker from "../assets/stickers/vol2/mission-v2-08-sao-paulo.webp";
 
 export const missionCatalogVol2: readonly EarthMission[] = [
   {
