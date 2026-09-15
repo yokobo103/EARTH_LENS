@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppMode } from "./types";
 import { ActiveLensLegend } from "../components/ActiveLensLegend";
 import { AnchoredDetailsCard } from "../components/AnchoredDetailsCard";
@@ -13,6 +13,7 @@ import { ShareButton } from "../components/ShareButton";
 import { AboutSplash } from "../components/AboutSplash";
 import { shouldShowAboutSplash } from "../components/aboutSplashState";
 import { Timeline } from "../components/Timeline";
+import { DeepTimeStatusBadge, TimeShiftNotice } from "../components/DeepTimeStatus";
 import { EarthGlobe } from "../globe/EarthGlobe";
 import { useIsCompact } from "../hooks/useIsCompact";
 import { lensRegistry } from "../lenses/registry";
@@ -119,6 +120,8 @@ export function App() {
   const [whyHereResult, setWhyHereResult] = useState<WhyHereResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [temporalSelection, setTemporalSelection] = useState<TemporalSelection>(initialSharedView.temporal ?? { mode: "present", ageMa: 0 });
+  const [timeShiftNotice, setTimeShiftNotice] = useState<{ selection: TemporalSelection; id: number } | null>(null);
+  const timeShiftId = useRef(0);
   const [paleoToolEnabled, setPaleoToolEnabled] = useState(() => initialSharedView.temporal?.mode === "deep-time");
   const [vividEarth, setVividEarth] = useState(readVividEarth);
   const [sharedCamera, setSharedCamera] = useState<SharedCameraState | null>(() => initialSharedView.camera ?? (!hasSharedView ? readStoredCamera() : null));
@@ -144,6 +147,11 @@ export function App() {
       // localStorage may be unavailable in private browsing or embedded previews.
     }
   }, [vividEarth]);
+  useEffect(() => {
+    if (!timeShiftNotice) return;
+    const timer = window.setTimeout(() => setTimeShiftNotice(null), 1250);
+    return () => window.clearTimeout(timer);
+  }, [timeShiftNotice]);
   useEffect(() => {
     if (appMode !== "mission" || missionView !== "passport" || isCompleteCollectionOpen || activeCompletionRewardId || pendingCompletionRewardIds.length === 0) return;
     const nextId = pendingCompletionRewardIds[0];
@@ -189,7 +197,12 @@ export function App() {
     }
   };
   const runWhyHere = async () => { if (!anchorPoint) return; setIsAnalyzing(true); try { setWhyHereResult(await analyzeLocation(anchorPoint, 500)); } finally { setIsAnalyzing(false); } };
-  const changeTime = (selection: TemporalSelection) => { setTemporalSelection(selection); clearSelection(); };
+  const changeTime = (selection: TemporalSelection) => {
+    setTemporalSelection(selection);
+    clearSelection();
+    timeShiftId.current += 1;
+    setTimeShiftNotice({ selection, id: timeShiftId.current });
+  };
   const changeMode = (mode: AppMode) => {
     setAppMode(mode); clearSelection();
     if (mode === "mission") { setMissionView("passport"); setTemporalSelection({ mode: "present", ageMa: 0 }); }
@@ -247,6 +260,8 @@ export function App() {
     <main lang={locale} className={`app-shell${locale === "ja" ? " ja-ui" : ""}${isCompact ? " compact-ui" : ""}${temporalSelection.mode === "deep-time" ? " deep-time-active" : ""}${appMode === "mission" ? " mission-mode" : ""}${showGlobe && appMode === "explore" && paleoToolEnabled ? " paleo-band-open" : ""}${missionView === "passport" && appMode === "mission" ? " passport-mode" : ""}${sheetOpen ? " anchor-sheet-open" : ""}${lensInfoOpen ? " lens-info-open" : ""}${scanResultOpen ? " scan-result-open" : ""}${missionCleared ? " mission-cleared" : ""}`}>
       {showGlobe && <EarthGlobe activeLensIds={appMode === "explore" ? activeLensIds : missionLensIds} onFeatureSelect={handleGlobeFeature} onLocationSelect={handleGlobeLocation} temporalSelection={temporalSelection} appMode={appMode} missionEffects={missionEffects} missionFocus={missionFocus} ariaLabel={t(locale, "interactiveEarth")} locale={locale} selectedFeature={selectedFeature} anchorPoint={anchorPoint} anchorExpanded={anchorExpanded} lensInfoOpen={lensInfoOpen} scanResultOpen={scanResultOpen} anchorContent={appMode === "explore" ? (anchorPoint ? <AnchoredDetailsCard feature={selectedFeature} location={selectedLocation} anchorPoint={anchorPoint} expanded={anchorExpanded} whyHereResult={whyHereResult} isAnalyzing={isAnalyzing} locale={locale} onAnalyze={() => { setLensInfoOpen(false); setAnchorExpanded(true); void runWhyHere(); }} onClose={clearSelection} /> : null) : missionAnchorContent} onAnchorClose={scanResultOpen ? closeScanResult : clearSelection} initialCamera={sharedCamera} initialFeature={initialSharedView.feature ?? (!hasSharedView ? openingFeature : null)} terrainReliefEnabled={!vividEarth} onCameraChange={setSharedCamera} />}
       <header className="app-header"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true" /><div><strong><span className="brand-full">EARTH LENS</span><span className="brand-compact" aria-hidden="true">EL</span></strong><span>{t(locale, "systemSubtitle")}</span></div></div><ModeSelector mode={appMode} locale={locale} onChange={changeMode} /><div className="header-controls">{!isCompact && <LanguageSelector locale={locale} onChange={setLocale} />}<button type="button" className="header-utility-toggle" aria-expanded={utilityOpen} aria-label={t(locale, "menu")} onClick={() => setUtilityOpen((open) => !open)}><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" /></button><div className={`header-utility${utilityOpen ? " is-open" : ""}`}><div className="terrain-appearance-control"><div><strong>{t(locale, "vividEarth")}</strong><small>{t(locale, "vividEarthDescription")}</small></div><button type="button" aria-pressed={vividEarth} onClick={() => setVividEarth((enabled) => !enabled)}>{vividEarth ? t(locale, "on") : t(locale, "off")}</button></div><ShareButton locale={locale} state={shareState} />{isCompact && <LanguageSelector locale={locale} onChange={setLocale} />}<button type="button" className="header-about" onClick={() => { setAboutOpen(true); setUtilityOpen(false); }}>{t(locale, "aboutMenu")}</button>{appMode === "mission" && <div className="mode-readout"><span>{t(locale, "journeyStatus")}</span><strong>{t(locale, "missionPassport")}</strong></div>}<button type="button" className="utility-sheet-close" onClick={() => setUtilityOpen(false)}>{t(locale, "close")}</button></div></div></header>
+      {temporalSelection.mode === "deep-time" && <DeepTimeStatusBadge ageMa={temporalSelection.ageMa} locale={locale} />}
+      {timeShiftNotice && <TimeShiftNotice selection={timeShiftNotice.selection} locale={locale} animationKey={timeShiftNotice.id} />}
       {showGlobe && appMode === "explore" && paleoToolEnabled && <div className="paleo-time-band">{timeline}</div>}
       {showGlobe && activeLensLegend}
       {showGlobe && layerPanel}

@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { TemporalSelection } from "../temporal/types";
+import { formatAge, formatAgeAria, formatAgeTechnical } from "../temporal/ageFormat";
 import { t } from "../i18n/copy";
 import type { Locale } from "../i18n/types";
 
@@ -89,8 +90,8 @@ export function Timeline({ selection, locale, onChange }: TimelineProps) {
   return (
     <div className="time-scale">
       <div className="time-scale-now">
-        <strong>{shown === 0 ? t(locale, "present") : `${shown} Ma`}</strong>
-        <small>PALEOMAP</small>
+        <strong>{formatAge(shown, locale)}</strong>
+        <small>{shown === 0 ? t(locale, "paleomap") : `${t(locale, "paleomap")} · ${formatAgeTechnical(shown)}`}</small>
       </div>
 
       <div className="time-scale-body">
@@ -107,7 +108,7 @@ export function Timeline({ selection, locale, onChange }: TimelineProps) {
           aria-valuemin={0}
           aria-valuemax={OLDEST_MA}
           aria-valuenow={here}
-          aria-valuetext={here === 0 ? t(locale, "present") : `${here} Ma`}
+          aria-valuetext={formatAgeAria(here, locale)}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}

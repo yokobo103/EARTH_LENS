@@ -1,5 +1,7 @@
 import type { EarthLensDefinition } from "../lenses/types";
+import { formatAge } from "./ageFormat";
 import type { TemporalSelection } from "./types";
+import type { Locale } from "../i18n/types";
 
 export class TimeController {
   static isLensAvailable(lens: EarthLensDefinition, selection: TemporalSelection): boolean {
@@ -11,7 +13,7 @@ export class TimeController {
     return true;
   }
 
-  static label(selection: TemporalSelection): string {
-    return selection.mode === "present" ? "PRESENT" : `${selection.ageMa} MILLION YEARS AGO`;
+  static label(selection: TemporalSelection, locale: Locale = "en"): string {
+    return formatAge(selection.mode === "present" ? 0 : selection.ageMa, locale);
   }
 }
