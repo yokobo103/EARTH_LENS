@@ -1008,7 +1008,7 @@ body { overscroll-behavior: none; }
   .header-utility { top: calc(100% + 8px); right: 0; width: min(310px, calc(100vw - 16px)); max-height: min(68vh, 560px); padding: 14px; transform: translateY(-8px) scale(.98); }
   .header-utility.is-open { transform: translateY(0) scale(1); }
   /* モバイルはTimelineだけを常設の年代表示にする。 */
-  .paleo-time-band { top: calc(142px + env(safe-area-inset-top)); right: 8px; bottom: auto; left: 8px; }
+  .paleo-time-band { top: calc(104px + env(safe-area-inset-top)); right: 8px; bottom: auto; left: 8px; }
   .paleo-time-band .time-scale { width: 100%; }
   .time-scale-now { min-width: 112px; gap: 2px; }
   .time-scale-now strong { font-size: 11px; }
@@ -1040,6 +1040,12 @@ body { overscroll-behavior: none; }
 @media (min-width: 821px) {
   .lens-rail .layer-category-items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lens-rail .layer-item { height: 52px; }
+}
+
+@media (max-width: 820px) {
+  /* Timelineを上へ逃がしたぶん、地球の表示領域は少し下へ。Cesiumの
+     canvasとanchor座標を同じstageごと動かすので、選択位置はずれない。 */
+  .earth-stage { top: 28px; height: calc(100% - 28px); }
 }
 
 /* On desktop the mission briefing owns the right-side margin. The left lens

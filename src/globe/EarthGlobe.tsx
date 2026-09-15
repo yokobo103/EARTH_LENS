@@ -200,6 +200,9 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       const isLensInfoDock = isMobile && !anchorExpandedRef.current && lensInfoOpenRef.current;
       const isCompactBar = isMobile && !anchorExpandedRef.current && !lensInfoOpenRef.current;
       const isDesktopScanResult = !isMobile && appModeRef.current === "explore" && scanResultOpenRef.current;
+      const stageRect = containerRef.current?.getBoundingClientRect();
+      const timelineRect = isMobile ? document.querySelector<HTMLElement>(".paleo-time-band")?.getBoundingClientRect() : undefined;
+      const timelineSafeTop = stageRect && timelineRect ? timelineRect.bottom - stageRect.top + 8 : 0;
       if (isDesktopScanResult) {
         root.style.visibility = "visible";
         root.dataset.visible = "true";
@@ -244,7 +247,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       // 一度だけ動かし、ユーザーの縮尺・向きを何度も奪わない。
       if (isCompactBar || isLensInfoDock) {
         const pointKey = `${point.latitude.toFixed(4)}:${point.longitude.toFixed(4)}`;
-        const safeTop = 66;
+        const safeTop = Math.max(66, timelineSafeTop);
         const dockHeight = isLensInfoDock
           ? document.querySelector<HTMLElement>(".lens-rail")?.getBoundingClientRect().height ?? mobileBottomChrome()
           : mobileBottomChrome() + 78;
@@ -280,7 +283,7 @@ export function EarthGlobe({ activeLensIds, onFeatureSelect, onLocationSelect, t
       const cardWidth = cardRect.width;
       const cardHeight = cardRect.height;
       const edge = stageWidth <= 820 ? 8 : 14;
-      const safeTop = stageWidth <= 820 ? 66 : 88;
+      const safeTop = stageWidth <= 820 ? Math.max(66, timelineSafeTop) : 88;
       const safeBottom = stageWidth <= 820 ? mobileBottomChrome() : 18;
       const canPlaceRight = projected.x + 22 + cardWidth <= stageWidth - edge;
       const canPlaceLeft = projected.x - 22 - cardWidth >= edge;
