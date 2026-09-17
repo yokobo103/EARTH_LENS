@@ -66,7 +66,7 @@ v0.4はPhysical Earth基盤とNatural Earth由来の国境Lensを維持しつつ
 - Natural Earth 1:50mの242か国を塗らずに重ねるCountry Borders Lens
 - Natural Earth 1:10mの一般化した河川・湖心線を重ねるRivers Lens
 - Köppen-Geiger（1991–2020）のB（乾燥帯）から焼いた54件の面を、砂漠と半乾燥に分けて重ねるArid Regions Lens
-- Marine Regionsの太平洋周辺を中心としたEEZ（排他的経済水域）Lens
+- Marine Regions World EEZ v12の全285海域（北極海を含む）を重ねるEEZ（排他的経済水域）Lens
 - Natural Earthの山脈・高原294件（Range/mtn / Plateau）を実形状で表示するPhysical Features
 - 遠距離ではsignal、近距離で名称を出すNatural Earth 1:10mの1,081港
 - endpointからコード生成する6本のSchematic Shipping Flow
@@ -154,7 +154,7 @@ Terrainはレンズではなく、ツール内の「地球の見た目」設定�
 | Country Borders | 242か国の簡略化outline | `real + derived` | Natural Earth 1:50m Admin 0 / Public Domain |
 | Rivers | 1,455件の一般化した河川・湖心線 | `real + derived` | Natural Earth 1:10m Rivers + lake centerlines / Public Domain |
 | Arid Regions | Köppen B から焼いた54件の乾燥帯ポリゴン（砂漠19 / 半乾燥35） | `real + derived` | Köppen-Geiger 1991–2020, Beck et al. 2023 / CC BY 4.0 |
-| EEZ | 太平洋周辺を中心に選定した36件の200海里海域 | `real + derived` | Marine Regions World EEZ v12 / CC BY 4.0 |
+| EEZ | 世界全体285件（200海里 229 / 主張が重なる海域 35 / 共同管理 21） | `real + derived` | Marine Regions World EEZ v12 / CC BY 4.0 |
 
 ## Geographic data import
 
@@ -185,7 +185,7 @@ Arid Regions LensはKöppen-Geiger気候区分（1991–2020年平年値、Beck 
 
 30年平均であって、いまの干ばつではありません。名札は付けていません（測った面には地名が無く、サハラとアラビアは1つの塊になります）。焼き直しは`python tools/build-arid-regions.py`で、元の気候データはオフラインでしか読みません。以前使っていたNatural Earthの`FEATURECLA = Desert`（58件）は、名前が付いた場所しか描けず本物の砂漠の44%が画面に無かったため、面の出典としては使っていません。
 
-EEZ LensはMarine Regions World EEZ v12から太平洋周辺を中心に選定した200海里海域の派生サブセットです。EEZは主権領域そのものではなく、境界紛争の判断や法的な海図用途を意図しません。出典・ライセンス・バージョンを表示し、最新版はMarine Regionsの公式配布ページを参照してください。
+EEZ LensはMarine Regions World EEZ v12の全海域を、WFSからページ分割で取得して簡略化した派生データです（2 km間隔・座標0.01度、約1.8 MB）。北極海沿岸5か国（ロシア・カナダ・アメリカ〈アラスカ〉・デンマーク王国〈グリーンランド〉・ノルウェー）が含まれることを`tools/verify-eez.mjs`がビルド時に検査します。EEZは主権領域そのものではなく、境界紛争の判断や法的な海図用途を意図しません。出典・ライセンス・バージョンを表示し、最新版はMarine Regionsの公式配布ページを参照してください。
 
 ShippingとCableは保存済み実経路を持ちません。どちらもendpointからgeodesicを生成し、Shippingは太い半透明amber帯＋破線、Cableは細いcyan networkとして区別します。
 

@@ -128,14 +128,20 @@ const layers = [
   },
   {
     id: "eez",
-    sourceUrls: ["https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=eez&cql_filter=iso_sov1%20IN%20(%27FJI%27,%27KIR%27,%27MHL%27,%27FSM%27,%27PLW%27,%27TON%27,%27WSM%27,%27NRU%27,%27TUV%27,%27VUT%27,%27PNG%27,%27SLB%27,%27NZL%27,%27AUS%27,%27JPN%27,%27IDN%27,%27PHL%27,%27CHL%27,%27ECU%27)&outputformat=application/json"],
+    // Marine Regions の WFS は、世界全体を1リクエストで返させると 120 MB 付近で時間切れになる。
+    // mrgid 順に分けて取り、1ページずつ軽く間引いてからつなぎ、最後にまとめて簡略化する。
+    sourceUrls: ["https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=MarineRegions:eez&sortBy=mrgid&outputFormat=application/json"],
+    wfsBase: "https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=MarineRegions:eez&sortBy=mrgid&outputFormat=application/json&propertyName=mrgid,geoname,territory1,iso_ter1,sovereign1,iso_sov1,area_km2,pol_type,x_1,y_1,the_geom",
+    pageSize: 20,
     outputPath: path.join(outputDirectory, "eez.geojson"),
     license: "Creative Commons Attribution 4.0 International (Marine Regions)",
-    retrievedAt: "2026-09-01",
-    processing: "20 Pacific-facing EEZ features · 7 source fields · simplify 2% keep-shapes · precision 0.001°",
-    steps: ["-filter-fields", "mrgid,geoname,territory1,iso_ter1,sovereign1,iso_sov1,area_km2", "-simplify", "2%", "keep-shapes"],
-    precision: "0.001",
-    build: buildNaturalEarthLayer,
+    retrievedAt: "2026-09-17",
+    processing: "All World EEZ v12 features (paged WFS) · 8 source fields + inner label point + name_ja · per-page pre-simplify interval 250 m · merged simplify interval 2 km keep-shapes · precision 0.01°",
+    prepareSteps: ["-simplify", "interval=250", "keep-shapes"],
+    // -clean は使わない。係争海域・共同管理海域は 200NM の EEZ と意図的に重なっている。
+    steps: ["-simplify", "interval=2000", "keep-shapes"],
+    precision: "0.01",
+    build: buildMarineRegionsEez,
   },
   {
     id: "sea-ice-edges",
@@ -240,6 +246,93 @@ async function buildNaturalEarthLayer(layer) {
     notes: layer.id === "major-ports"
       ? [`NAME_JA available: ${hasJapaneseNames ? "yes" : "no (English name retained)"}`]
       : [`NAME_JA available: ${hasJapaneseNames ? "yes" : "no"}`, "Existing committed output: byte-identical"],
+  };
+}
+
+/**
+ * EEZ の日本語名は Natural Earth の国名（NAME_JA）から引く。285 件を手で書かない。
+ * Natural Earth で ISO_A3 が -99 の国（ノルウェー・フランス）と、国ではない海外領土は
+ * ここで補う。係争海域・共同管理海域には付けない（片方の国名で呼ぶと誤解を招く）。
+ */
+const eezTerritoryJa = {
+  Norway: "ノルウェー", France: "フランス", Alaska: "アラスカ（アメリカ）", Hawaii: "ハワイ（アメリカ）",
+  Greenland: "グリーンランド（デンマーク）", Svalbard: "スヴァールバル（ノルウェー）", "Jan Mayen": "ヤンマイエン島（ノルウェー）",
+  "Faeroe": "フェロー諸島（デンマーク）", "Puerto Rico": "プエルトリコ（アメリカ）", Guam: "グアム（アメリカ）",
+  "French Polynesia": "フランス領ポリネシア", "New Caledonia": "ニューカレドニア（フランス）", Bermuda: "バミューダ（イギリス）",
+  "Falkland / Malvinas Islands": "フォークランド（マルビナス）諸島", "Azores": "アゾレス諸島（ポルトガル）", Madeira: "マデイラ諸島（ポルトガル）",
+  "Canary Islands": "カナリア諸島（スペイン）", "Cook Islands": "クック諸島",
+};
+
+async function attachEezJapaneseNames(collection) {
+  const countries = JSON.parse(await readFile(path.join(outputDirectory, "admin0-countries.geojson"), "utf8"));
+  const byIso = new Map(countries.features
+    .filter((feature) => feature.properties?.ISO_A3 && feature.properties.ISO_A3 !== "-99" && feature.properties.NAME_JA)
+    .map((feature) => [feature.properties.ISO_A3, feature.properties.NAME_JA]));
+  let named = 0;
+  for (const feature of collection.features) {
+    const properties = feature.properties ?? {};
+    if (properties.pol_type && properties.pol_type !== "200NM") continue;
+    const japanese = eezTerritoryJa[properties.territory1] ?? byIso.get(properties.iso_ter1);
+    if (japanese) {
+      properties.name_ja = japanese;
+      named += 1;
+    }
+  }
+  return named;
+}
+
+async function buildMarineRegionsEez(layer) {
+  const pagesDirectory = path.join(cacheDirectory, "eez-pages");
+  await mkdir(pagesDirectory, { recursive: true });
+  const merged = { type: "FeatureCollection", features: [] };
+  for (let startIndex = 0; ; startIndex += layer.pageSize) {
+    const rawPath = path.join(pagesDirectory, `page-${String(startIndex).padStart(4, "0")}.geojson`);
+    const lightPath = path.join(pagesDirectory, `page-${String(startIndex).padStart(4, "0")}.light.geojson`);
+    const cached = await stat(lightPath).catch(() => null);
+    if (!cached) {
+      const url = `${layer.wfsBase}&count=${layer.pageSize}&startIndex=${startIndex}`;
+      const buffer = await download(url, rawPath);
+      const page = verifyGeoJson(buffer.toString("utf8"), `eez page ${startIndex}`);
+      if (page.features.length === 0) break;
+      await runMapshaper(rawPath, layer.prepareSteps, "0.0001", lightPath);
+      console.log(`eez page ${startIndex}: ${page.features.length} features (${(buffer.length / 1024 / 1024).toFixed(1)} MB raw)`);
+    }
+    const light = verifyGeoJson(await readFile(lightPath, "utf8"), `eez page ${startIndex} light`);
+    merged.features.push(...light.features);
+    if (light.features.length < layer.pageSize) break;
+  }
+  if (merged.features.length === 0) throw new Error("Marine Regions EEZ returned no features; keeping the existing output.");
+
+  const mergedPath = path.join(buildDirectory, "eez.merged.geojson");
+  const temporaryOutput = path.join(buildDirectory, "eez.geojson");
+  await writeFile(mergedPath, JSON.stringify(merged), "utf8");
+  await runMapshaper(mergedPath, layer.steps, layer.precision, temporaryOutput);
+  const output = verifyGeoJson(await readFile(temporaryOutput, "utf8"), "eez output");
+  if (output.features.length !== merged.features.length) {
+    throw new Error(`eez feature count changed during simplification: ${merged.features.length} -> ${output.features.length}`);
+  }
+  // 名札の位置。Marine Regions の x_1/y_1 は面積重心で、輪の形の EEZ では陸の上
+  // （ロシアならシベリア、アメリカならオクラホマ）、日付変更線をまたぐフィジーでは
+  // 東経93度に落ちる（285件中43件がポリゴンの外）。mapshaper の inner point を使う。
+  const labelPath = path.join(buildDirectory, "eez.labels.geojson");
+  await runMapshaper(temporaryOutput, ["-points", "inner", "-filter-fields", "mrgid"], "0.01", labelPath);
+  const labels = new Map(verifyGeoJson(await readFile(labelPath, "utf8"), "eez labels").features
+    .filter((feature) => feature.geometry?.type === "Point")
+    .map((feature) => [feature.properties.mrgid, feature.geometry.coordinates]));
+  for (const feature of output.features) {
+    const point = labels.get(feature.properties.mrgid);
+    delete feature.properties.x_1;
+    delete feature.properties.y_1;
+    if (point) [feature.properties.label_lon, feature.properties.label_lat] = point;
+  }
+  const named = await attachEezJapaneseNames(output);
+  await writeFile(layer.outputPath, JSON.stringify(output), "utf8");
+  return {
+    featureCount: output.features.length,
+    notes: [
+      `Japanese names attached: ${named} / ${output.features.length} (200NM zones only; overlapping claims and joint regimes keep the source name)`,
+      `Pages cached under ${path.relative(projectRoot, pagesDirectory)} (delete to re-download)`,
+    ],
   };
 }
 

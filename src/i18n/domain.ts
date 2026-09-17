@@ -24,7 +24,7 @@ const lensJa: Record<string, { name: string; shortName: string; category: string
   "admin0-borders": { name: "国境", shortName: "国境", category: "戦略・権力", description: "地面には無い線。地形にどれだけ沿い、どれだけ沿わないか。", legends: ["国境線"], disclosures: ["簡略化した形状 · 1:50m", "Natural Earth · Public Domain"] },
   rivers: { name: "河川", shortName: "河川", category: "地球", description: "内陸と海をつなぐ水の線。人も境界も、この線に沿いやすい。", legends: ["川"], disclosures: ["一般化した河川網", "表示は平均流量で決めています · HydroRIVERS", "Natural Earth · Public Domain"] },
   deserts: { name: "乾燥帯", shortName: "乾燥帯", category: "地球", description: "いまの天気ではなく、長いあいだ乾いている土地の範囲。", legends: ["乾燥（砂漠）", "半乾燥（ステップ）"], disclosures: ["ケッペン区分 1991–2020", "30年平均・干ばつではない", "Beck et al. 2023 · CC BY 4.0"] },
-  eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", description: "小さな島が、これほど広い海の使用権を生むことがある。", legends: ["200海里の海域"], disclosures: ["選定デモサブセット", "EEZ / 200海里海域", "主権領域ではありません"] },
+  eez: { name: "排他的経済水域", shortName: "EEZ", category: "戦略・権力", description: "小さな島が、これほど広い海の使用権を生むことがある。", legends: ["200海里の海域"], disclosures: ["EEZ / 200海里海域", "Web表示用に簡略化", "主権領域ではありません"] },
 };
 
 const featureJa: Record<string, { name: string; description?: string }> = {

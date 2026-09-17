@@ -11,14 +11,14 @@ import type {
 const SOURCE_URL = "https://www.marineregions.org/downloads.php";
 
 const provenance: DataProvenance = {
-  source: "Marine Regions World EEZ v12 · selected Pacific-facing zones",
+  source: "Marine Regions World EEZ v12 · all zones",
   sourceUrl: SOURCE_URL,
   license: "Creative Commons Attribution 4.0 International (Marine Regions / VLIZ)",
   updatedAt: "2026-09-01 retrieval snapshot",
   confidence: "medium",
   dataKind: "real",
   classifications: ["real", "derived"],
-  note: "A curated subset of Marine Regions' 200 nautical mile EEZ polygons, simplified for web delivery. EEZs are maritime jurisdiction zones, not sovereign territory or a statement about disputed boundaries.",
+  note: "Marine Regions' 200 nautical mile EEZ polygons for the whole world, including overlapping claims and joint regimes, simplified for web delivery. EEZs are maritime jurisdiction zones, not sovereign territory or a statement about disputed boundaries.",
 };
 
 export const eezDefinition: EarthLensDefinition = {
@@ -32,7 +32,7 @@ export const eezDefinition: EarthLensDefinition = {
   provenance,
   visibleByDefault: false,
   legend: [{ label: "200 NM maritime zone", color: "#a6a4ed", symbol: "area" }],
-  disclosures: ["CURATED DEMO SUBSET", "EEZ / 200 NM MARITIME ZONE", "NOT SOVEREIGN TERRITORY"],
+  disclosures: ["EEZ / 200 NM MARITIME ZONE", "SIMPLIFIED FOR WEB", "NOT SOVEREIGN TERRITORY"],
 };
 
 type Position = [number, number];
@@ -52,6 +52,10 @@ interface EezGeoJson {
       sovereign1?: string;
       iso_sov1?: string;
       area_km2?: number;
+      pol_type?: string;
+      label_lon?: number;
+      label_lat?: number;
+      name_ja?: string;
     };
   }>;
 }
@@ -95,10 +99,22 @@ export async function loadEez(): Promise<LensDataset> {
     const polygons = polygonCoordinates.filter((polygon) => (polygon[0]?.length ?? 0) >= 3).map(normalizePolygon);
     if (polygons.length === 0) return [];
     const bbox = bboxForPoints(polygons.flatMap((polygon) => polygon.rings.flat()));
+    // 名札の位置は生成時に焼いた内点（必ず海域の内側）。bbox の中点だと、日付変更線を
+    // またぐロシア・アラスカ・フィジーの名札が経度0付近（大西洋やアフリカ）に出てしまう。
+    const labelLongitude = sourceFeature.properties?.label_lon;
+    const labelLatitude = sourceFeature.properties?.label_lat;
+    const centroid = typeof labelLongitude === "number" && typeof labelLatitude === "number"
+      ? { longitude: labelLongitude, latitude: labelLatitude }
+      : { longitude: (bbox.west + bbox.east) / 2, latitude: (bbox.south + bbox.north) / 2 };
     const territory = sourceFeature.properties?.territory1?.trim() || "Selected maritime territory";
     const sovereign = sourceFeature.properties?.sovereign1?.trim() || territory;
     const name = sourceFeature.properties?.geoname?.trim() || `${territory} Exclusive Economic Zone`;
-    const territoryJaName = japaneseTerritoryName(territory) ?? japaneseTerritoryName(sovereign);
+    const zoneType = sourceFeature.properties?.pol_type ?? "200NM";
+    // 係争海域・共同管理海域を片方の国名で呼ぶと誤解を招くので、国名から日本語名を作らない。
+    const territoryJaName = zoneType === "200NM"
+      ? sourceFeature.properties?.name_ja?.trim() || japaneseTerritoryName(territory) || japaneseTerritoryName(sovereign)
+      : undefined;
+    const zoneJaPrefix = zoneType === "Joint regime" ? "共同管理海域" : zoneType === "Overlapping claim" ? "主張が重なる海域" : undefined;
     return [{
       id: `eez-mrgid-${sourceFeature.properties?.mrgid ?? index}`,
       lensId: eezDefinition.id,
@@ -106,19 +122,19 @@ export async function loadEez(): Promise<LensDataset> {
       description: "A line drawn from land divides who may use the sea's resources.",
       geometry: {
         type: "area",
-        centroid: { longitude: (bbox.west + bbox.east) / 2, latitude: (bbox.south + bbox.north) / 2 },
+        centroid,
         polygons,
         bbox,
       },
       provenance,
       attributes: {
-        ...(territoryJaName ? { nameJa: `${territoryJaName}のEEZ` } : {}),
+        ...(territoryJaName ? { nameJa: `${territoryJaName}のEEZ` } : zoneJaPrefix ? { nameJa: `${zoneJaPrefix}: ${name.replace(/^(Overlapping claim|Joint regime area)\s*:?\s*/i, "")}` } : {}),
         territory,
         sovereign,
         territoryIso: sourceFeature.properties?.iso_ter1 ?? "—",
         sovereignIso: sourceFeature.properties?.iso_sov1 ?? "—",
         areaKm2: sourceFeature.properties?.area_km2 ?? 0,
-        zoneType: "200NM EEZ",
+        zoneType,
         maritimeZone: true,
         approximateRegion: true,
       },

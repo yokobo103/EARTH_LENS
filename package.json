@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs && node tools/verify-terrain-importance.mjs && node tools/verify-arid-regions.mjs && tsc -b && vite build",
+    "build": "node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs && node tools/verify-terrain-importance.mjs && node tools/verify-arid-regions.mjs && node tools/verify-eez.mjs && tsc -b && vite build",
     "data:geo": "node tools/build-geo.mjs",
-    "validate:geo": "node tools/verify-borders.mjs && node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs && node tools/verify-terrain-importance.mjs && node tools/verify-arid-regions.mjs",
+    "validate:geo": "node tools/verify-borders.mjs && node tools/verify-rivers-importance.mjs && node tools/verify-ports-importance.mjs && node tools/verify-terrain-importance.mjs && node tools/verify-arid-regions.mjs && node tools/verify-eez.mjs",
     "check:links": "node tools/check-external-links.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
